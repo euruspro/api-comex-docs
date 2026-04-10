@@ -13,7 +13,7 @@ Este módulo aplica tanto a **importaciones** como a **exportaciones** — la AP
 
 ## Endpoints disponibles
 
-Hay dos endpoints principales, ambos en la etiqueta **Documentación** de la [Referencia de la API](../reference):
+Hay dos endpoints principales, ambos en la etiqueta **Documentación** de la [Referencia de la API](../reference/api-comex-eurus-pro.info.mdx):
 
 1. **[`GET /dispatch/files/{numeroDespacho}`](../reference/listar-documentos-despacho.api.mdx)**
    Devuelve **todos los documentos** (o filtrados por `fileTypeName`) de un **despacho específico** del cliente.
@@ -96,4 +96,4 @@ curl -G "https://api-comex.eurus.pro/12345/v1/dispatch/files" \
   --data-urlencode "fileTypeName=FACTURA AGENCIA"
 ```
 
-Consulta la [Referencia de la API](../reference) para ver todos los parámetros, esquemas de respuesta y ejemplos interactivos.
+Consulta la [Referencia de la API](../reference/api-comex-eurus-pro.info.mdx) para ver todos los parámetros, esquemas de respuesta y ejemplos interactivos.

@@ -13,7 +13,7 @@ This module applies to both **imports** and **exports** — the API does not dis
 
 ## Available endpoints
 
-There are two main endpoints, both under the **Documentación** tag in the [API Reference](../reference):
+There are two main endpoints, both under the **Documentación** tag in the [API Reference](../reference/api-comex-eurus-pro.info.mdx):
 
 1. **[`GET /dispatch/files/{numeroDespacho}`](../reference/listar-documentos-despacho.api.mdx)**
    Returns **all documents** (or filtered by `fileTypeName`) of a **specific dispatch** of the client.
@@ -96,4 +96,4 @@ curl -G "https://api-comex.eurus.pro/12345/v1/dispatch/files" \
   --data-urlencode "fileTypeName=FACTURA AGENCIA"
 ```
 
-Check the [API Reference](../reference) to see all parameters, response schemas and interactive examples.
+Check the [API Reference](../reference/api-comex-eurus-pro.info.mdx) to see all parameters, response schemas and interactive examples.
