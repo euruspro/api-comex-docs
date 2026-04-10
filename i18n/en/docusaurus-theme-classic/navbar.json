@@ -1,0 +1,38 @@
+{
+  "title": {
+    "message": "Comex API",
+    "description": "The title in the navbar"
+  },
+  "logo.alt": {
+    "message": "EURUS PRO",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.Introducción": {
+    "message": "Introduction",
+    "description": "Navbar item with label Introducción"
+  },
+  "item.label.Quickstart": {
+    "message": "Quickstart",
+    "description": "Navbar item with label Quickstart"
+  },
+  "item.label.Módulos": {
+    "message": "Modules",
+    "description": "Navbar dropdown with label Módulos"
+  },
+  "item.label.Importaciones": {
+    "message": "Imports",
+    "description": "Navbar item with label Importaciones"
+  },
+  "item.label.Exportaciones": {
+    "message": "Exports",
+    "description": "Navbar item with label Exportaciones"
+  },
+  "item.label.Documentación": {
+    "message": "Documentation",
+    "description": "Navbar item with label Documentación"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}

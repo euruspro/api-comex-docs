@@ -1,0 +1,50 @@
+{
+  "theme.NotFound.title": {
+    "message": "Page Not Found",
+    "description": "The title of the 404 page"
+  },
+  "theme.NotFound.p1": {
+    "message": "We could not find what you were looking for.",
+    "description": "The first paragraph of the 404 page"
+  },
+  "theme.NotFound.p2": {
+    "message": "Please contact the owner of the site that linked you to the original URL and let them know their link is broken.",
+    "description": "The 2nd paragraph of the 404 page"
+  },
+  "home.tagline": {
+    "message": "Public documentation to integrate with the EURUS PRO Foreign Trade API.",
+    "description": "Tagline on the homepage hero"
+  },
+  "home.cta.quickstart": {
+    "message": "Get started in 5 minutes",
+    "description": "CTA button on homepage hero, pointing to quickstart"
+  },
+  "home.cta.reference": {
+    "message": "API Reference",
+    "description": "CTA button on homepage hero, pointing to the API reference"
+  },
+  "home.feature.rest.title": {
+    "message": "REST over HTTPS",
+    "description": "Title of the REST feature card on homepage"
+  },
+  "home.feature.rest.description": {
+    "message": "JSON endpoints over HTTPS, managed by Google API Gateway with API Key authentication.",
+    "description": "Description of the REST feature card on homepage"
+  },
+  "home.feature.interactive.title": {
+    "message": "Interactive try-it",
+    "description": "Title of the interactive feature card on homepage"
+  },
+  "home.feature.interactive.description": {
+    "message": "Run live calls against the API right from the browser on every reference page.",
+    "description": "Description of the interactive feature card on homepage"
+  },
+  "home.feature.examples.title": {
+    "message": "Ready-to-use examples",
+    "description": "Title of the examples feature card on homepage"
+  },
+  "home.feature.examples.description": {
+    "message": "cURL, JavaScript (Node.js) and Python snippets for every documented endpoint.",
+    "description": "Description of the examples feature card on homepage"
+  }
+}

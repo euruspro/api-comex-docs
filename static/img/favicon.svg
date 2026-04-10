@@ -1,0 +1,32 @@
+<!--
+  EURUS PRO — Favicon (placeholder aproximado del logo oficial).
+  Reemplazar por el favicon/ICO oficial cuando esté disponible.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Fondo degradado azul corporativo -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#001833"/>
+      <stop offset="50%" stop-color="#001a5d"/>
+      <stop offset="100%" stop-color="#004ea3"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="36" fill="url(#bg)"/>
+  <!-- Backbone: "C" shape opening to the right (left arc of the E) -->
+  <path
+    d="M 160 50
+       L 80 50
+       A 55 55 0 0 0 80 160
+       L 160 160"
+    stroke="#ffffff"
+    stroke-width="20"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"/>
+  <!-- Middle bar with circle accent -->
+  <line x1="108" y1="105" x2="160" y2="105"
+        stroke="#ffffff" stroke-width="20" stroke-linecap="round"/>
+  <!-- Accent circle on the middle bar -->
+  <circle cx="102" cy="105" r="17" fill="#ffffff"/>
+  <circle cx="102" cy="105" r="7" fill="#00bee3"/>
+</svg>

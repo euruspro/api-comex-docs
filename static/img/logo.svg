@@ -1,0 +1,24 @@
+<!--
+  EURUS PRO — Logo (placeholder aproximado del logo oficial).
+  Reemplazar por el SVG oficial cuando esté disponible.
+  Versión LIGHT MODE: trazo azul primario sobre fondos claros.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="EURUS PRO">
+  <!-- Backbone: "C" shape opening to the right (left arc of the E) -->
+  <path
+    d="M 160 40
+       L 80 40
+       A 60 60 0 0 0 80 160
+       L 160 160"
+    stroke="#004ea3"
+    stroke-width="22"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"/>
+  <!-- Middle bar with circle accent -->
+  <line x1="108" y1="100" x2="160" y2="100"
+        stroke="#004ea3" stroke-width="22" stroke-linecap="round"/>
+  <!-- Accent circle on the middle bar -->
+  <circle cx="102" cy="100" r="18" fill="#004ea3"/>
+  <circle cx="102" cy="100" r="7" fill="#00bee3"/>
+</svg>

@@ -1,0 +1,376 @@
+# =============================================================================
+# API Comex — EURUS PRO
+# OpenAPI 3.1 spec
+#
+# IMPORTANTE:
+#   - Gestionada mediante Google Cloud API Gateway.
+#   - La autenticación se realiza vía query parameter `?key=<API_KEY>`
+#     (NO header Authorization). Esto está reflejado en components.securitySchemes.
+#   - La URL incluye el `idAgencia` (asignado por EURUS PRO) antes del
+#     segmento de versión `/v1`. Esto se modela como variable de servidor.
+#   - Todas las llamadas requieren el parámetro `rut` del cliente final.
+#     El RUT debe enviarse solo con dígitos, sin puntos ni guion. Si termina
+#     en "K", reemplazar por "1" (ej. 76543210K → 765432101).
+# =============================================================================
+
+openapi: 3.1.0
+info:
+  title: API Comex — EURUS PRO
+  version: "1.0.0"
+  description: |
+    API REST de Comercio Exterior de EURUS PRO. Permite consultar los
+    documentos asociados a despachos de importación y exportación
+    gestionados por una agencia EURUS PRO.
+
+    **Autenticación**: todas las llamadas requieren enviar un API Key como
+    parámetro de query `?key=<API_KEY>`. Este es el mecanismo estándar de
+    Google API Gateway.
+
+    **Identificación**: cada llamada requiere además el parámetro `rut` del
+    cliente final (ver [Convenciones → RUT](/docs/conventions#formato-de-rut)).
+  contact:
+    name: EURUS PRO
+    url: https://eurus.pro
+    email: api@eurus.pro
+  license:
+    name: Propietaria
+    url: https://eurus.pro
+
+servers:
+  - url: https://api-comex.eurus.pro/{idAgencia}/v1
+    description: Producción
+    variables:
+      idAgencia:
+        default: YOUR_AGENCY_ID
+        description: |
+          Identificador de tu agencia asignado por EURUS PRO. Se incluye
+          como primer segmento del path en todas las llamadas.
+
+tags:
+  - name: Documentación
+    description: |
+      Consulta de documentos y archivos asociados a despachos de comercio
+      exterior (facturas, packing list, BL, certificados, etc.).
+
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: key
+      description: |
+        API Key provista por EURUS PRO. Debe enviarse como query parameter
+        en todas las llamadas (`?key=<API_KEY>`), siguiendo el estándar de
+        Google Cloud API Gateway.
+
+  parameters:
+    RutParam:
+      name: rut
+      in: query
+      required: true
+      schema:
+        type: string
+        pattern: '^[0-9]+$'
+      description: |
+        RUT del cliente final. **Solo dígitos**, sin puntos, sin guion y sin
+        letras. Si el RUT termina en "K", reemplazar por "1".
+
+        - `76.543.210-K` → `765432101`
+        - `12.345.678-9` → `123456789`
+      example: "765432101"
+
+    FileTypeNameOptional:
+      name: fileTypeName
+      in: query
+      required: false
+      schema:
+        type: string
+      description: |
+        Nombre del tipo de documento a filtrar. Si se omite, se retornan
+        todos los documentos asociados a la operación.
+
+        **Importante — URL encoding**: los valores de `fileTypeName`
+        contienen espacios y, en algunos casos, paréntesis y barras. Deben
+        enviarse **URL-encoded**. Ejemplos:
+
+          - `FACTURA AGENCIA` → `FACTURA%20AGENCIA`
+          - `CONOCIMIENTO DE EMBARQUE (B/L)` → `CONOCIMIENTO%20DE%20EMBARQUE%20%28B%2FL%29`
+
+        Los helpers `URLSearchParams` (JS) y `params={}` (Python `httpx`
+        / `requests`) hacen esta codificación automáticamente.
+
+        Valores actualmente habilitados:
+          - `FACTURA AGENCIA`
+          - `FACTURA TERCEROS`
+          - `NOTA DE COBRO`
+          - `CERTIFICADO DE ORIGEN`
+          - `CONOCIMIENTO DE EMBARQUE (B/L)`
+      example: FACTURA AGENCIA
+
+    FileTypeNameRequired:
+      name: fileTypeName
+      in: query
+      required: true
+      schema:
+        type: string
+      description: |
+        Nombre del tipo de documento a filtrar. **Obligatorio** en este
+        endpoint.
+
+        **Importante — URL encoding**: igual que en el otro endpoint, los
+        valores contienen espacios y caracteres especiales, y deben enviarse
+        **URL-encoded**. Ver la lista de valores soportados en el parámetro
+        `fileTypeName` del endpoint `GET /dispatch/files/{numeroDespacho}`.
+      example: FACTURA AGENCIA
+
+    StartDateParam:
+      name: startDate
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date
+        pattern: '^\d{4}-\d{2}-\d{2}$'
+      description: Fecha inicial del rango de búsqueda, en formato `YYYY-MM-DD`.
+      example: "2026-01-01"
+
+    EndDateParam:
+      name: endDate
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date
+        pattern: '^\d{4}-\d{2}-\d{2}$'
+      description: Fecha final del rango de búsqueda, en formato `YYYY-MM-DD`.
+      example: "2026-01-31"
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: INVALID_ARGUMENT
+          description: Código de error estable y legible.
+        message:
+          type: string
+          example: El parámetro 'rut' no puede estar vacío.
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+          description: Detalles adicionales del error (campos, valores, etc.).
+        requestId:
+          type: string
+          format: uuid
+          example: 6b3f5c8e-1234-4abc-9def-0123456789ab
+          description: Identificador único del request para soporte.
+
+    DispatchFile:
+      type: object
+      required: [fileName, fileTypeName, url]
+      properties:
+        fileName:
+          type: string
+          example: FAC-AG-2026-00045.pdf
+          description: Nombre del archivo.
+        fileTypeName:
+          type: string
+          example: FACTURA AGENCIA
+          description: |
+            Tipo de documento. Valores actualmente habilitados:
+              - `FACTURA AGENCIA`
+              - `FACTURA TERCEROS`
+              - `NOTA DE COBRO`
+              - `CERTIFICADO DE ORIGEN`
+              - `CONOCIMIENTO DE EMBARQUE (B/L)`
+        dispatchNumber:
+          type: string
+          example: "DSP-2026-00123"
+          description: Número de despacho asociado.
+        url:
+          type: string
+          format: uri
+          example: https://storage.eurus.pro/files/76543210/dsp-2026-00123/fac-00045.pdf
+          description: URL firmada para descargar el documento.
+        issuedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-04-10T15:02:44Z"
+          description: Fecha de emisión del documento.
+
+    DispatchFilesResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DispatchFile'
+        total:
+          type: integer
+          example: 3
+
+  responses:
+    BadRequest:
+      description: Parámetros inválidos.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: API Key ausente o inválida.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: API Key sin permisos para el recurso solicitado.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Despacho no encontrado o no accesible para el RUT indicado.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+security:
+  - ApiKeyQuery: []
+
+paths:
+  /dispatch/files/{numeroDespacho}:
+    get:
+      tags: [Documentación]
+      operationId: listarDocumentosDespacho
+      summary: Documentos de un despacho
+      description: |
+        Devuelve los documentos asociados a un **despacho específico** del
+        cliente. El campo `fileTypeName` es opcional: si se omite, se
+        retornan **todos** los documentos asociados a la operación.
+
+        La URL completa sigue el patrón:
+
+        ```
+        GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/files/{numeroDespacho}?key=...&rut=...
+        ```
+      parameters:
+        - name: numeroDespacho
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Número de despacho del cliente.
+          example: "DSP-2026-00123"
+        - $ref: '#/components/parameters/RutParam'
+        - $ref: '#/components/parameters/FileTypeNameOptional'
+      responses:
+        "200":
+          description: Lista de documentos del despacho.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispatchFilesResponse'
+              examples:
+                todosLosDocumentos:
+                  summary: Todos los documentos del despacho
+                  value:
+                    data:
+                      - fileName: FAC-AG-2026-00045.pdf
+                        fileTypeName: FACTURA AGENCIA
+                        dispatchNumber: DSP-2026-00123
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/fac-ag-00045.pdf
+                        issuedAt: "2026-04-10T15:02:44Z"
+                      - fileName: NC-2026-00045.pdf
+                        fileTypeName: NOTA DE COBRO
+                        dispatchNumber: DSP-2026-00123
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/nc-00045.pdf
+                        issuedAt: "2026-04-10T15:04:00Z"
+                      - fileName: BL-2026-00045.pdf
+                        fileTypeName: CONOCIMIENTO DE EMBARQUE (B/L)
+                        dispatchNumber: DSP-2026-00123
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/bl-00045.pdf
+                        issuedAt: "2026-04-12T09:30:00Z"
+                      - fileName: CO-2026-00045.pdf
+                        fileTypeName: CERTIFICADO DE ORIGEN
+                        dispatchNumber: DSP-2026-00123
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/co-00045.pdf
+                        issuedAt: "2026-04-12T11:15:00Z"
+                    total: 4
+                filtradoPorTipo:
+                  summary: Filtrado por fileTypeName=FACTURA AGENCIA
+                  value:
+                    data:
+                      - fileName: FAC-AG-2026-00045.pdf
+                        fileTypeName: FACTURA AGENCIA
+                        dispatchNumber: DSP-2026-00123
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/fac-ag-00045.pdf
+                        issuedAt: "2026-04-10T15:02:44Z"
+                    total: 1
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+
+  /dispatch/files:
+    get:
+      tags: [Documentación]
+      operationId: listarDocumentosPorTipoYFecha
+      summary: Documentos por tipo y rango de fechas
+      description: |
+        Devuelve el listado de documentos de **un tipo específico**
+        (`fileTypeName`) asociados a los despachos del cliente dentro de
+        un **rango de fechas** definido por `startDate` y `endDate`.
+
+        Útil para procesos batch (por ejemplo, extraer todas las facturas
+        de un mes para conciliación contable).
+
+        La URL completa sigue el patrón:
+
+        ```
+        GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/files?key=...&rut=...&startDate=...&endDate=...&fileTypeName=...
+        ```
+      parameters:
+        - $ref: '#/components/parameters/RutParam'
+        - $ref: '#/components/parameters/StartDateParam'
+        - $ref: '#/components/parameters/EndDateParam'
+        - $ref: '#/components/parameters/FileTypeNameRequired'
+      responses:
+        "200":
+          description: Lista de documentos en el rango solicitado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispatchFilesResponse'
+              examples:
+                facturasAgenciaEnero:
+                  summary: Todas las "FACTURA AGENCIA" de enero 2026
+                  value:
+                    data:
+                      - fileName: FAC-AG-2026-00001.pdf
+                        fileTypeName: FACTURA AGENCIA
+                        dispatchNumber: DSP-2026-00001
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00001/fac-ag-00001.pdf
+                        issuedAt: "2026-01-05T11:22:00Z"
+                      - fileName: FAC-AG-2026-00007.pdf
+                        fileTypeName: FACTURA AGENCIA
+                        dispatchNumber: DSP-2026-00007
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00007/fac-ag-00007.pdf
+                        issuedAt: "2026-01-18T09:10:00Z"
+                    total: 2
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'

@@ -1,0 +1,70 @@
+{
+  "link.title.Primeros pasos": {
+    "message": "Getting started",
+    "description": "The title of the footer links column with title=Primeros pasos"
+  },
+  "link.title.Módulos": {
+    "message": "Modules",
+    "description": "The title of the footer links column with title=Módulos"
+  },
+  "link.title.Recursos": {
+    "message": "Resources",
+    "description": "The title of the footer links column with title=Recursos"
+  },
+  "link.title.Más": {
+    "message": "More",
+    "description": "The title of the footer links column with title=Más"
+  },
+  "link.item.label.Introducción": {
+    "message": "Introduction",
+    "description": "The label of footer link with label=Introducción"
+  },
+  "link.item.label.Quickstart": {
+    "message": "Quickstart",
+    "description": "The label of footer link with label=Quickstart"
+  },
+  "link.item.label.Autenticación": {
+    "message": "Authentication",
+    "description": "The label of footer link with label=Autenticación"
+  },
+  "link.item.label.Importaciones": {
+    "message": "Imports",
+    "description": "The label of footer link with label=Importaciones"
+  },
+  "link.item.label.Exportaciones": {
+    "message": "Exports",
+    "description": "The label of footer link with label=Exportaciones"
+  },
+  "link.item.label.Documentación": {
+    "message": "Documentation",
+    "description": "The label of footer link with label=Documentación"
+  },
+  "link.item.label.Convenciones": {
+    "message": "Conventions",
+    "description": "The label of footer link with label=Convenciones"
+  },
+  "link.item.label.Errores": {
+    "message": "Errors",
+    "description": "The label of footer link with label=Errores"
+  },
+  "link.item.label.Webhooks": {
+    "message": "Webhooks",
+    "description": "The label of footer link with label=Webhooks"
+  },
+  "link.item.label.Changelog": {
+    "message": "Changelog",
+    "description": "The label of footer link with label=Changelog"
+  },
+  "link.item.label.EURUS PRO": {
+    "message": "EURUS PRO",
+    "description": "The label of footer link with label=EURUS PRO"
+  },
+  "link.item.label.GitHub": {
+    "message": "GitHub",
+    "description": "The label of footer link with label=GitHub"
+  },
+  "copyright": {
+    "message": "Copyright © 2026 EURUS PRO. Built with Docusaurus.",
+    "description": "The footer copyright"
+  }
+}
