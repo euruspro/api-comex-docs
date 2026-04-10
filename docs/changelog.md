@@ -43,4 +43,12 @@ Todos los cambios notables en la API Comex y en su documentación se registran a
 - Autenticación documentada vía **API Key en query parameter** (`?key=<API_KEY>`), consistente con Google Cloud API Gateway.
 - Documentación del **formato de RUT** exigido por la API (solo dígitos, K → 1).
 - Ejemplos de código en **cURL, Node.js y Python** para cada llamada, incluyendo helpers de normalización de RUT.
-- Workflow de GitHub Actions para **deploy automático a GitHub Pages** con dominio personalizado `docs.eurus.pro`.
+- Workflow de GitHub Actions para **deploy automático a GitHub Pages** con dominio personalizado `api-comex-docs.eurus.pro`.
+- **Branding EURUS PRO** aplicado: paleta corporativa (`#004ea3`, `#00bee3`, `#001a5d`, `#001833`, `#f2f3f5`) en light/dark mode, logo del repositorio como placeholder SVG basado en el Brand Book 2024, favicon con gradiente azul corporativo.
+- Valores reales de **`fileTypeName`** documentados en el OpenAPI y en la página del módulo Documentación:
+  - `FACTURA AGENCIA`
+  - `FACTURA TERCEROS`
+  - `NOTA DE COBRO`
+  - `CERTIFICADO DE ORIGEN`
+  - `CONOCIMIENTO DE EMBARQUE (B/L)`
+- Advertencia explícita sobre **URL encoding** de `fileTypeName` (los valores contienen espacios, paréntesis y barras), con tabla de conversión y ejemplo con `cURL --data-urlencode`.

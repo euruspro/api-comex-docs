@@ -88,7 +88,24 @@ components:
       description: |
         Nombre del tipo de documento a filtrar. Si se omite, se retornan
         todos los documentos asociados a la operación.
-      example: FACTURA
+
+        **Importante — URL encoding**: los valores de `fileTypeName`
+        contienen espacios y, en algunos casos, paréntesis y barras. Deben
+        enviarse **URL-encoded**. Ejemplos:
+
+          - `FACTURA AGENCIA` → `FACTURA%20AGENCIA`
+          - `CONOCIMIENTO DE EMBARQUE (B/L)` → `CONOCIMIENTO%20DE%20EMBARQUE%20%28B%2FL%29`
+
+        Los helpers `URLSearchParams` (JS) y `params={}` (Python `httpx`
+        / `requests`) hacen esta codificación automáticamente.
+
+        Valores actualmente habilitados:
+          - `FACTURA AGENCIA`
+          - `FACTURA TERCEROS`
+          - `NOTA DE COBRO`
+          - `CERTIFICADO DE ORIGEN`
+          - `CONOCIMIENTO DE EMBARQUE (B/L)`
+      example: FACTURA AGENCIA
 
     FileTypeNameRequired:
       name: fileTypeName
@@ -96,8 +113,15 @@ components:
       required: true
       schema:
         type: string
-      description: Nombre del tipo de documento a filtrar. Obligatorio en este endpoint.
-      example: FACTURA
+      description: |
+        Nombre del tipo de documento a filtrar. **Obligatorio** en este
+        endpoint.
+
+        **Importante — URL encoding**: igual que en el otro endpoint, los
+        valores contienen espacios y caracteres especiales, y deben enviarse
+        **URL-encoded**. Ver la lista de valores soportados en el parámetro
+        `fileTypeName` del endpoint `GET /dispatch/files/{numeroDespacho}`.
+      example: FACTURA AGENCIA
 
     StartDateParam:
       name: startDate
@@ -151,12 +175,18 @@ components:
       properties:
         fileName:
           type: string
-          example: FAC-2026-00045.pdf
+          example: FAC-AG-2026-00045.pdf
           description: Nombre del archivo.
         fileTypeName:
           type: string
-          example: FACTURA
-          description: Tipo de documento.
+          example: FACTURA AGENCIA
+          description: |
+            Tipo de documento. Valores actualmente habilitados:
+              - `FACTURA AGENCIA`
+              - `FACTURA TERCEROS`
+              - `NOTA DE COBRO`
+              - `CERTIFICADO DE ORIGEN`
+              - `CONOCIMIENTO DE EMBARQUE (B/L)`
         dispatchNumber:
           type: string
           example: "DSP-2026-00123"
@@ -252,30 +282,35 @@ paths:
                   summary: Todos los documentos del despacho
                   value:
                     data:
-                      - fileName: FAC-2026-00045.pdf
-                        fileTypeName: FACTURA
+                      - fileName: FAC-AG-2026-00045.pdf
+                        fileTypeName: FACTURA AGENCIA
                         dispatchNumber: DSP-2026-00123
-                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/fac-00045.pdf
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/fac-ag-00045.pdf
                         issuedAt: "2026-04-10T15:02:44Z"
-                      - fileName: PL-2026-00045.pdf
-                        fileTypeName: PACKING_LIST
+                      - fileName: NC-2026-00045.pdf
+                        fileTypeName: NOTA DE COBRO
                         dispatchNumber: DSP-2026-00123
-                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/pl-00045.pdf
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/nc-00045.pdf
                         issuedAt: "2026-04-10T15:04:00Z"
                       - fileName: BL-2026-00045.pdf
-                        fileTypeName: BILL_OF_LADING
+                        fileTypeName: CONOCIMIENTO DE EMBARQUE (B/L)
                         dispatchNumber: DSP-2026-00123
                         url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/bl-00045.pdf
                         issuedAt: "2026-04-12T09:30:00Z"
-                    total: 3
+                      - fileName: CO-2026-00045.pdf
+                        fileTypeName: CERTIFICADO DE ORIGEN
+                        dispatchNumber: DSP-2026-00123
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/co-00045.pdf
+                        issuedAt: "2026-04-12T11:15:00Z"
+                    total: 4
                 filtradoPorTipo:
-                  summary: Filtrado por fileTypeName=FACTURA
+                  summary: Filtrado por fileTypeName=FACTURA AGENCIA
                   value:
                     data:
-                      - fileName: FAC-2026-00045.pdf
-                        fileTypeName: FACTURA
+                      - fileName: FAC-AG-2026-00045.pdf
+                        fileTypeName: FACTURA AGENCIA
                         dispatchNumber: DSP-2026-00123
-                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/fac-00045.pdf
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/fac-ag-00045.pdf
                         issuedAt: "2026-04-10T15:02:44Z"
                     total: 1
         "400":
@@ -318,19 +353,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/DispatchFilesResponse'
               examples:
-                facturasEnero:
-                  summary: Todas las facturas de enero 2026
+                facturasAgenciaEnero:
+                  summary: Todas las "FACTURA AGENCIA" de enero 2026
                   value:
                     data:
-                      - fileName: FAC-2026-00001.pdf
-                        fileTypeName: FACTURA
+                      - fileName: FAC-AG-2026-00001.pdf
+                        fileTypeName: FACTURA AGENCIA
                         dispatchNumber: DSP-2026-00001
-                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00001/fac-00001.pdf
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00001/fac-ag-00001.pdf
                         issuedAt: "2026-01-05T11:22:00Z"
-                      - fileName: FAC-2026-00007.pdf
-                        fileTypeName: FACTURA
+                      - fileName: FAC-AG-2026-00007.pdf
+                        fileTypeName: FACTURA AGENCIA
                         dispatchNumber: DSP-2026-00007
-                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00007/fac-00007.pdf
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00007/fac-ag-00007.pdf
                         issuedAt: "2026-01-18T09:10:00Z"
                     total: 2
         "400":

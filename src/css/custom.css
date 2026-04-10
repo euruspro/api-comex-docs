@@ -1,57 +1,101 @@
 /**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Variables below are placeholders
- * with provisional EURUS PRO brand colors — replace with the
- * real palette once the brand assets are provided.
+ * Paleta de marca EURUS PRO (Brand Book 2024):
+ *   #004ea3  primary blue
+ *   #00bee3  accent cyan
+ *   #001a5d  dark blue
+ *   #001833  darkest navy (uso en lugar de negro absoluto)
+ *   #f2f3f5  light gray (fondos suaves)
  */
 
 :root {
-  /* Brand primary — placeholder blue. Replace with EURUS PRO primary. */
-  --ifm-color-primary: #1a5fb4;
-  --ifm-color-primary-dark: #1755a2;
-  --ifm-color-primary-darker: #164f99;
-  --ifm-color-primary-darkest: #12417e;
-  --ifm-color-primary-light: #1d69c6;
-  --ifm-color-primary-lighter: #206fd1;
-  --ifm-color-primary-lightest: #3a81d8;
+  /* Primary — azul corporativo EURUS PRO */
+  --ifm-color-primary: #004ea3;
+  --ifm-color-primary-dark: #004693;
+  --ifm-color-primary-darker: #00428b;
+  --ifm-color-primary-darkest: #001a5d;
+  --ifm-color-primary-light: #0056b3;
+  --ifm-color-primary-lighter: #005abd;
+  --ifm-color-primary-lightest: #0066d4;
+
+  /* Accent cyan (uso en links destacados, botones secundarios) */
+  --eurus-accent: #00bee3;
+  --eurus-dark: #001833;
+  --eurus-gray: #f2f3f5;
 
   --ifm-code-font-size: 90%;
   --ifm-font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI',
     Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --ifm-heading-color: #001833;
 
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --docusaurus-highlighted-code-line-bg: rgba(0, 78, 163, 0.12);
+
+  --ifm-background-color: #ffffff;
+  --ifm-background-surface-color: var(--eurus-gray);
 }
 
 [data-theme='dark'] {
-  --ifm-color-primary: #4a90e2;
-  --ifm-color-primary-dark: #3183de;
-  --ifm-color-primary-darker: #267cdb;
-  --ifm-color-primary-darkest: #2066b5;
-  --ifm-color-primary-light: #639de6;
-  --ifm-color-primary-lighter: #70a5e8;
-  --ifm-color-primary-lightest: #97bcee;
+  /* En dark mode usamos el cyan como primary para mayor contraste */
+  --ifm-color-primary: #00bee3;
+  --ifm-color-primary-dark: #00a8ca;
+  --ifm-color-primary-darker: #009fbe;
+  --ifm-color-primary-darkest: #00849c;
+  --ifm-color-primary-light: #1ac4e6;
+  --ifm-color-primary-lighter: #26c8e8;
+  --ifm-color-primary-lightest: #4dd2ec;
 
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --ifm-heading-color: #f2f3f5;
+  --ifm-background-color: #001833;
+  --ifm-background-surface-color: #001a5d;
+
+  --docusaurus-highlighted-code-line-bg: rgba(0, 190, 227, 0.18);
 }
 
-/* Landing hero */
+/* --- Landing hero --- */
 .hero--primary {
   background: linear-gradient(
     135deg,
-    var(--ifm-color-primary-dark) 0%,
-    var(--ifm-color-primary) 100%
+    #001833 0%,
+    #001a5d 35%,
+    #004ea3 100%
   );
+  color: #ffffff;
 }
 
 .hero__title {
   font-weight: 700;
+  color: #ffffff;
 }
 
 .hero__subtitle {
-  opacity: 0.95;
+  color: #e6f3fb;
+  opacity: 1;
 }
 
-/* Feature cards on landing */
+.hero .button--secondary {
+  background-color: #00bee3;
+  border-color: #00bee3;
+  color: #001833;
+  font-weight: 600;
+}
+
+.hero .button--secondary:hover {
+  background-color: #26c8e8;
+  border-color: #26c8e8;
+  color: #001833;
+}
+
+.hero .button--outline.button--secondary {
+  background-color: transparent;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+.hero .button--outline.button--secondary:hover {
+  background-color: #ffffff;
+  color: #004ea3;
+}
+
+/* --- Feature cards on landing --- */
 .features {
   display: flex;
   align-items: stretch;
@@ -60,19 +104,43 @@
 }
 
 .featureCard {
-  padding: 1.5rem;
+  padding: 1.75rem;
   border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: 8px;
+  border-radius: 10px;
   height: 100%;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  background-color: var(--ifm-background-color);
 }
 
 .featureCard:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 26, 93, 0.12);
+  transform: translateY(-3px);
+  border-color: var(--ifm-color-primary-lighter);
 }
 
 .featureCard h3 {
   margin-top: 0;
   color: var(--ifm-color-primary);
+}
+
+/* --- Navbar --- */
+.navbar {
+  box-shadow: 0 1px 0 var(--ifm-color-emphasis-200);
+}
+
+.navbar__logo {
+  height: 1.8rem;
+}
+
+/* --- Footer --- */
+.footer--dark {
+  --ifm-footer-background-color: #001833;
+  --ifm-footer-color: #f2f3f5;
+  --ifm-footer-link-color: #e6f3fb;
+  --ifm-footer-title-color: #00bee3;
+}
+
+.footer--dark .footer__link-item:hover {
+  color: #00bee3;
+  text-decoration: none;
 }

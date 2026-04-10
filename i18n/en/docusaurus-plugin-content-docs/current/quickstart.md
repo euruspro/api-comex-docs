@@ -132,15 +132,15 @@ A successful request returns **HTTP 200** with a JSON body like this:
 {
   "data": [
     {
-      "fileName": "FAC-2026-00045.pdf",
-      "fileTypeName": "FACTURA",
+      "fileName": "FAC-AG-2026-00045.pdf",
+      "fileTypeName": "FACTURA AGENCIA",
       "dispatchNumber": "DSP-2026-00123",
-      "url": "https://storage.eurus.pro/files/765432101/dsp-2026-00123/fac-00045.pdf",
+      "url": "https://storage.eurus.pro/files/765432101/dsp-2026-00123/fac-ag-00045.pdf",
       "issuedAt": "2026-04-10T15:02:44Z"
     },
     {
       "fileName": "BL-2026-00045.pdf",
-      "fileTypeName": "BILL_OF_LADING",
+      "fileTypeName": "CONOCIMIENTO DE EMBARQUE (B/L)",
       "dispatchNumber": "DSP-2026-00123",
       "url": "https://storage.eurus.pro/files/765432101/dsp-2026-00123/bl-00045.pdf",
       "issuedAt": "2026-04-12T09:30:00Z"
@@ -156,7 +156,7 @@ If something fails, you'll receive an HTTP error code with a standard error body
 
 ## Step 4 — What's next
 
-- **Filter by document type**: add `fileTypeName=FACTURA` to the same call to get only invoices.
+- **Filter by document type**: add `fileTypeName=FACTURA%20AGENCIA` to the same call to get only agency invoices. Check the [full list of `fileTypeName` values](./documentacion/index.md#filetypename) — and read the warning about **URL encoding**, as the values contain spaces.
 - **Query by date range**: use the second endpoint `GET /dispatch/files` with `startDate`, `endDate` and `fileTypeName` to pull all documents of a type in a period. See the [interactive reference](./documentacion/index.md).
-- **Read the conventions** for formats and versioning — see [Conventions](./conventions.md).
+- **Read the conventions** for RUT, formats and versioning — see [Conventions](./conventions.md).
 - **Explore the [Documentation](./documentacion/index.md) module** for more details and use cases.

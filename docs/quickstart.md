@@ -132,15 +132,15 @@ Un request exitoso devuelve **HTTP 200** con un cuerpo JSON como el siguiente:
 {
   "data": [
     {
-      "fileName": "FAC-2026-00045.pdf",
-      "fileTypeName": "FACTURA",
+      "fileName": "FAC-AG-2026-00045.pdf",
+      "fileTypeName": "FACTURA AGENCIA",
       "dispatchNumber": "DSP-2026-00123",
-      "url": "https://storage.eurus.pro/files/765432101/dsp-2026-00123/fac-00045.pdf",
+      "url": "https://storage.eurus.pro/files/765432101/dsp-2026-00123/fac-ag-00045.pdf",
       "issuedAt": "2026-04-10T15:02:44Z"
     },
     {
       "fileName": "BL-2026-00045.pdf",
-      "fileTypeName": "BILL_OF_LADING",
+      "fileTypeName": "CONOCIMIENTO DE EMBARQUE (B/L)",
       "dispatchNumber": "DSP-2026-00123",
       "url": "https://storage.eurus.pro/files/765432101/dsp-2026-00123/bl-00045.pdf",
       "issuedAt": "2026-04-12T09:30:00Z"
@@ -156,7 +156,7 @@ Si algo falla, recibirás un código HTTP de error con un cuerpo estándar de er
 
 ## Paso 4 — Qué hacer a continuación
 
-- **Filtrar por tipo de documento**: añade el parámetro `fileTypeName=FACTURA` a la misma llamada para obtener solo facturas.
+- **Filtrar por tipo de documento**: añade el parámetro `fileTypeName=FACTURA%20AGENCIA` a la misma llamada para obtener solo facturas de agencia. Consulta la [lista completa de `fileTypeName`](./documentacion/index.md#filetypename) — y lee la advertencia sobre **URL encoding** porque los valores contienen espacios.
 - **Consultar por rango de fechas**: usa el segundo endpoint `GET /dispatch/files` con `startDate`, `endDate` y `fileTypeName` para extraer todos los documentos de un tipo en un período. Ver la [referencia interactiva](./documentacion/index.md).
-- **Leer las convenciones** de paginación, formatos y versionado — ver [Convenciones](./conventions.md).
+- **Leer las convenciones** de RUT, formatos y versionado — ver [Convenciones](./conventions.md).
 - **Explorar el módulo de [Documentación](./documentacion/index.md)** con más detalles y casos de uso.

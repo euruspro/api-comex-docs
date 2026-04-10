@@ -8,7 +8,7 @@ const config: Config = {
   tagline: 'Documentación pública para la API de Comercio Exterior',
   favicon: 'img/favicon.svg',
 
-  url: 'https://docs.eurus.pro',
+  url: 'https://api-comex-docs.eurus.pro',
   baseUrl: '/',
 
   organizationName: 'euruspro',
@@ -78,6 +78,7 @@ const config: Config = {
       logo: {
         alt: 'EURUS PRO',
         src: 'img/logo.svg',
+        srcDark: 'img/logo-dark.svg',
       },
       items: [
         {

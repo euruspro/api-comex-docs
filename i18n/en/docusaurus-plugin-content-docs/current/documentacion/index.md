@@ -39,18 +39,32 @@ A **dispatch** is the operational unit that groups all documents of a foreign-tr
 
 ### `fileTypeName`
 
-Identifies the **document type** within a dispatch. Some typical values:
+Identifies the **document type** within a dispatch. Values currently enabled in the API (note: labels are in Spanish — use them verbatim):
 
 | `fileTypeName` | Description |
 |---|---|
-| `FACTURA` | Commercial invoice. |
-| `PACKING_LIST` | Packing list. |
-| `BILL_OF_LADING` | Bill of Lading. |
-| `CERTIFICADO_ORIGEN` | Certificate of origin. |
-| `CERTIFICADO_FITOSANITARIO` | Phytosanitary certificate. |
+| `FACTURA AGENCIA` | Invoice issued by the EURUS PRO agency. |
+| `FACTURA TERCEROS` | Invoice issued by third parties (carriers, shipping lines, warehouses, etc.). |
+| `NOTA DE COBRO` | Collection note associated with the dispatch. |
+| `CERTIFICADO DE ORIGEN` | Certificate of origin of the goods. |
+| `CONOCIMIENTO DE EMBARQUE (B/L)` | Bill of Lading. |
 
 :::note
-The full list of supported `fileTypeName` values depends on your agency's configuration. Check with EURUS PRO for the exact values enabled for your account.
+New `fileTypeName` values will be enabled in the API as coverage expands. New values will be announced in the [Changelog](../changelog.md).
+:::
+
+:::warning URL encoding required
+`fileTypeName` values contain **spaces** and in some cases **parentheses and slashes**. They must be sent **URL-encoded** in the query string:
+
+| Value | URL-encoded |
+|---|---|
+| `FACTURA AGENCIA` | `FACTURA%20AGENCIA` |
+| `FACTURA TERCEROS` | `FACTURA%20TERCEROS` |
+| `NOTA DE COBRO` | `NOTA%20DE%20COBRO` |
+| `CERTIFICADO DE ORIGEN` | `CERTIFICADO%20DE%20ORIGEN` |
+| `CONOCIMIENTO DE EMBARQUE (B/L)` | `CONOCIMIENTO%20DE%20EMBARQUE%20%28B%2FL%29` |
+
+If you build the URL with helpers like `URLSearchParams` (JS), `params={}` (`httpx` / `requests` in Python) or `-d --data-urlencode` (cURL), **the encoding is done automatically** and you don't have to worry about it. The problem only appears if you concatenate raw strings.
 :::
 
 ## Common use cases
@@ -63,12 +77,23 @@ If your ERP registers a dispatch and wants to attach all its documents:
 curl "https://api-comex.eurus.pro/12345/v1/dispatch/files/DSP-2026-00123?key=$API_KEY&rut=765432101"
 ```
 
-### 2. Pull all invoices of a month for accounting reconciliation
+### 2. Pull all agency invoices of a month for accounting reconciliation
 
-For a monthly batch process:
+For a monthly batch process — note the `%20` in place of the space:
 
 ```bash
-curl "https://api-comex.eurus.pro/12345/v1/dispatch/files?key=$API_KEY&rut=765432101&startDate=2026-01-01&endDate=2026-01-31&fileTypeName=FACTURA"
+curl "https://api-comex.eurus.pro/12345/v1/dispatch/files?key=$API_KEY&rut=765432101&startDate=2026-01-01&endDate=2026-01-31&fileTypeName=FACTURA%20AGENCIA"
+```
+
+Or, equivalently and more readable, using cURL's `--data-urlencode`:
+
+```bash
+curl -G "https://api-comex.eurus.pro/12345/v1/dispatch/files" \
+  --data-urlencode "key=$API_KEY" \
+  --data-urlencode "rut=765432101" \
+  --data-urlencode "startDate=2026-01-01" \
+  --data-urlencode "endDate=2026-01-31" \
+  --data-urlencode "fileTypeName=FACTURA AGENCIA"
 ```
 
 Check the [API Reference](../reference) to see all parameters, response schemas and interactive examples.

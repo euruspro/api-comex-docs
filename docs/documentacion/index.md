@@ -39,18 +39,32 @@ Un **despacho** es la unidad operativa que agrupa todos los documentos de una op
 
 ### `fileTypeName`
 
-Identifica el **tipo de documento** dentro de un despacho. Algunos valores típicos:
+Identifica el **tipo de documento** dentro de un despacho. Valores actualmente habilitados en la API:
 
 | `fileTypeName` | Descripción |
 |---|---|
-| `FACTURA` | Factura comercial. |
-| `PACKING_LIST` | Lista de contenido / packing list. |
-| `BILL_OF_LADING` | Bill of Lading / conocimiento de embarque. |
-| `CERTIFICADO_ORIGEN` | Certificado de origen. |
-| `CERTIFICADO_FITOSANITARIO` | Certificado fitosanitario. |
+| `FACTURA AGENCIA` | Factura emitida por la agencia EURUS PRO. |
+| `FACTURA TERCEROS` | Factura emitida por terceros (navieras, transportistas, almacenes, etc.). |
+| `NOTA DE COBRO` | Nota de cobro asociada al despacho. |
+| `CERTIFICADO DE ORIGEN` | Certificado de origen de la mercancía. |
+| `CONOCIMIENTO DE EMBARQUE (B/L)` | Bill of Lading / conocimiento de embarque marítimo. |
 
 :::note
-El listado completo de `fileTypeName` soportados depende de la configuración de tu agencia. Consulta con EURUS PRO los valores exactos habilitados para tu cuenta.
+Nuevos `fileTypeName` se irán habilitando en la API a medida que se amplíe su cobertura. Los nuevos valores se anunciarán en el [Changelog](../changelog.md).
+:::
+
+:::warning URL encoding obligatorio
+Los valores de `fileTypeName` contienen **espacios** y, en algunos casos, **paréntesis y barras**. Por eso **deben enviarse URL-encoded** en la query string:
+
+| Valor | URL-encoded |
+|---|---|
+| `FACTURA AGENCIA` | `FACTURA%20AGENCIA` |
+| `FACTURA TERCEROS` | `FACTURA%20TERCEROS` |
+| `NOTA DE COBRO` | `NOTA%20DE%20COBRO` |
+| `CERTIFICADO DE ORIGEN` | `CERTIFICADO%20DE%20ORIGEN` |
+| `CONOCIMIENTO DE EMBARQUE (B/L)` | `CONOCIMIENTO%20DE%20EMBARQUE%20%28B%2FL%29` |
+
+Si construyes la URL con helpers como `URLSearchParams` (JS), `params={}` (`httpx` / `requests` en Python) o `-d --data-urlencode` (cURL), **el encoding se hace automáticamente** y no tienes que preocuparte. El problema aparece solo si concatenas strings crudos.
 :::
 
 ## Casos de uso comunes
@@ -63,12 +77,23 @@ Si tu ERP registra un despacho y quiere adjuntar todos sus documentos:
 curl "https://api-comex.eurus.pro/12345/v1/dispatch/files/DSP-2026-00123?key=$API_KEY&rut=765432101"
 ```
 
-### 2. Extraer todas las facturas de un mes para conciliación contable
+### 2. Extraer todas las facturas de agencia de un mes para conciliación contable
 
-Para un proceso batch mensual:
+Para un proceso batch mensual — nota el `%20` en lugar del espacio:
 
 ```bash
-curl "https://api-comex.eurus.pro/12345/v1/dispatch/files?key=$API_KEY&rut=765432101&startDate=2026-01-01&endDate=2026-01-31&fileTypeName=FACTURA"
+curl "https://api-comex.eurus.pro/12345/v1/dispatch/files?key=$API_KEY&rut=765432101&startDate=2026-01-01&endDate=2026-01-31&fileTypeName=FACTURA%20AGENCIA"
+```
+
+O, de forma equivalente y más legible, con `--data-urlencode` de cURL:
+
+```bash
+curl -G "https://api-comex.eurus.pro/12345/v1/dispatch/files" \
+  --data-urlencode "key=$API_KEY" \
+  --data-urlencode "rut=765432101" \
+  --data-urlencode "startDate=2026-01-01" \
+  --data-urlencode "endDate=2026-01-31" \
+  --data-urlencode "fileTypeName=FACTURA AGENCIA"
 ```
 
 Consulta la [Referencia de la API](../reference) para ver todos los parámetros, esquemas de respuesta y ejemplos interactivos.
