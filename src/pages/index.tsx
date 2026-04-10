@@ -20,7 +20,7 @@ function HomepageHeader() {
           <Link className="button button--secondary button--lg" to="/docs/quickstart">
             <Translate id="home.cta.quickstart">Empezar en 5 minutos</Translate>
           </Link>
-          <Link className="button button--outline button--secondary button--lg" to="/docs/reference">
+          <Link className="button button--outline button--secondary button--lg" to="/docs/reference/api-comex-eurus-pro">
             <Translate id="home.cta.reference">Referencia de la API</Translate>
           </Link>
         </div>

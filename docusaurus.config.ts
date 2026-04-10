@@ -16,7 +16,6 @@ const config: Config = {
   trailingSlash: false,
 
   onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
 
   i18n: {
     defaultLocale: 'es',
@@ -29,6 +28,9 @@ const config: Config = {
 
   markdown: {
     mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
   },
   themes: ['@docusaurus/theme-mermaid', 'docusaurus-theme-openapi-docs'],
 
@@ -52,6 +54,8 @@ const config: Config = {
   ],
 
   plugins: [
+    // Sass plugin is a peer dependency of docusaurus-theme-openapi-docs v5.
+    'docusaurus-plugin-sass',
     [
       'docusaurus-plugin-openapi-docs',
       {
@@ -65,6 +69,31 @@ const config: Config = {
         } satisfies Record<string, OpenApiPlugin.Options>,
       },
     ],
+    /**
+     * Polyfill Node built-ins required by `postman-code-generators`
+     * (transitive dependency of docusaurus-theme-openapi-docs, used to
+     * render the language tabs in the "Try it" console). Webpack 5 no
+     * longer bundles Node core modules by default, so we point `path`
+     * to `path-browserify` (already pulled in as a transitive dep).
+     */
+    function nodePolyfillsPlugin() {
+      return {
+        name: 'node-polyfills',
+        configureWebpack() {
+          return {
+            resolve: {
+              fallback: {
+                path: require.resolve('path-browserify'),
+                fs: false,
+                module: false,
+                os: false,
+                crypto: false,
+              },
+            },
+          };
+        },
+      };
+    },
   ],
 
   themeConfig: {
