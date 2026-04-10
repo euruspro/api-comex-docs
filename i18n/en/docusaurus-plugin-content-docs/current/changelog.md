@@ -14,11 +14,13 @@ All notable changes to the Comex API and its documentation are recorded here. Th
 
 ### Planned
 
-- Full documentation of all real endpoints.
+- **Imports** module endpoints.
+- **Exports** module endpoints.
 - Professional English translation.
 - Official EURUS PRO branding applied.
 - Sandbox environment with test credentials.
 - Official Postman collection.
+- Pagination on listing endpoints when volumes warrant it.
 
 ---
 
@@ -26,14 +28,19 @@ All notable changes to the Comex API and its documentation are recorded here. Th
 
 ### Added — Initial release of the documentation portal
 
-- Initial scaffolding of the public documentation site with [Docusaurus 3](https://docusaurus.io/).
+- Initial scaffolding of the public documentation site with [Docusaurus 3](https://docusaurus.io/) and the [`docusaurus-plugin-openapi-docs`](https://github.com/PaloAltoNetworks/docusaurus-openapi-docs) plugin for interactive reference.
 - Bilingual support: **Spanish (default)** and **English** via i18n.
+- **3 functional modules** structured in the navigation:
+  - **Imports** (coming soon)
+  - **Exports** (coming soon)
+  - **Documentation** (available)
 - **Getting started** section: Introduction, Quickstart, Authentication.
-- **Technical guides** section: Conventions, Webhooks, Errors.
-- **Interactive API reference** generated from `openapi/comex.yaml` with an integrated "Try it" console.
-- 2 placeholder endpoints documented:
-  - `POST /v1/exportaciones` — Create an export operation.
-  - `GET /v1/exportaciones/{id}/documentos` — List documents of an export.
+- **Technical guides** section: Conventions, Errors, Webhooks.
+- **2 real endpoints** documented in the Documentation module:
+  - `GET /{idAgencia}/v1/dispatch/files/{numeroDespacho}` — documents of a dispatch (with optional `fileTypeName` filter).
+  - `GET /{idAgencia}/v1/dispatch/files` — documents by type and date range.
+- **Production base URL**: `https://api-comex.eurus.pro/{idAgencia}/v1`.
 - Authentication documented via **API Key in query parameter** (`?key=<API_KEY>`), consistent with Google Cloud API Gateway.
-- Code examples in **cURL, Node.js and Python** for every call.
-- GitHub Actions workflow for **automatic deploy to GitHub Pages** with the custom domain `docs.euruspro.com`.
+- Documentation of the **RUT format** required by the API (digits only, K → 1).
+- Code examples in **cURL, Node.js and Python** for every call, including RUT-normalization helpers.
+- GitHub Actions workflow for **automatic deploy to GitHub Pages** with the custom domain `docs.eurus.pro`.

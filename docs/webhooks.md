@@ -16,7 +16,7 @@ Los formatos exactos de payload y los tipos de eventos mostrados en esta página
 
 ## Cómo funcionan
 
-1. Registras una **URL HTTPS pública** en EURUS PRO como destino de webhooks (proceso manual actualmente, enviar a [api@euruspro.com](mailto:api@euruspro.com)).
+1. Registras una **URL HTTPS pública** en EURUS PRO como destino de webhooks (proceso manual actualmente, enviar a [api@eurus.pro](mailto:api@eurus.pro)).
 2. EURUS PRO te entrega un **secret** compartido que usarás para verificar la firma de cada evento.
 3. Cuando ocurre un evento, EURUS PRO envía un `POST` a tu URL con un payload JSON y headers específicos.
 4. Tu endpoint debe responder con `2xx` en menos de **5 segundos**. Si no, el evento se considera fallido y entra en cola de reintento.
@@ -25,25 +25,27 @@ Los formatos exactos de payload y los tipos de eventos mostrados en esta página
 
 | Evento | Cuándo se dispara |
 |---|---|
-| `operacion.created` | Se registró una nueva operación de exportación. |
-| `operacion.updated` | Cambió un campo de una operación existente. |
-| `operacion.estado_changed` | La operación pasó de un estado a otro. |
-| `documento.emitido` | Se emitió un nuevo documento asociado a una operación. |
-| `documento.rechazado` | Un documento fue rechazado por la entidad emisora. |
+| `dispatch.created` | Se registró un nuevo despacho. |
+| `dispatch.updated` | Cambió un campo de un despacho existente. |
+| `dispatch.estado_changed` | El despacho pasó de un estado a otro. |
+| `file.emitido` | Se emitió un nuevo documento asociado a un despacho. |
+| `file.rechazado` | Un documento fue rechazado por la entidad emisora. |
 
 ## Formato del payload
 
 ```json
 {
   "id": "evt_01HW1QZ8C4T2K3P0J9V5R7X2B6",
-  "type": "operacion.estado_changed",
+  "type": "dispatch.estado_changed",
   "createdAt": "2026-04-10T17:05:12Z",
   "apiVersion": "v1",
   "data": {
-    "operacion": {
-      "id": "8e4d9b12-fe6a-4f88-a1b5-123456789abc",
+    "idAgencia": "12345",
+    "rut": "765432101",
+    "dispatch": {
+      "numeroDespacho": "DSP-2026-00123",
       "estado": "EN_TRAMITE",
-      "estadoAnterior": "REGISTRADA",
+      "estadoAnterior": "REGISTRADO",
       "updatedAt": "2026-04-10T17:05:12Z"
     }
   }

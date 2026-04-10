@@ -16,7 +16,7 @@ The exact payload formats and event types shown on this page are the initial pro
 
 ## How they work
 
-1. You register a **public HTTPS URL** with EURUS PRO as the webhook destination (currently a manual process — email [api@euruspro.com](mailto:api@euruspro.com)).
+1. You register a **public HTTPS URL** with EURUS PRO as the webhook destination (currently a manual process — email [api@eurus.pro](mailto:api@eurus.pro)).
 2. EURUS PRO delivers a shared **secret** that you'll use to verify the signature of every event.
 3. When an event occurs, EURUS PRO sends a `POST` to your URL with a JSON payload and specific headers.
 4. Your endpoint must respond with `2xx` in under **5 seconds**. Otherwise the event is considered failed and goes into the retry queue.
@@ -25,25 +25,27 @@ The exact payload formats and event types shown on this page are the initial pro
 
 | Event | When it fires |
 |---|---|
-| `operacion.created` | A new export operation was registered. |
-| `operacion.updated` | A field of an existing operation changed. |
-| `operacion.estado_changed` | The operation moved from one state to another. |
-| `documento.emitido` | A new document associated with an operation was issued. |
-| `documento.rechazado` | A document was rejected by the issuing entity. |
+| `dispatch.created` | A new dispatch was registered. |
+| `dispatch.updated` | A field of an existing dispatch changed. |
+| `dispatch.estado_changed` | The dispatch moved from one state to another. |
+| `file.emitido` | A new document associated with a dispatch was issued. |
+| `file.rechazado` | A document was rejected by the issuing entity. |
 
 ## Payload format
 
 ```json
 {
   "id": "evt_01HW1QZ8C4T2K3P0J9V5R7X2B6",
-  "type": "operacion.estado_changed",
+  "type": "dispatch.estado_changed",
   "createdAt": "2026-04-10T17:05:12Z",
   "apiVersion": "v1",
   "data": {
-    "operacion": {
-      "id": "8e4d9b12-fe6a-4f88-a1b5-123456789abc",
+    "idAgencia": "12345",
+    "rut": "765432101",
+    "dispatch": {
+      "numeroDespacho": "DSP-2026-00123",
       "estado": "EN_TRAMITE",
-      "estadoAnterior": "REGISTRADA",
+      "estadoAnterior": "REGISTRADO",
       "updatedAt": "2026-04-10T17:05:12Z"
     }
   }

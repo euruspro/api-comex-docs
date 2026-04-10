@@ -17,10 +17,10 @@ All error responses use `Content-Type: application/json` and a body with this st
 ```json
 {
   "code": "INVALID_ARGUMENT",
-  "message": "The 'incoterm' field cannot be empty.",
+  "message": "The 'rut' parameter is required.",
   "details": [
     {
-      "field": "incoterm",
+      "field": "rut",
       "issue": "required"
     }
   ],
@@ -66,9 +66,9 @@ Content-Type: application/json
 
 {
   "code": "INVALID_ARGUMENT",
-  "message": "The 'paisDestino' field must be a valid ISO-2 code.",
+  "message": "The 'rut' parameter must contain digits only (no dots, dashes or letters).",
   "details": [
-    { "field": "paisDestino", "value": "CHILE", "issue": "invalid_format" }
+    { "field": "rut", "value": "76.543.210-K", "issue": "invalid_format" }
   ],
   "requestId": "b1e8a9c2-0000-4fff-a000-100000000001"
 }
@@ -95,9 +95,9 @@ Content-Type: application/json
 
 {
   "code": "BUSINESS_RULE_VIOLATION",
-  "message": "Cannot register an export without at least one item with value > 0.",
+  "message": "The date range cannot exceed 90 days.",
   "details": [
-    { "rule": "items_total_gt_zero", "total": 0 }
+    { "rule": "max_date_range_days", "max": 90, "requested": 180 }
   ],
   "requestId": "b1e8a9c2-0000-4fff-a000-100000000003"
 }
@@ -158,9 +158,10 @@ When contacting EURUS PRO support, **always** include:
 
 1. The `requestId` from the error response.
 2. The approximate request timestamp (UTC).
-3. The HTTP method and path (e.g. `POST /v1/exportaciones`).
-4. The first/last 4 characters of the API Key used (never the full key).
-5. A summary of the payload sent (no sensitive data).
-6. The full response received.
+3. The HTTP method and path (e.g. `GET /{idAgencia}/v1/dispatch/files/{numeroDespacho}`).
+4. Your `idAgencia` and the `rut` queried (without the API Key).
+5. The first/last 4 characters of the API Key used (never the full key).
+6. A summary of the parameters sent (no sensitive data).
+7. The full response received.
 
 This accelerates traceability in the EURUS PRO team's logs.

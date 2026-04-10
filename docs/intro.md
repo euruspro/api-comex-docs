@@ -8,30 +8,30 @@ description: Visión general de la API Comex de EURUS PRO, su alcance y concepto
 
 # API Comex — EURUS PRO
 
-Bienvenido a la documentación pública de la **API Comex de EURUS PRO**, una API REST para integrar sistemas externos con los procesos de **comercio exterior** gestionados por EURUS PRO: registro de operaciones de exportación, emisión y consulta de documentación comercial, certificados y seguimiento.
+Bienvenido a la documentación pública de la **API Comex de EURUS PRO**, una API REST para integrar sistemas externos con los procesos de **comercio exterior** gestionados por EURUS PRO: consulta de operaciones de importación y exportación, y acceso a los documentos y certificados asociados a cada despacho.
 
 :::info Audiencia
 Esta documentación está dirigida a **equipos técnicos** que vayan a integrar un sistema (ERP, TMS, portal propio, middleware, script interno) con los servicios de EURUS PRO. Se asume conocimiento básico de HTTP, JSON y consumo de APIs REST.
 :::
 
-## Qué puedes hacer con la API Comex
+## Módulos de la API
 
-Con esta API puedes, entre otras cosas:
+En su etapa inicial, la API Comex expone **tres módulos funcionales**:
 
-- **Registrar operaciones de comercio exterior** (exportaciones), con sus datos comerciales, incoterms, partidas arancelarias e ítems.
-- **Consultar el estado** de una operación a lo largo de su ciclo de vida (borrador, registrada, en trámite, despachada, cerrada).
-- **Obtener los documentos y certificados** asociados a una operación: factura comercial, packing list, Bill of Lading, certificado de origen, certificados sanitarios, etc.
-- **Recibir eventos vía webhooks** cuando cambia el estado de una operación o se emite un nuevo documento.
+| Módulo | Descripción | Estado |
+|---|---|---|
+| **[Importaciones](./importaciones/index.md)** | Consulta y gestión de operaciones de importación. | Próximamente |
+| **[Exportaciones](./exportaciones/index.md)** | Consulta y gestión de operaciones de exportación. | Próximamente |
+| **[Documentación](./documentacion/index.md)** | Consulta de archivos y documentos asociados a despachos (facturas, packing list, BL, certificados, etc.). | **Disponible** |
 
 ## Conceptos clave
 
 | Concepto | Descripción |
 |---|---|
-| **Operación** | Unidad principal del sistema. Representa una exportación con sus datos comerciales, logísticos y documentales. Tiene un ciclo de vida y un estado. |
-| **Ítem** | Línea de producto dentro de una operación, con su descripción, partida arancelaria (HS code), cantidad y valor. |
-| **Documento** | Cualquier pieza documental asociada a una operación: factura, packing list, BL, certificado de origen, etc. |
-| **Certificado** | Subtipo de documento emitido por una entidad externa (ej. certificado de origen, certificado fitosanitario). |
-| **Webhook** | Notificación HTTP POST que EURUS PRO envía a tu sistema cuando ocurre un evento relevante. |
+| **Agencia** | Unidad de EURUS PRO que gestiona las operaciones de sus clientes. Cada agencia tiene un `idAgencia` único que forma parte del path de todas las llamadas. |
+| **Cliente** | Organización final (importador/exportador) identificada por su **RUT**. Cada llamada requiere el parámetro `rut`. |
+| **Despacho** | Unidad operativa que agrupa los documentos de una operación de comercio exterior. Identificado por un `numeroDespacho`. |
+| **Documento** | Archivo asociado a un despacho: factura comercial, packing list, BL, certificado de origen, certificado fitosanitario, etc. Se identifican por su `fileTypeName`. |
 
 ## Arquitectura técnica
 
@@ -39,21 +39,24 @@ La API Comex se expone a través de **Google Cloud API Gateway**, lo que tiene u
 
 - **Todas las llamadas usan HTTPS**. No se acepta HTTP plano.
 - **La autenticación se realiza mediante un API Key enviado como parámetro de query** (`?key=<API_KEY>`), no como header `Authorization`. Esto es específico del modelo de Google API Gateway. Ver [Autenticación](./authentication.md) para más detalles.
-- Los endpoints están versionados con el prefijo `/v1`.
+- **El `idAgencia` forma parte del path** (antes del segmento `/v1`) y se asigna al provisionar el acceso.
+- **El `rut` del cliente** se envía como query parameter en cada llamada, en formato solo-dígitos. Ver [Convenciones → Formato de RUT](./conventions.md#formato-de-rut).
 
 ## Base URL
 
 ```
-https://api.euruspro.com/comex/v1
+https://api-comex.eurus.pro/{idAgencia}/v1
 ```
 
-:::note Placeholder
-La URL anterior es el valor provisional publicado en esta versión de la documentación. Será confirmada por EURUS PRO antes del lanzamiento oficial.
-:::
+El `{idAgencia}` es tu identificador de agencia asignado por EURUS PRO. Por ejemplo, si tu agencia tiene el ID `12345`, la URL base real será:
+
+```
+https://api-comex.eurus.pro/12345/v1
+```
 
 ## Próximos pasos
 
 1. Lee la [guía de Quickstart](./quickstart.md) para hacer tu primera llamada en menos de 5 minutos.
 2. Revisa la sección de [Autenticación](./authentication.md) para entender cómo obtener y gestionar tu API Key.
-3. Consulta las [Convenciones](./conventions.md) para conocer los formatos de request, paginación, errores y versionado.
-4. Explora la [Referencia de endpoints](./reference) con ejemplos interactivos que puedes ejecutar desde el navegador.
+3. Consulta las [Convenciones](./conventions.md) para conocer los formatos de request, RUT, paginación y errores.
+4. Explora el módulo de [Documentación](./documentacion/index.md) — el único disponible en esta etapa inicial — con sus 2 endpoints interactivos.

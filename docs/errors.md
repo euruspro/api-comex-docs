@@ -17,10 +17,10 @@ Todas las respuestas de error tienen `Content-Type: application/json` y un cuerp
 ```json
 {
   "code": "INVALID_ARGUMENT",
-  "message": "El campo 'incoterm' no puede estar vacío.",
+  "message": "El parámetro 'rut' es obligatorio.",
   "details": [
     {
-      "field": "incoterm",
+      "field": "rut",
       "issue": "required"
     }
   ],
@@ -66,9 +66,9 @@ Content-Type: application/json
 
 {
   "code": "INVALID_ARGUMENT",
-  "message": "El campo 'paisDestino' debe ser un código ISO-2 válido.",
+  "message": "El parámetro 'rut' debe contener solo dígitos (sin puntos, guion ni letras).",
   "details": [
-    { "field": "paisDestino", "value": "CHILE", "issue": "invalid_format" }
+    { "field": "rut", "value": "76.543.210-K", "issue": "invalid_format" }
   ],
   "requestId": "b1e8a9c2-0000-4fff-a000-100000000001"
 }
@@ -95,9 +95,9 @@ Content-Type: application/json
 
 {
   "code": "BUSINESS_RULE_VIOLATION",
-  "message": "No se puede registrar una exportación sin al menos un ítem con valor > 0.",
+  "message": "El rango de fechas no puede superar los 90 días.",
   "details": [
-    { "rule": "items_total_gt_zero", "total": 0 }
+    { "rule": "max_date_range_days", "max": 90, "requested": 180 }
   ],
   "requestId": "b1e8a9c2-0000-4fff-a000-100000000003"
 }
@@ -158,9 +158,10 @@ Cuando contactes al soporte de EURUS PRO, incluye **siempre**:
 
 1. El `requestId` de la respuesta de error.
 2. El timestamp aproximado del request (UTC).
-3. El método HTTP y path (ej. `POST /v1/exportaciones`).
-4. Los primeros/últimos 4 caracteres del API Key usado (nunca el key completo).
-5. Un resumen del payload enviado (sin datos sensibles).
-6. La respuesta completa recibida.
+3. El método HTTP y path (ej. `GET /{idAgencia}/v1/dispatch/files/{numeroDespacho}`).
+4. Tu `idAgencia` y el `rut` consultado (sin el API Key).
+5. Los primeros/últimos 4 caracteres del API Key usado (nunca el key completo).
+6. Un resumen de los parámetros enviados (sin datos sensibles).
+7. La respuesta completa recibida.
 
 Esto acelera la trazabilidad en los logs del equipo de EURUS PRO.

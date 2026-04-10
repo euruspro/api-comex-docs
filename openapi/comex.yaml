@@ -1,13 +1,16 @@
 # =============================================================================
 # API Comex — EURUS PRO
-# OpenAPI 3.1 spec (initial skeleton)
+# OpenAPI 3.1 spec
 #
-# IMPORTANT:
+# IMPORTANTE:
 #   - Gestionada mediante Google Cloud API Gateway.
 #   - La autenticación se realiza vía query parameter `?key=<API_KEY>`
 #     (NO header Authorization). Esto está reflejado en components.securitySchemes.
-#   - Los 2 endpoints incluidos aquí son PLACEHOLDERS marcados con
-#     `x-comex-placeholder: true`. Reemplazar con la spec real cuando esté lista.
+#   - La URL incluye el `idAgencia` (asignado por EURUS PRO) antes del
+#     segmento de versión `/v1`. Esto se modela como variable de servidor.
+#   - Todas las llamadas requieren el parámetro `rut` del cliente final.
+#     El RUT debe enviarse solo con dígitos, sin puntos ni guion. Si termina
+#     en "K", reemplazar por "1" (ej. 76543210K → 765432101).
 # =============================================================================
 
 openapi: 3.1.0
@@ -15,32 +18,39 @@ info:
   title: API Comex — EURUS PRO
   version: "1.0.0"
   description: |
-    API REST de Comercio Exterior de EURUS PRO. Permite registrar operaciones
-    de exportación/importación y consultar la documentación y certificados
-    asociados a cada operación.
+    API REST de Comercio Exterior de EURUS PRO. Permite consultar los
+    documentos asociados a despachos de importación y exportación
+    gestionados por una agencia EURUS PRO.
 
     **Autenticación**: todas las llamadas requieren enviar un API Key como
     parámetro de query `?key=<API_KEY>`. Este es el mecanismo estándar de
     Google API Gateway.
+
+    **Identificación**: cada llamada requiere además el parámetro `rut` del
+    cliente final (ver [Convenciones → RUT](/docs/conventions#formato-de-rut)).
   contact:
     name: EURUS PRO
-    url: https://euruspro.com
-    email: api@euruspro.com
+    url: https://eurus.pro
+    email: api@eurus.pro
   license:
     name: Propietaria
-    url: https://euruspro.com
+    url: https://eurus.pro
 
 servers:
-  - url: https://api.euruspro.com/comex/v1
+  - url: https://api-comex.eurus.pro/{idAgencia}/v1
     description: Producción
+    variables:
+      idAgencia:
+        default: YOUR_AGENCY_ID
+        description: |
+          Identificador de tu agencia asignado por EURUS PRO. Se incluye
+          como primer segmento del path en todas las llamadas.
 
 tags:
-  - name: Exportaciones
-    description: Operaciones de comercio exterior — registro y consulta.
-    x-displayName: Exportaciones
   - name: Documentación
-    description: Documentos y certificados asociados a operaciones (factura, packing list, BL, CO, etc.).
-    x-displayName: Documentación
+    description: |
+      Consulta de documentos y archivos asociados a despachos de comercio
+      exterior (facturas, packing list, BL, certificados, etc.).
 
 components:
   securitySchemes:
@@ -53,6 +63,64 @@ components:
         en todas las llamadas (`?key=<API_KEY>`), siguiendo el estándar de
         Google Cloud API Gateway.
 
+  parameters:
+    RutParam:
+      name: rut
+      in: query
+      required: true
+      schema:
+        type: string
+        pattern: '^[0-9]+$'
+      description: |
+        RUT del cliente final. **Solo dígitos**, sin puntos, sin guion y sin
+        letras. Si el RUT termina en "K", reemplazar por "1".
+
+        - `76.543.210-K` → `765432101`
+        - `12.345.678-9` → `123456789`
+      example: "765432101"
+
+    FileTypeNameOptional:
+      name: fileTypeName
+      in: query
+      required: false
+      schema:
+        type: string
+      description: |
+        Nombre del tipo de documento a filtrar. Si se omite, se retornan
+        todos los documentos asociados a la operación.
+      example: FACTURA
+
+    FileTypeNameRequired:
+      name: fileTypeName
+      in: query
+      required: true
+      schema:
+        type: string
+      description: Nombre del tipo de documento a filtrar. Obligatorio en este endpoint.
+      example: FACTURA
+
+    StartDateParam:
+      name: startDate
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date
+        pattern: '^\d{4}-\d{2}-\d{2}$'
+      description: Fecha inicial del rango de búsqueda, en formato `YYYY-MM-DD`.
+      example: "2026-01-01"
+
+    EndDateParam:
+      name: endDate
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date
+        pattern: '^\d{4}-\d{2}-\d{2}$'
+      description: Fecha final del rango de búsqueda, en formato `YYYY-MM-DD`.
+      example: "2026-01-31"
+
   schemas:
     Error:
       type: object
@@ -64,7 +132,7 @@ components:
           description: Código de error estable y legible.
         message:
           type: string
-          example: El campo 'incoterm' no puede estar vacío.
+          example: El parámetro 'rut' no puede estar vacío.
         details:
           type: array
           items:
@@ -77,136 +145,45 @@ components:
           example: 6b3f5c8e-1234-4abc-9def-0123456789ab
           description: Identificador único del request para soporte.
 
-    OperacionExportacionInput:
+    DispatchFile:
       type: object
-      required: [exportador, consignatario, paisDestino, incoterm, moneda, items]
+      required: [fileName, fileTypeName, url]
       properties:
-        exportador:
+        fileName:
           type: string
-          example: EURUS PRO S.A.
-          description: Razón social del exportador.
-        consignatario:
+          example: FAC-2026-00045.pdf
+          description: Nombre del archivo.
+        fileTypeName:
           type: string
-          example: Importadora del Sur Ltda.
-          description: Razón social del consignatario final.
-        paisDestino:
+          example: FACTURA
+          description: Tipo de documento.
+        dispatchNumber:
           type: string
-          pattern: '^[A-Z]{2}$'
-          example: CL
-          description: Código ISO 3166-1 alpha-2 del país destino.
-        incoterm:
-          type: string
-          enum: [EXW, FCA, CPT, CIP, DAP, DPU, DDP, FAS, FOB, CFR, CIF]
-          example: FOB
-        moneda:
-          type: string
-          pattern: '^[A-Z]{3}$'
-          example: USD
-          description: Código ISO 4217.
-        items:
-          type: array
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/ItemExportacion'
-
-    ItemExportacion:
-      type: object
-      required: [descripcion, partidaArancelaria, cantidad, valorUnitario]
-      properties:
-        descripcion:
-          type: string
-          example: Paltas Hass categoría extra
-        partidaArancelaria:
-          type: string
-          example: "0804.40.00"
-          description: Partida arancelaria (HS code).
-        cantidad:
-          type: number
-          minimum: 0
-          example: 1200
-        unidad:
-          type: string
-          example: KG
-        valorUnitario:
-          type: number
-          minimum: 0
-          example: 3.25
-
-    OperacionExportacion:
-      allOf:
-        - $ref: '#/components/schemas/OperacionExportacionInput'
-        - type: object
-          required: [id, estado, createdAt]
-          properties:
-            id:
-              type: string
-              format: uuid
-              example: 8e4d9b12-fe6a-4f88-a1b5-123456789abc
-            estado:
-              type: string
-              enum: [BORRADOR, REGISTRADA, EN_TRAMITE, DESPACHADA, CERRADA, ANULADA]
-              example: REGISTRADA
-            createdAt:
-              type: string
-              format: date-time
-              example: "2026-04-10T14:32:10Z"
-            updatedAt:
-              type: string
-              format: date-time
-              example: "2026-04-10T14:32:10Z"
-
-    Documento:
-      type: object
-      required: [id, tipo, estado, createdAt]
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: a1b2c3d4-5678-4abc-9def-0123456789ab
-        tipo:
-          type: string
-          enum:
-            - FACTURA_COMERCIAL
-            - PACKING_LIST
-            - BILL_OF_LADING
-            - CERTIFICADO_ORIGEN
-            - CERTIFICADO_FITOSANITARIO
-            - OTRO
-          example: CERTIFICADO_ORIGEN
-        estado:
-          type: string
-          enum: [PENDIENTE, EMITIDO, RECHAZADO, ANULADO]
-          example: EMITIDO
+          example: "DSP-2026-00123"
+          description: Número de despacho asociado.
         url:
           type: string
           format: uri
-          example: https://storage.euruspro.com/documentos/a1b2c3d4.pdf
+          example: https://storage.eurus.pro/files/76543210/dsp-2026-00123/fac-00045.pdf
           description: URL firmada para descargar el documento.
-        numeroExterno:
-          type: string
-          example: CO-2026-00123
-          description: Identificador otorgado por la entidad emisora.
-        createdAt:
-          type: string
-          format: date-time
-          example: "2026-04-10T15:02:44Z"
-        emitidoAt:
+        issuedAt:
           type: string
           format: date-time
           nullable: true
-          example: "2026-04-10T17:45:11Z"
+          example: "2026-04-10T15:02:44Z"
+          description: Fecha de emisión del documento.
 
-    DocumentoListResponse:
+    DispatchFilesResponse:
       type: object
       required: [data]
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/Documento'
+            $ref: '#/components/schemas/DispatchFile'
         total:
           type: integer
-          example: 4
+          example: 3
 
   responses:
     BadRequest:
@@ -221,8 +198,14 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: API Key sin permisos para el recurso solicitado.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     NotFound:
-      description: Recurso no encontrado.
+      description: Despacho no encontrado o no accesible para el RUT indicado.
       content:
         application/json:
           schema:
@@ -232,116 +215,127 @@ security:
   - ApiKeyQuery: []
 
 paths:
-  /exportaciones:
-    post:
-      # TODO: reemplazar con la definición real cuando la API esté estabilizada.
-      x-comex-placeholder: true
-      tags: [Exportaciones]
-      operationId: crearExportacion
-      summary: Crear una operación de exportación
-      description: |
-        Registra una nueva operación de exportación en el sistema.
-        La operación queda en estado `REGISTRADA` y puede ser consultada
-        y ampliada con documentos y certificados en llamadas posteriores.
-
-        > **Placeholder**: los campos exactos pueden variar en la versión definitiva.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OperacionExportacionInput'
-            examples:
-              minimo:
-                summary: Operación mínima
-                value:
-                  exportador: EURUS PRO S.A.
-                  consignatario: Importadora del Sur Ltda.
-                  paisDestino: CL
-                  incoterm: FOB
-                  moneda: USD
-                  items:
-                    - descripcion: Paltas Hass categoría extra
-                      partidaArancelaria: "0804.40.00"
-                      cantidad: 1200
-                      unidad: KG
-                      valorUnitario: 3.25
-      responses:
-        "201":
-          description: Operación creada exitosamente.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperacionExportacion'
-        "400":
-          $ref: '#/components/responses/BadRequest'
-        "401":
-          $ref: '#/components/responses/Unauthorized'
-
-  /exportaciones/{id}/documentos:
+  /dispatch/files/{numeroDespacho}:
     get:
-      # TODO: reemplazar con la definición real cuando la API esté estabilizada.
-      x-comex-placeholder: true
       tags: [Documentación]
-      operationId: listarDocumentosExportacion
-      summary: Listar documentos de una exportación
+      operationId: listarDocumentosDespacho
+      summary: Documentos de un despacho
       description: |
-        Devuelve la lista de documentos y certificados asociados a una
-        operación de exportación: factura comercial, packing list, BL,
-        certificado de origen, certificados sanitarios, etc.
+        Devuelve los documentos asociados a un **despacho específico** del
+        cliente. El campo `fileTypeName` es opcional: si se omite, se
+        retornan **todos** los documentos asociados a la operación.
 
-        > **Placeholder**: los tipos de documento y filtros soportados
-        > pueden ampliarse en la versión definitiva.
+        La URL completa sigue el patrón:
+
+        ```
+        GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/files/{numeroDespacho}?key=...&rut=...
+        ```
       parameters:
-        - name: id
+        - name: numeroDespacho
           in: path
           required: true
           schema:
             type: string
-            format: uuid
-          description: ID de la operación de exportación.
-          example: 8e4d9b12-fe6a-4f88-a1b5-123456789abc
-        - name: tipo
-          in: query
-          required: false
-          schema:
-            type: string
-            enum:
-              - FACTURA_COMERCIAL
-              - PACKING_LIST
-              - BILL_OF_LADING
-              - CERTIFICADO_ORIGEN
-              - CERTIFICADO_FITOSANITARIO
-              - OTRO
-          description: Filtrar por tipo de documento.
+          description: Número de despacho del cliente.
+          example: "DSP-2026-00123"
+        - $ref: '#/components/parameters/RutParam'
+        - $ref: '#/components/parameters/FileTypeNameOptional'
       responses:
         "200":
-          description: Lista de documentos asociados.
+          description: Lista de documentos del despacho.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DocumentoListResponse'
+                $ref: '#/components/schemas/DispatchFilesResponse'
               examples:
-                basico:
-                  summary: Respuesta típica
+                todosLosDocumentos:
+                  summary: Todos los documentos del despacho
                   value:
                     data:
-                      - id: a1b2c3d4-5678-4abc-9def-0123456789ab
-                        tipo: FACTURA_COMERCIAL
-                        estado: EMITIDO
-                        url: https://storage.euruspro.com/documentos/a1b2c3d4.pdf
-                        numeroExterno: "F-2026-00045"
-                        createdAt: "2026-04-10T15:02:44Z"
-                        emitidoAt: "2026-04-10T15:10:00Z"
-                      - id: b2c3d4e5-6789-4bcd-aef0-123456789abc
-                        tipo: CERTIFICADO_ORIGEN
-                        estado: EMITIDO
-                        url: https://storage.euruspro.com/documentos/b2c3d4e5.pdf
-                        numeroExterno: "CO-2026-00123"
-                        createdAt: "2026-04-10T15:04:10Z"
-                        emitidoAt: "2026-04-10T17:45:11Z"
-                    total: 2
+                      - fileName: FAC-2026-00045.pdf
+                        fileTypeName: FACTURA
+                        dispatchNumber: DSP-2026-00123
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/fac-00045.pdf
+                        issuedAt: "2026-04-10T15:02:44Z"
+                      - fileName: PL-2026-00045.pdf
+                        fileTypeName: PACKING_LIST
+                        dispatchNumber: DSP-2026-00123
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/pl-00045.pdf
+                        issuedAt: "2026-04-10T15:04:00Z"
+                      - fileName: BL-2026-00045.pdf
+                        fileTypeName: BILL_OF_LADING
+                        dispatchNumber: DSP-2026-00123
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/bl-00045.pdf
+                        issuedAt: "2026-04-12T09:30:00Z"
+                    total: 3
+                filtradoPorTipo:
+                  summary: Filtrado por fileTypeName=FACTURA
+                  value:
+                    data:
+                      - fileName: FAC-2026-00045.pdf
+                        fileTypeName: FACTURA
+                        dispatchNumber: DSP-2026-00123
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00123/fac-00045.pdf
+                        issuedAt: "2026-04-10T15:02:44Z"
+                    total: 1
+        "400":
+          $ref: '#/components/responses/BadRequest'
         "401":
           $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "404":
           $ref: '#/components/responses/NotFound'
+
+  /dispatch/files:
+    get:
+      tags: [Documentación]
+      operationId: listarDocumentosPorTipoYFecha
+      summary: Documentos por tipo y rango de fechas
+      description: |
+        Devuelve el listado de documentos de **un tipo específico**
+        (`fileTypeName`) asociados a los despachos del cliente dentro de
+        un **rango de fechas** definido por `startDate` y `endDate`.
+
+        Útil para procesos batch (por ejemplo, extraer todas las facturas
+        de un mes para conciliación contable).
+
+        La URL completa sigue el patrón:
+
+        ```
+        GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/files?key=...&rut=...&startDate=...&endDate=...&fileTypeName=...
+        ```
+      parameters:
+        - $ref: '#/components/parameters/RutParam'
+        - $ref: '#/components/parameters/StartDateParam'
+        - $ref: '#/components/parameters/EndDateParam'
+        - $ref: '#/components/parameters/FileTypeNameRequired'
+      responses:
+        "200":
+          description: Lista de documentos en el rango solicitado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispatchFilesResponse'
+              examples:
+                facturasEnero:
+                  summary: Todas las facturas de enero 2026
+                  value:
+                    data:
+                      - fileName: FAC-2026-00001.pdf
+                        fileTypeName: FACTURA
+                        dispatchNumber: DSP-2026-00001
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00001/fac-00001.pdf
+                        issuedAt: "2026-01-05T11:22:00Z"
+                      - fileName: FAC-2026-00007.pdf
+                        fileTypeName: FACTURA
+                        dispatchNumber: DSP-2026-00007
+                        url: https://storage.eurus.pro/files/765432101/dsp-2026-00007/fac-00007.pdf
+                        issuedAt: "2026-01-18T09:10:00Z"
+                    total: 2
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'

@@ -19,28 +19,27 @@ Unlike many REST APIs, **the Comex API does not accept an `Authorization` header
 Add the `?key=<API_KEY>` parameter at the end of any URL:
 
 ```
-GET https://api.euruspro.com/comex/v1/exportaciones/8e4d9b12-fe6a-4f88-a1b5-123456789abc?key=YOUR_API_KEY
+GET https://api-comex.eurus.pro/12345/v1/dispatch/files/DSP-2026-00123?key=YOUR_API_KEY&rut=765432101
 ```
 
-If the URL already has other parameters, use `&`:
-
-```
-GET https://api.euruspro.com/comex/v1/exportaciones?estado=REGISTRADA&key=YOUR_API_KEY
-```
+:::note Required parameters
+In addition to `key`, almost all endpoints also require the `rut` parameter (see [RUT format](./conventions.md#rut-format)). Parameters are separated with `&`.
+:::
 
 ## Examples
 
 ### cURL
 
 ```bash
-curl "https://api.euruspro.com/comex/v1/exportaciones?key=$EURUS_API_KEY"
+curl "https://api-comex.eurus.pro/12345/v1/dispatch/files/DSP-2026-00123?key=$EURUS_API_KEY&rut=765432101"
 ```
 
 ### Node.js
 
 ```javascript
-const url = new URL("https://api.euruspro.com/comex/v1/exportaciones");
+const url = new URL("https://api-comex.eurus.pro/12345/v1/dispatch/files/DSP-2026-00123");
 url.searchParams.set("key", process.env.EURUS_API_KEY);
+url.searchParams.set("rut", "765432101");
 
 const response = await fetch(url);
 ```
@@ -51,8 +50,8 @@ const response = await fetch(url);
 import httpx, os
 
 response = httpx.get(
-    "https://api.euruspro.com/comex/v1/exportaciones",
-    params={"key": os.environ["EURUS_API_KEY"]},
+    "https://api-comex.eurus.pro/12345/v1/dispatch/files/DSP-2026-00123",
+    params={"key": os.environ["EURUS_API_KEY"], "rut": "765432101"},
 )
 ```
 
@@ -64,13 +63,15 @@ Always build the URL with a helper that properly encodes parameters (`URLSearchP
 
 The current process is manual:
 
-1. Email [api@euruspro.com](mailto:api@euruspro.com) to request access.
+1. Email [api@eurus.pro](mailto:api@eurus.pro) to request access.
 2. Provide:
    - Your organization's name and tax ID.
    - Intended use (internal integration, portal, mobile app, etc.).
    - Environments (production, staging).
    - IPs or referrers from which you'll consume, if you want restrictions.
-3. You'll receive a unique API Key per environment.
+3. You'll receive:
+   - Your **`idAgencia`** (part of the path of all URLs).
+   - A unique API Key per environment.
 
 ## Authentication errors
 
@@ -114,7 +115,7 @@ Periodically review the usage logs and metrics that EURUS PRO provides. Alerts o
 
 ## What to do if the API Key leaks
 
-1. **Revoke immediately** by contacting EURUS PRO (`api@euruspro.com`) and reporting the incident.
+1. **Revoke immediately** by contacting EURUS PRO (`api@eurus.pro`) and reporting the incident.
 2. Request a new key.
 3. Update your secrets and redeploy your services.
 4. Review logs looking for unauthorized activity between leak and revocation.

@@ -8,30 +8,30 @@ description: Overview of the EURUS PRO Comex API, its scope and core concepts.
 
 # Comex API — EURUS PRO
 
-Welcome to the public documentation for the **EURUS PRO Comex API**, a REST API that lets external systems integrate with EURUS PRO's **foreign trade** processes: registering export operations, issuing and retrieving commercial documentation, certificates, and tracking.
+Welcome to the public documentation for the **EURUS PRO Comex API**, a REST API that lets external systems integrate with EURUS PRO's **foreign trade** processes: querying import and export operations, and accessing documents and certificates associated with each dispatch.
 
 :::info Audience
 This documentation is aimed at **technical teams** integrating a system (ERP, TMS, in-house portal, middleware, internal script) with EURUS PRO services. Basic knowledge of HTTP, JSON and REST API consumption is assumed.
 :::
 
-## What you can do with the Comex API
+## API modules
 
-With this API you can, among other things:
+In its initial stage, the Comex API exposes **three functional modules**:
 
-- **Register foreign-trade operations** (exports), including commercial data, incoterms, tariff codes and items.
-- **Track the status** of an operation through its lifecycle (draft, registered, in process, shipped, closed).
-- **Retrieve documents and certificates** associated with an operation: commercial invoice, packing list, Bill of Lading, certificate of origin, phytosanitary certificates, etc.
-- **Receive events via webhooks** whenever an operation changes state or a new document is issued.
+| Module | Description | Status |
+|---|---|---|
+| **[Imports](./importaciones/index.md)** | Query and management of import operations. | Coming soon |
+| **[Exports](./exportaciones/index.md)** | Query and management of export operations. | Coming soon |
+| **[Documentation](./documentacion/index.md)** | Query files and documents associated with dispatches (invoices, packing lists, BL, certificates, etc.). | **Available** |
 
 ## Core concepts
 
 | Concept | Description |
 |---|---|
-| **Operation** | Main unit of the system. Represents an export with its commercial, logistical and documentary data. Has a lifecycle and a status. |
-| **Item** | Product line within an operation, with its description, tariff code (HS code), quantity and value. |
-| **Document** | Any documentary piece linked to an operation: invoice, packing list, BL, certificate of origin, etc. |
-| **Certificate** | A subtype of document issued by an external entity (e.g. certificate of origin, phytosanitary certificate). |
-| **Webhook** | An HTTP POST notification that EURUS PRO sends to your system when a relevant event occurs. |
+| **Agency** | EURUS PRO unit that manages its clients' operations. Each agency has a unique `idAgencia` that forms part of every API path. |
+| **Client** | End organization (importer/exporter) identified by its **RUT**. Every call requires the `rut` parameter. |
+| **Dispatch** | Operational unit that groups the documents of a foreign-trade operation. Identified by a `numeroDespacho`. |
+| **Document** | File associated with a dispatch: commercial invoice, packing list, BL, certificate of origin, phytosanitary certificate, etc. Identified by its `fileTypeName`. |
 
 ## Technical architecture
 
@@ -39,21 +39,24 @@ The Comex API is exposed through **Google Cloud API Gateway**, which has a coupl
 
 - **All calls use HTTPS**. Plain HTTP is not accepted.
 - **Authentication uses an API Key sent as a query parameter** (`?key=<API_KEY>`), not as an `Authorization` header. This is specific to Google API Gateway. See [Authentication](./authentication.md) for details.
-- Endpoints are versioned with the `/v1` prefix.
+- **The `idAgencia` is part of the path** (before the `/v1` segment) and is assigned when access is provisioned.
+- **The client `rut`** is sent as a query parameter on every call, in digits-only format. See [Conventions → RUT format](./conventions.md#rut-format).
 
 ## Base URL
 
 ```
-https://api.euruspro.com/comex/v1
+https://api-comex.eurus.pro/{idAgencia}/v1
 ```
 
-:::note Placeholder
-The URL above is a provisional value published in this version of the docs. It will be confirmed by EURUS PRO before the official launch.
-:::
+The `{idAgencia}` is your agency identifier assigned by EURUS PRO. For example, if your agency ID is `12345`, the real base URL will be:
+
+```
+https://api-comex.eurus.pro/12345/v1
+```
 
 ## Next steps
 
 1. Read the [Quickstart guide](./quickstart.md) to make your first call in under 5 minutes.
 2. Review the [Authentication](./authentication.md) section to understand how to obtain and manage your API Key.
-3. Check the [Conventions](./conventions.md) for request formats, pagination, errors and versioning.
-4. Explore the [Endpoint reference](./reference) with interactive examples you can run from the browser.
+3. Check the [Conventions](./conventions.md) for request formats, RUT, pagination and errors.
+4. Explore the [Documentation](./documentacion/index.md) module — the only one available in this initial stage — with its 2 interactive endpoints.

@@ -4,7 +4,7 @@ Documentación pública de la **API Comex de EURUS PRO** — centro de documenta
 
 Construido con [Docusaurus 3](https://docusaurus.io/) + [`docusaurus-plugin-openapi-docs`](https://github.com/PaloAltoNetworks/docusaurus-openapi-docs) para la referencia interactiva.
 
-- **Sitio en producción**: https://docs.euruspro.com (una vez desplegado y el DNS configurado).
+- **Sitio en producción**: https://docs.eurus.pro (una vez desplegado y el DNS configurado).
 - **Idiomas**: español (default) e inglés.
 - **Fuente OpenAPI**: [`openapi/comex.yaml`](./openapi/comex.yaml).
 
@@ -14,24 +14,27 @@ Construido con [Docusaurus 3](https://docusaurus.io/) + [`docusaurus-plugin-open
 
 ```
 .
-├── docs/                 # Contenido en español (default locale)
+├── docs/                           # Contenido en español (default locale)
 │   ├── intro.md
 │   ├── quickstart.md
 │   ├── authentication.md
-│   ├── conventions.md
+│   ├── conventions.md              # Incluye formato de RUT, idAgencia, etc.
 │   ├── webhooks.md
 │   ├── errors.md
 │   ├── changelog.md
-│   └── reference/        # Generado automáticamente desde openapi/comex.yaml
-├── i18n/en/              # Traducciones al inglés
+│   ├── importaciones/index.md      # Módulo Importaciones (landing placeholder)
+│   ├── exportaciones/index.md      # Módulo Exportaciones (landing placeholder)
+│   ├── documentacion/index.md      # Módulo Documentación (landing + uso)
+│   └── reference/                  # Generado automáticamente desde openapi/comex.yaml
+├── i18n/en/                        # Traducciones al inglés (mismo árbol)
 ├── openapi/
-│   └── comex.yaml        # Spec OpenAPI 3.1 de la API Comex
+│   └── comex.yaml                  # Spec OpenAPI 3.1 — base URL api-comex.eurus.pro
 ├── src/
-│   ├── css/custom.css    # Variables de tema (placeholders de branding)
-│   └── pages/index.tsx   # Landing
+│   ├── css/custom.css              # Variables de tema (placeholders de branding)
+│   └── pages/index.tsx             # Landing
 ├── static/
-│   ├── CNAME             # docs.euruspro.com
-│   └── img/              # Logo y favicon (placeholders)
+│   ├── CNAME                       # docs.eurus.pro
+│   └── img/                        # Logo y favicon (placeholders)
 ├── docusaurus.config.ts
 ├── sidebars.ts
 └── .github/workflows/deploy.yml
@@ -124,7 +127,7 @@ El deploy a GitHub Pages es automático vía [`.github/workflows/deploy.yml`](./
 
 - **Dispara** en `push` a `main` y en PRs (build-only en PRs).
 - **Pasos**: install → `gen-api-docs:comex` → `build` → upload artifact → deploy a GitHub Pages.
-- **Dominio**: `static/CNAME` contiene `docs.euruspro.com`.
+- **Dominio**: `static/CNAME` contiene `docs.eurus.pro`.
 
 ### Primer deploy
 
@@ -132,7 +135,7 @@ El deploy a GitHub Pages es automático vía [`.github/workflows/deploy.yml`](./
 2. En **Settings → Pages** del repositorio:
    - **Source**: `GitHub Actions`.
 3. Haz push a `main` y verifica que el workflow complete en verde.
-4. El sitio queda disponible en `https://euruspro.github.io/api-comex-docs` (default) y, una vez configurado el DNS (`CNAME docs → euruspro.github.io`), en `https://docs.euruspro.com`.
+4. El sitio queda disponible en `https://euruspro.github.io/api-comex-docs` (default) y, una vez configurado el DNS (`CNAME docs → euruspro.github.io`), en `https://docs.eurus.pro`.
 5. Habilita **Enforce HTTPS** en Settings → Pages.
 
 ---
@@ -151,7 +154,7 @@ Los colores, logo y favicon actuales son **placeholders** y deben reemplazarse p
 
 - [ ] Reemplazar los 2 endpoints placeholder en `openapi/comex.yaml` por la spec real cuando esté disponible.
 - [ ] Aplicar branding oficial (logo, colores, tipografía).
-- [ ] Confirmar la base URL de producción (`https://api.euruspro.com/comex/v1` es provisional).
+- [ ] Confirmar que el dominio del portal de docs será `docs.eurus.pro` (actualmente en `static/CNAME`).
 - [ ] Traducción profesional al inglés de los contenidos.
 - [ ] Documentar entorno sandbox cuando esté disponible.
 

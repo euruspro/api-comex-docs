@@ -8,7 +8,7 @@ const config: Config = {
   tagline: 'Documentación pública para la API de Comercio Exterior',
   favicon: 'img/favicon.svg',
 
-  url: 'https://docs.euruspro.com',
+  url: 'https://docs.eurus.pro',
   baseUrl: '/',
 
   organizationName: 'euruspro',
@@ -61,10 +61,6 @@ const config: Config = {
           comex: {
             specPath: 'openapi/comex.yaml',
             outputDir: 'docs/reference',
-            sidebarOptions: {
-              groupPathsBy: 'tag',
-              categoryLinkSource: 'tag',
-            },
           } satisfies OpenApiPlugin.Options,
         } satisfies Record<string, OpenApiPlugin.Options>,
       },
@@ -97,9 +93,14 @@ const config: Config = {
           label: 'Quickstart',
         },
         {
-          to: '/docs/reference',
+          type: 'dropdown',
+          label: 'Módulos',
           position: 'left',
-          label: 'Referencia',
+          items: [
+            {label: 'Importaciones', to: '/docs/importaciones'},
+            {label: 'Exportaciones', to: '/docs/exportaciones'},
+            {label: 'Documentación', to: '/docs/documentacion'},
+          ],
         },
         {
           type: 'localeDropdown',
@@ -116,7 +117,7 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Documentación',
+          title: 'Primeros pasos',
           items: [
             {label: 'Introducción', to: '/docs/intro'},
             {label: 'Quickstart', to: '/docs/quickstart'},
@@ -124,11 +125,19 @@ const config: Config = {
           ],
         },
         {
-          title: 'Referencia',
+          title: 'Módulos',
+          items: [
+            {label: 'Importaciones', to: '/docs/importaciones'},
+            {label: 'Exportaciones', to: '/docs/exportaciones'},
+            {label: 'Documentación', to: '/docs/documentacion'},
+          ],
+        },
+        {
+          title: 'Recursos',
           items: [
             {label: 'Convenciones', to: '/docs/conventions'},
-            {label: 'Webhooks', to: '/docs/webhooks'},
             {label: 'Errores', to: '/docs/errors'},
+            {label: 'Webhooks', to: '/docs/webhooks'},
             {label: 'Changelog', to: '/docs/changelog'},
           ],
         },
@@ -137,7 +146,7 @@ const config: Config = {
           items: [
             {
               label: 'EURUS PRO',
-              href: 'https://euruspro.com',
+              href: 'https://eurus.pro',
             },
             {
               label: 'GitHub',

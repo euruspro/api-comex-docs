@@ -15,9 +15,21 @@
     "message": "Quickstart",
     "description": "Navbar item with label Quickstart"
   },
-  "item.label.Referencia": {
-    "message": "Reference",
-    "description": "Navbar item with label Referencia"
+  "item.label.Módulos": {
+    "message": "Modules",
+    "description": "Navbar dropdown with label Módulos"
+  },
+  "item.label.Importaciones": {
+    "message": "Imports",
+    "description": "Navbar item with label Importaciones"
+  },
+  "item.label.Exportaciones": {
+    "message": "Exports",
+    "description": "Navbar item with label Exportaciones"
+  },
+  "item.label.Documentación": {
+    "message": "Documentation",
+    "description": "Navbar item with label Documentación"
   },
   "item.label.GitHub": {
     "message": "GitHub",

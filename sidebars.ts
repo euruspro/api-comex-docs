@@ -12,20 +12,28 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Guías técnicas',
-      collapsed: false,
-      items: ['conventions', 'webhooks', 'errors'],
+      collapsed: true,
+      items: ['conventions', 'errors', 'webhooks'],
     },
     {
       type: 'category',
-      label: 'Referencia de la API',
+      label: 'Importaciones',
+      collapsed: true,
+      link: {type: 'doc', id: 'importaciones/index'},
+      items: [],
+    },
+    {
+      type: 'category',
+      label: 'Exportaciones',
+      collapsed: true,
+      link: {type: 'doc', id: 'exportaciones/index'},
+      items: [],
+    },
+    {
+      type: 'category',
+      label: 'Documentación',
       collapsed: false,
-      link: {
-        type: 'generated-index',
-        title: 'Referencia de la API',
-        description:
-          'Listado completo de endpoints de la API Comex de EURUS PRO con ejemplos interactivos.',
-        slug: '/reference',
-      },
+      link: {type: 'doc', id: 'documentacion/index'},
       items: openapiSidebar as any,
     },
     {
