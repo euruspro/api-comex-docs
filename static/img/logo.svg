@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" role="img" aria-label="EURUS PRO">
+  <!-- Placeholder logo. Replace with the official EURUS PRO SVG. -->
+  <rect x="0" y="8" width="32" height="32" rx="6" fill="#1a5fb4"/>
+  <text x="16" y="30" font-family="Arial, sans-serif" font-size="18" font-weight="700" text-anchor="middle" fill="#ffffff">E</text>
+  <text x="40" y="30" font-family="Arial, sans-serif" font-size="18" font-weight="700" fill="#1a5fb4">EURUS</text>
+  <text x="112" y="30" font-family="Arial, sans-serif" font-size="18" font-weight="400" fill="#1a5fb4">PRO</text>
+</svg>

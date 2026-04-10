@@ -1,0 +1,347 @@
+# =============================================================================
+# API Comex — EURUS PRO
+# OpenAPI 3.1 spec (initial skeleton)
+#
+# IMPORTANT:
+#   - Gestionada mediante Google Cloud API Gateway.
+#   - La autenticación se realiza vía query parameter `?key=<API_KEY>`
+#     (NO header Authorization). Esto está reflejado en components.securitySchemes.
+#   - Los 2 endpoints incluidos aquí son PLACEHOLDERS marcados con
+#     `x-comex-placeholder: true`. Reemplazar con la spec real cuando esté lista.
+# =============================================================================
+
+openapi: 3.1.0
+info:
+  title: API Comex — EURUS PRO
+  version: "1.0.0"
+  description: |
+    API REST de Comercio Exterior de EURUS PRO. Permite registrar operaciones
+    de exportación/importación y consultar la documentación y certificados
+    asociados a cada operación.
+
+    **Autenticación**: todas las llamadas requieren enviar un API Key como
+    parámetro de query `?key=<API_KEY>`. Este es el mecanismo estándar de
+    Google API Gateway.
+  contact:
+    name: EURUS PRO
+    url: https://euruspro.com
+    email: api@euruspro.com
+  license:
+    name: Propietaria
+    url: https://euruspro.com
+
+servers:
+  - url: https://api.euruspro.com/comex/v1
+    description: Producción
+
+tags:
+  - name: Exportaciones
+    description: Operaciones de comercio exterior — registro y consulta.
+    x-displayName: Exportaciones
+  - name: Documentación
+    description: Documentos y certificados asociados a operaciones (factura, packing list, BL, CO, etc.).
+    x-displayName: Documentación
+
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: key
+      description: |
+        API Key provista por EURUS PRO. Debe enviarse como query parameter
+        en todas las llamadas (`?key=<API_KEY>`), siguiendo el estándar de
+        Google Cloud API Gateway.
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: INVALID_ARGUMENT
+          description: Código de error estable y legible.
+        message:
+          type: string
+          example: El campo 'incoterm' no puede estar vacío.
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+          description: Detalles adicionales del error (campos, valores, etc.).
+        requestId:
+          type: string
+          format: uuid
+          example: 6b3f5c8e-1234-4abc-9def-0123456789ab
+          description: Identificador único del request para soporte.
+
+    OperacionExportacionInput:
+      type: object
+      required: [exportador, consignatario, paisDestino, incoterm, moneda, items]
+      properties:
+        exportador:
+          type: string
+          example: EURUS PRO S.A.
+          description: Razón social del exportador.
+        consignatario:
+          type: string
+          example: Importadora del Sur Ltda.
+          description: Razón social del consignatario final.
+        paisDestino:
+          type: string
+          pattern: '^[A-Z]{2}$'
+          example: CL
+          description: Código ISO 3166-1 alpha-2 del país destino.
+        incoterm:
+          type: string
+          enum: [EXW, FCA, CPT, CIP, DAP, DPU, DDP, FAS, FOB, CFR, CIF]
+          example: FOB
+        moneda:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          example: USD
+          description: Código ISO 4217.
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ItemExportacion'
+
+    ItemExportacion:
+      type: object
+      required: [descripcion, partidaArancelaria, cantidad, valorUnitario]
+      properties:
+        descripcion:
+          type: string
+          example: Paltas Hass categoría extra
+        partidaArancelaria:
+          type: string
+          example: "0804.40.00"
+          description: Partida arancelaria (HS code).
+        cantidad:
+          type: number
+          minimum: 0
+          example: 1200
+        unidad:
+          type: string
+          example: KG
+        valorUnitario:
+          type: number
+          minimum: 0
+          example: 3.25
+
+    OperacionExportacion:
+      allOf:
+        - $ref: '#/components/schemas/OperacionExportacionInput'
+        - type: object
+          required: [id, estado, createdAt]
+          properties:
+            id:
+              type: string
+              format: uuid
+              example: 8e4d9b12-fe6a-4f88-a1b5-123456789abc
+            estado:
+              type: string
+              enum: [BORRADOR, REGISTRADA, EN_TRAMITE, DESPACHADA, CERRADA, ANULADA]
+              example: REGISTRADA
+            createdAt:
+              type: string
+              format: date-time
+              example: "2026-04-10T14:32:10Z"
+            updatedAt:
+              type: string
+              format: date-time
+              example: "2026-04-10T14:32:10Z"
+
+    Documento:
+      type: object
+      required: [id, tipo, estado, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: a1b2c3d4-5678-4abc-9def-0123456789ab
+        tipo:
+          type: string
+          enum:
+            - FACTURA_COMERCIAL
+            - PACKING_LIST
+            - BILL_OF_LADING
+            - CERTIFICADO_ORIGEN
+            - CERTIFICADO_FITOSANITARIO
+            - OTRO
+          example: CERTIFICADO_ORIGEN
+        estado:
+          type: string
+          enum: [PENDIENTE, EMITIDO, RECHAZADO, ANULADO]
+          example: EMITIDO
+        url:
+          type: string
+          format: uri
+          example: https://storage.euruspro.com/documentos/a1b2c3d4.pdf
+          description: URL firmada para descargar el documento.
+        numeroExterno:
+          type: string
+          example: CO-2026-00123
+          description: Identificador otorgado por la entidad emisora.
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-04-10T15:02:44Z"
+        emitidoAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-04-10T17:45:11Z"
+
+    DocumentoListResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Documento'
+        total:
+          type: integer
+          example: 4
+
+  responses:
+    BadRequest:
+      description: Parámetros inválidos.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: API Key ausente o inválida.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Recurso no encontrado.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+security:
+  - ApiKeyQuery: []
+
+paths:
+  /exportaciones:
+    post:
+      # TODO: reemplazar con la definición real cuando la API esté estabilizada.
+      x-comex-placeholder: true
+      tags: [Exportaciones]
+      operationId: crearExportacion
+      summary: Crear una operación de exportación
+      description: |
+        Registra una nueva operación de exportación en el sistema.
+        La operación queda en estado `REGISTRADA` y puede ser consultada
+        y ampliada con documentos y certificados en llamadas posteriores.
+
+        > **Placeholder**: los campos exactos pueden variar en la versión definitiva.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OperacionExportacionInput'
+            examples:
+              minimo:
+                summary: Operación mínima
+                value:
+                  exportador: EURUS PRO S.A.
+                  consignatario: Importadora del Sur Ltda.
+                  paisDestino: CL
+                  incoterm: FOB
+                  moneda: USD
+                  items:
+                    - descripcion: Paltas Hass categoría extra
+                      partidaArancelaria: "0804.40.00"
+                      cantidad: 1200
+                      unidad: KG
+                      valorUnitario: 3.25
+      responses:
+        "201":
+          description: Operación creada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperacionExportacion'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+
+  /exportaciones/{id}/documentos:
+    get:
+      # TODO: reemplazar con la definición real cuando la API esté estabilizada.
+      x-comex-placeholder: true
+      tags: [Documentación]
+      operationId: listarDocumentosExportacion
+      summary: Listar documentos de una exportación
+      description: |
+        Devuelve la lista de documentos y certificados asociados a una
+        operación de exportación: factura comercial, packing list, BL,
+        certificado de origen, certificados sanitarios, etc.
+
+        > **Placeholder**: los tipos de documento y filtros soportados
+        > pueden ampliarse en la versión definitiva.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID de la operación de exportación.
+          example: 8e4d9b12-fe6a-4f88-a1b5-123456789abc
+        - name: tipo
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - FACTURA_COMERCIAL
+              - PACKING_LIST
+              - BILL_OF_LADING
+              - CERTIFICADO_ORIGEN
+              - CERTIFICADO_FITOSANITARIO
+              - OTRO
+          description: Filtrar por tipo de documento.
+      responses:
+        "200":
+          description: Lista de documentos asociados.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentoListResponse'
+              examples:
+                basico:
+                  summary: Respuesta típica
+                  value:
+                    data:
+                      - id: a1b2c3d4-5678-4abc-9def-0123456789ab
+                        tipo: FACTURA_COMERCIAL
+                        estado: EMITIDO
+                        url: https://storage.euruspro.com/documentos/a1b2c3d4.pdf
+                        numeroExterno: "F-2026-00045"
+                        createdAt: "2026-04-10T15:02:44Z"
+                        emitidoAt: "2026-04-10T15:10:00Z"
+                      - id: b2c3d4e5-6789-4bcd-aef0-123456789abc
+                        tipo: CERTIFICADO_ORIGEN
+                        estado: EMITIDO
+                        url: https://storage.euruspro.com/documentos/b2c3d4e5.pdf
+                        numeroExterno: "CO-2026-00123"
+                        createdAt: "2026-04-10T15:04:10Z"
+                        emitidoAt: "2026-04-10T17:45:11Z"
+                    total: 2
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'

@@ -1,0 +1,78 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Variables below are placeholders
+ * with provisional EURUS PRO brand colors — replace with the
+ * real palette once the brand assets are provided.
+ */
+
+:root {
+  /* Brand primary — placeholder blue. Replace with EURUS PRO primary. */
+  --ifm-color-primary: #1a5fb4;
+  --ifm-color-primary-dark: #1755a2;
+  --ifm-color-primary-darker: #164f99;
+  --ifm-color-primary-darkest: #12417e;
+  --ifm-color-primary-light: #1d69c6;
+  --ifm-color-primary-lighter: #206fd1;
+  --ifm-color-primary-lightest: #3a81d8;
+
+  --ifm-code-font-size: 90%;
+  --ifm-font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #4a90e2;
+  --ifm-color-primary-dark: #3183de;
+  --ifm-color-primary-darker: #267cdb;
+  --ifm-color-primary-darkest: #2066b5;
+  --ifm-color-primary-light: #639de6;
+  --ifm-color-primary-lighter: #70a5e8;
+  --ifm-color-primary-lightest: #97bcee;
+
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* Landing hero */
+.hero--primary {
+  background: linear-gradient(
+    135deg,
+    var(--ifm-color-primary-dark) 0%,
+    var(--ifm-color-primary) 100%
+  );
+}
+
+.hero__title {
+  font-weight: 700;
+}
+
+.hero__subtitle {
+  opacity: 0.95;
+}
+
+/* Feature cards on landing */
+.features {
+  display: flex;
+  align-items: stretch;
+  padding: 3rem 0;
+  width: 100%;
+}
+
+.featureCard {
+  padding: 1.5rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  height: 100%;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.featureCard:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.featureCard h3 {
+  margin-top: 0;
+  color: var(--ifm-color-primary);
+}
