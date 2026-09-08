@@ -27,10 +27,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          # "22" resuelve a la ultima 22.x disponible, que siempre satisface el
+          # "22" resuelve a la última 22.x disponible, que siempre satisface el
           # >=22.12.0 que exige @redocly/cli: setup-node resuelve al latest de la
-          # linea, nunca hacia atras a 22.0-22.11. Fijar un parche exacto haria
-          # que el CI corriera un Node mas viejo y sin parches de seguridad.
+          # línea, nunca hacia atrás a 22.0-22.11. Fijar un parche exacto haría
+          # que el CI corriera un Node más viejo y sin parches de seguridad.
           node-version: "22"
           cache: npm
 
