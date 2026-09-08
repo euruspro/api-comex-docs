@@ -197,8 +197,8 @@ components:
           example: https://storage.eurus.pro/files/76543210/dsp-2026-00123/fac-00045.pdf
           description: URL firmada para descargar el documento.
         issuedAt:
-          # OpenAPI 3.1: la nulabilidad se expresa como union de tipos,
-          # no con `nullable: true` (sintaxis 3.0, invalida en 3.1).
+          # OpenAPI 3.1: la nulabilidad se expresa como unión de tipos,
+          # no con `nullable: true` (sintaxis 3.0, inválida en 3.1).
           type: [string, 'null']
           format: date-time
           example: "2026-04-10T15:02:44Z"

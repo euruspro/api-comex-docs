@@ -3,8 +3,8 @@ name: Deploy to GitHub Pages
 # CD: publica el sitio en cada merge a main.
 #
 # NOTA: este workflow NO lleva `paths-ignore`. Todo el contenido del portal
-# son archivos .md, de modo que filtrar '**.md' impedia que un cambio de
-# documentacion llegara a publicarse.
+# son archivos .md, de modo que filtrar '**.md' impedía que un cambio de
+# documentación llegara a publicarse.
 on:
   push:
     branches:
@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 # Un solo deploy a la vez. No se cancela en progreso: cancelar a mitad de un
-# deploy de Pages puede dejar publicada una version parcial.
+# deploy de Pages puede dejar publicada una versión parcial.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Mismos gates que CI: si el spec quedo invalido tras el merge, se
+      # Mismos gates que CI: si el spec quedó inválido tras el merge, se
       # detiene antes de publicar.
       - name: Lint del spec OpenAPI
         run: npm run lint

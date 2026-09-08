@@ -16,7 +16,7 @@ const config: Config = {
   trailingSlash: false,
 
   // Un link roto es un error de contenido, no una advertencia: en 'warn' el
-  // deploy publica paginas con referencias muertas sin que nadie lo note.
+  // deploy publica páginas con referencias muertas sin que nadie lo note.
   onBrokenLinks: 'throw',
 
   i18n: {
