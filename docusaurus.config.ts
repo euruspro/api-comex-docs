@@ -15,7 +15,9 @@ const config: Config = {
   projectName: 'api-comex-docs',
   trailingSlash: false,
 
-  onBrokenLinks: 'warn',
+  // Un link roto es un error de contenido, no una advertencia: en 'warn' el
+  // deploy publica páginas con referencias muertas sin que nadie lo note.
+  onBrokenLinks: 'throw',
 
   i18n: {
     defaultLocale: 'es',
@@ -29,7 +31,7 @@ const config: Config = {
   markdown: {
     mermaid: true,
     hooks: {
-      onBrokenMarkdownLinks: 'warn',
+      onBrokenMarkdownLinks: 'throw',
     },
   },
   themes: ['@docusaurus/theme-mermaid', 'docusaurus-theme-openapi-docs'],

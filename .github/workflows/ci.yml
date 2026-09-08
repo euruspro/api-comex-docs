@@ -1,0 +1,51 @@
+name: CI
+
+# Valida todo PR contra main. Es el check que debe exigir la protección de
+# rama: si esto pasa, el deploy posterior a main no puede fallar por
+# contenido (mismo comando de build, mismos gates).
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint del spec, type-check y build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          # "22" resuelve a la última 22.x disponible, que siempre satisface el
+          # >=22.12.0 que exige @redocly/cli: setup-node resuelve al latest de la
+          # línea, nunca hacia atrás a 22.0-22.11. Fijar un parche exacto haría
+          # que el CI corriera un Node más viejo y sin parches de seguridad.
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Valida openapi/comex.yaml antes de generarle documentación: un spec
+      # malformado produce MDX silenciosamente incorrecto, no un build roto.
+      - name: Lint del spec OpenAPI
+        run: npm run lint
+
+      - name: Type-check
+        run: npm run type-check
+
+      # `prebuild` regenera docs/reference/ desde el spec. El build corre los
+      # dos locales y falla ante cualquier link roto (onBrokenLinks: throw).
+      - name: Build del sitio (es + en)
+        run: npm run build

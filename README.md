@@ -37,7 +37,10 @@ Construido con [Docusaurus 3](https://docusaurus.io/) + [`docusaurus-plugin-open
 │   └── img/                        # Logo y favicon (placeholders)
 ├── docusaurus.config.ts
 ├── sidebars.ts
-└── .github/workflows/deploy.yml
+├── redocly.yaml                    # Reglas de validación del spec OpenAPI
+└── .github/workflows/
+    ├── ci.yml                      # Validación en PRs
+    └── deploy.yml                  # Build + deploy a Pages en merge a main
 ```
 
 ---
@@ -46,7 +49,8 @@ Construido con [Docusaurus 3](https://docusaurus.io/) + [`docusaurus-plugin-open
 
 ### Requisitos
 
-- Node.js ≥ 18
+- Node.js **≥ 20.19 y < 21** (línea 20 LTS) o **≥ 22.12** — el CI usa Node 22.
+  Es el rango que declara `@redocly/cli`: excluye Node 21 completo y 22.0–22.11.
 - npm (incluido con Node)
 
 ### Instalación
@@ -63,6 +67,18 @@ La referencia de endpoints se genera desde `openapi/comex.yaml`. Cada vez que mo
 npm run clean-api-docs:comex
 npm run gen-api-docs:comex
 ```
+
+### Validar antes de commitear
+
+Los mismos comandos que corre el CI:
+
+```bash
+npm run lint         # Valida openapi/comex.yaml con Redocly
+npm run type-check   # tsc
+npm run build        # Build de ambos locales; falla ante links rotos
+```
+
+`onBrokenLinks` está en `throw`: un link interno roto rompe el build en lugar de publicarse como página con referencias muertas.
 
 ### Iniciar el servidor de desarrollo
 
@@ -123,11 +139,17 @@ npm run write-translations -- --locale en
 
 ## Deploy
 
-El deploy a GitHub Pages es automático vía [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml):
+El pipeline está separado en dos workflows:
 
-- **Dispara** en `push` a `main` y en PRs (build-only en PRs).
-- **Pasos**: install → `gen-api-docs:comex` → `build` → upload artifact → deploy a GitHub Pages.
+| Workflow | Dispara | Qué hace |
+|---|---|---|
+| [`ci.yml`](./.github/workflows/ci.yml) | `pull_request` a `main` | `npm ci` → `lint` (spec) → `type-check` → `build` (es + en). No publica nada. |
+| [`deploy.yml`](./.github/workflows/deploy.yml) | `push` a `main` | Los mismos gates → upload artifact → deploy a GitHub Pages. |
+
+- **Check requerido**: exigir `CI / Lint del spec, type-check y build` en la protección de rama de `main`.
 - **Dominio**: `static/CNAME` contiene `api-comex-docs.eurus.pro`.
+
+> **Importante**: `deploy.yml` no lleva `paths-ignore`. Todo el contenido del portal son archivos `.md`, así que filtrar `'**.md'` impedía que un cambio de documentación llegara a publicarse.
 
 ### Primer deploy
 

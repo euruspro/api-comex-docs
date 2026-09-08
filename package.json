@@ -13,13 +13,16 @@
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
+    "lint": "redocly lint",
+    "lint:api": "redocly lint",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "gen-api-docs": "docusaurus gen-api-docs",
     "clean-api-docs": "docusaurus clean-api-docs",
     "gen-api-docs:comex": "docusaurus gen-api-docs comex",
     "clean-api-docs:comex": "docusaurus clean-api-docs comex",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "type-check": "tsc"
   },
   "dependencies": {
     "@docusaurus/core": "^3.10.0",
@@ -40,6 +43,7 @@
     "@docusaurus/module-type-aliases": "^3.10.0",
     "@docusaurus/tsconfig": "^3.10.0",
     "@docusaurus/types": "^3.10.0",
+    "@redocly/cli": "^2.51.2",
     "typescript": "~5.5.2"
   },
   "overrides": {
@@ -58,6 +62,6 @@
     ]
   },
   "engines": {
-    "node": ">=18.0"
+    "node": ">=22.12.0 || >=20.19.0 <21.0.0"
   }
 }
