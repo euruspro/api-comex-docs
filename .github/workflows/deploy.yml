@@ -14,10 +14,21 @@ on:
 permissions:
   contents: read
 
-# Un solo deploy a la vez. No se cancela en progreso: cancelar a mitad de un
-# deploy de Pages puede dejar publicada una versión parcial.
+# Un solo deploy a la vez por ref. No se cancela en progreso: cancelar a
+# mitad de un deploy de Pages puede dejar publicada una versión parcial.
+#
+# El grupo depende de la ref a propósito. Con un grupo fijo ('pages'), un
+# workflow_dispatch desde una rama de feature entraba al mismo lock y, al no
+# cancelarse en progreso, retrasaba un deploy real de main durante todo su
+# build, aunque el job `deploy` se saltee por el `if`.
+#
+# Se prefiere esto a mover la concurrencia al job `deploy`: si el lock
+# cubriera solo el deploy, dos pushes a main compilarían en paralelo y el
+# orden de publicación podría invertirse, dejando publicado el commit más
+# antiguo. Con el lock a nivel workflow y agrupado por ref, los pushes a
+# main siguen serializándose de punta a punta y el orden se preserva.
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
