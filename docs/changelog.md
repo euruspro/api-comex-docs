@@ -12,6 +12,17 @@ Todos los cambios notables en la API Comex y en su documentación se registran a
 
 ## [Unreleased]
 
+### Added
+
+- **CI** ([`ci.yml`](https://github.com/euruspro/api-comex-docs/blob/main/.github/workflows/ci.yml)): validación de todo PR contra `main` — lint del spec OpenAPI con Redocly, `type-check` y build de ambos locales.
+- **Validación del spec** con Redocly (`redocly.yaml`), incluyendo verificación de que los ejemplos validen contra su propio schema.
+
+### Fixed
+
+- El workflow de deploy filtraba `'**.md'` en `paths-ignore`, por lo que **ningún cambio de documentación llegaba a publicarse**. Se eliminó el filtro y se separó CI de CD.
+- `onBrokenLinks` y `onBrokenMarkdownLinks` pasaron de `warn` a `throw`: un link interno roto ahora detiene el build en lugar de publicarse.
+- `DispatchFile.issuedAt` usaba `nullable: true`, sintaxis de OpenAPI 3.0 inválida en 3.1 (el spec declara `openapi: 3.1.0`). Reemplazado por `type: [string, 'null']`.
+
 ### Por definir
 
 - Endpoints del módulo de **Importaciones**.

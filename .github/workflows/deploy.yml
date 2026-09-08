@@ -1,18 +1,21 @@
 name: Deploy to GitHub Pages
 
+# CD: publica el sitio en cada merge a main.
+#
+# NOTA: este workflow NO lleva `paths-ignore`. Todo el contenido del portal
+# son archivos .md, de modo que filtrar '**.md' impedia que un cambio de
+# documentacion llegara a publicarse.
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '**.md'
-      - 'LICENSE'
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
-# Allow one concurrent deployment
+permissions:
+  contents: read
+
+# Un solo deploy a la vez. No se cancela en progreso: cancelar a mitad de un
+# deploy de Pages puede dejar publicada una version parcial.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -24,19 +27,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build site
+      # Mismos gates que CI: si el spec quedo invalido tras el merge, se
+      # detiene antes de publicar.
+      - name: Lint del spec OpenAPI
+        run: npm run lint
+
+      - name: Type-check
+        run: npm run type-check
+
+      - name: Build del sitio (es + en)
         run: npm run build
 
       - name: Upload build artifact
@@ -47,7 +56,9 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Guarda contra un workflow_dispatch lanzado desde una rama de feature:
+    # solo main llega a publicarse.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       pages: write

@@ -1,0 +1,35 @@
+# Configuracion de Redocly para el spec publico de la API Comex.
+# Se usa la misma herramienta que el equipo de VM emplea para el spec del
+# API Gateway, para que ambos specs se validen bajo el mismo criterio.
+
+apis:
+  comex:
+    root: openapi/comex.yaml
+
+extends:
+  - recommended
+
+rules:
+  # --- Bloqueantes: sin esto el portal renderiza operaciones incompletas ---
+  # Toda operacion debe declarar summary, description y operationId: el
+  # operationId define el nombre del archivo MDX generado y la URL publica.
+  operation-summary: error
+  operation-description: error
+  operation-operationId: error
+  operation-operationId-unique: error
+
+  # Todo parametro debe describirse. Es la base del objetivo de documentar
+  # nombre real, tipo y formato de cada campo de cara al integrador.
+  parameter-description: error
+
+  # Los ejemplos deben validar contra su propio schema. Esta regla es la que
+  # evita que spec y ejemplos vuelvan a divergir del comportamiento real.
+  no-invalid-media-type-examples: error
+
+  # Al crecer la superficie (/dispatch/files vs /dispatch/files/{id}) las
+  # rutas ambiguas producen referencias cruzadas rotas en el portal.
+  no-ambiguous-paths: error
+  no-identical-paths: error
+
+  # Toda operacion debe documentar al menos una respuesta de error.
+  operation-4xx-response: error
