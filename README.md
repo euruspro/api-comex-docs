@@ -49,8 +49,8 @@ Construido con [Docusaurus 3](https://docusaurus.io/) + [`docusaurus-plugin-open
 
 ### Requisitos
 
-- Node.js **20.19.x** (20 LTS) o **≥ 22.12** — el CI usa Node 22.
-  El rango excluye Node 21 y 22.0–22.11 porque `@redocly/cli` no los soporta.
+- Node.js **≥ 20.19 y < 21** (línea 20 LTS) o **≥ 22.12** — el CI usa Node 22.
+  Es el rango que declara `@redocly/cli`: excluye Node 21 completo y 22.0–22.11.
 - npm (incluido con Node)
 
 ### Instalación
