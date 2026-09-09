@@ -55,9 +55,11 @@ The listing is bounded by `limit`, which accepts up to **200** and defaults to 5
 `total` is **how many came back in that response**. If it equals `limit`, there are probably more dispatches than you are seeing: raise the `limit` or narrow the filters.
 :::
 
-### 3. Filters fall back silently
+### 3. Filters tolerate unsupported values, but do not rely on it
 
-An unknown `orderBy`, an `orderDirection` other than `asc`, or a `limit` outside 1–200 **do not produce an error**: they are ignored and the default applies. Validate them on your side if you depend on them.
+The supported values are the ones declared in the [API Reference](../reference/api-comex-eurus-pro.info.mdx): `orderBy` within its list, `orderDirection` as `asc` or `desc`, and `limit` between 1 and 200.
+
+Today a value outside that range does not produce an error: it is discarded and the default applies. **That behaviour is not part of the contract** and may start returning `400` without prior notice, so validate the filters on your side instead of relying on the silent fallback.
 
 ## Common parameters
 

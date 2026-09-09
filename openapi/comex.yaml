@@ -222,8 +222,8 @@ components:
       schema:
         type: boolean
       description: |
-        Filtra por despachos cerrados (`true`) o abiertos (`false`). Cualquier
-        otro valor se ignora y no filtra.
+        Filtra por despachos cerrados (`true`) o abiertos (`false`). Omite el
+        parámetro para no filtrar por este campo.
       example: false
 
     StatusOrderByParam:
@@ -235,8 +235,12 @@ components:
         enum: [lastModifiedDate, createdDate, recordType, isCompleted]
         default: lastModifiedDate
       description: |
-        Campo de ordenamiento. Un valor fuera de la lista **no es un error**:
-        se ignora y se ordena por `lastModifiedDate`.
+        Campo de ordenamiento. Los valores soportados son los del `enum`.
+
+        Hoy la API tolera un valor fuera de esa lista y ordena por
+        `lastModifiedDate`, pero **ese comportamiento no es parte del
+        contrato**: un valor no soportado puede pasar a responder `400` sin
+        aviso previo. Envía siempre uno de los valores del `enum`.
       example: createdDate
 
     StatusOrderDirectionParam:
@@ -248,8 +252,11 @@ components:
         enum: [asc, desc]
         default: desc
       description: |
-        Dirección del ordenamiento. Cualquier valor distinto de `asc` se trata
-        como `desc`.
+        Dirección del ordenamiento. Los valores soportados son `asc` y `desc`.
+
+        Hoy la API trata cualquier otro valor como `desc`, pero **ese
+        comportamiento no es parte del contrato** y puede pasar a responder
+        `400` sin aviso previo.
       example: desc
 
     StatusLimitParam:
@@ -262,9 +269,14 @@ components:
         maximum: 200
         default: 50
       description: |
-        Cantidad máxima de despachos a devolver. Fuera del rango 1–200 —o si
-        no es un número— **no es un error**: se aplica el valor por defecto de
-        50.
+        Cantidad máxima de despachos a devolver. El rango soportado es 1–200 y
+        el valor por defecto es 50.
+
+        Hoy la API aplica ese valor por defecto cuando recibe un número fuera
+        de rango o un valor no numérico, pero **ese comportamiento no es parte
+        del contrato** y puede pasar a responder `400` sin aviso previo. No lo
+        uses para "pedir todo": para recorrer más de 200 despachos usa
+        `nextToken`.
       example: 50
 
     NextTokenParam:

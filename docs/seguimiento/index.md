@@ -55,9 +55,11 @@ El listado se acota con `limit`, que admite hasta **200** y por defecto trae 50.
 `total` es **la cantidad devuelta en esa respuesta**. Si viene igual a `limit`, es probable que haya más despachos de los que estás viendo: subí el `limit` o afiná los filtros.
 :::
 
-### 3. Los filtros fallan hacia el valor por defecto
+### 3. Los filtros toleran valores no soportados, pero no te apoyes en eso
 
-Un `orderBy` desconocido, un `orderDirection` que no sea `asc`, o un `limit` fuera del rango 1–200 **no producen error**: se ignoran y se aplica el valor por defecto. Conviene validarlos de tu lado si dependés de ellos.
+Los valores soportados son los que declara la [Referencia de la API](../reference/api-comex-eurus-pro.info.mdx): `orderBy` dentro de su lista, `orderDirection` en `asc` o `desc`, y `limit` entre 1 y 200.
+
+Hoy un valor fuera de ahí no produce error: se descarta y se aplica el valor por defecto. **Ese comportamiento no es parte del contrato** y puede pasar a responder `400` sin aviso previo, así que validá los filtros de tu lado en vez de confiar en el descarte silencioso.
 
 ## Parámetros comunes
 
