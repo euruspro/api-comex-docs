@@ -96,7 +96,8 @@ Un despacho inexistente y uno que existe pero es de otro cliente devuelven la **
 | HTTP | `code` | Cuándo |
 |---|---|---|
 | **400** | `RECORD_TYPE_INVALID` | `recordType` trae un valor distinto de `impo` o `expo`, o llega repetido con valores distintos. Omitirlo es válido: devuelve ambos. |
-| **500** | `INTERNAL_ERROR` | Error no controlado. Acá el `code` es **siempre** `INTERNAL_ERROR`, nunca un código de la capa de datos: el detalle queda en los logs del servicio, y el `requestId` es lo que permite cruzarlo al reportar. El `TENANT_UNRESOLVED` de la capa de autenticación sigue siendo posible, como en cualquier endpoint. |
+| **500** | `INTERNAL_ERROR` | Fallo de la operación. Acá **nunca** se propaga el código de la capa de datos: el detalle queda en los logs del servicio, y el `requestId` es lo que permite cruzarlo al reportar. |
+| **500** | `TENANT_UNRESOLVED` | Lo emite la capa de autenticación, antes de llegar a esta operación, igual que en cualquier endpoint. Ver [Autenticación y agencia](#autenticación-y-agencia). |
 
 :::note Este endpoint no emite 404
 No recibe `rut` ni identificador de despacho: una agencia sin tipos documentales activos responde `200` con `data: []`.

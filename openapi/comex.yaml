@@ -348,8 +348,13 @@ components:
         `enum` a propósito: ampliarlo con cada variante de mayúsculas
         ensuciaría el contrato y los SDK generados sin agregar capacidad.
 
-        Cualquier otro valor —incluidos `din` y `dus`, que son la
-        nomenclatura interna— se rechaza con `400 RECORD_TYPE_INVALID`.
+        Cualquier otro valor se rechaza con `400 RECORD_TYPE_INVALID`.
+
+        **Ojo con `din` y `dus`**: son valores válidos del `recordType` de
+        `GET /dispatch/status`, pero **no** de este endpoint. Los dos
+        parámetros comparten nombre y no vocabulario — acá la operación se
+        expresa como `impo` / `expo`, y allá como el tipo de documento
+        aduanero.
 
         Si el parámetro llega **repetido con valores distintos**
         (`?recordType=impo&recordType=expo`) también se rechaza con `400`:
@@ -1145,14 +1150,17 @@ paths:
           $ref: '#/components/responses/Forbidden'
         "500":
           description: |
-            Error no controlado. A diferencia de `/dispatch/*`, el `code` que
-            emite **esta operación** es siempre `INTERNAL_ERROR`, con mensaje
-            genérico: el detalle del fallo queda en los logs del servicio.
-            Reintentar con back-off; si persiste, reportar el `requestId`.
+            Dos `code` posibles, de dos capas distintas:
 
-            El `TENANT_UNRESOLVED` de la capa de autenticación es
-            independiente de la operación y puede aparecer acá igual que en
-            cualquier otro endpoint.
+            - **`INTERNAL_ERROR`** — fallo de la operación. A diferencia de
+              `/dispatch/*`, acá nunca se propaga el código de la capa de
+              datos: el `code` es siempre este y el mensaje es genérico,
+              porque el detalle del fallo queda en los logs del servicio.
+              Reintentar con back-off; si persiste, reportar el `requestId`.
+            - **`TENANT_UNRESOLVED`** — la configuración de la agencia no se
+              pudo resolver. Lo emite la capa de autenticación, antes de
+              llegar a esta operación, y puede aparecer en cualquier
+              endpoint. Reintentar no lo resuelve: reportar el `requestId`.
           content:
             application/json:
               schema:
