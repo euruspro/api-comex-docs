@@ -19,10 +19,44 @@ Nuevo endpoint que devuelve los **tipos documentales activos** de la agencia: lo
 - Parámetro opcional `recordType`: `impo` (importación), `expo` (exportación) u omitido (ambos). No distingue mayúsculas; cualquier otro valor da `400 RECORD_TYPE_INVALID`.
 - No requiere `rut`: el maestro es de la agencia, no de un cliente final.
 - No pagina: devuelve el catálogo completo, sin `nextToken`.
-- **A diferencia del resto de la API, no elimina las claves sin valor**: `name`, `tipoOperacion` y `responsableDoc` llegan en `null` cuando no están cargados, así que la forma de cada elemento es estable.
+- **No elimina las claves sin valor**, a diferencia de los endpoints de documentos: `name`, `tipoOperacion` y `responsableDoc` llegan en `null` cuando no están cargados, así que la forma de cada elemento es estable. Es el mismo criterio que `/dispatch/status`.
 - Los tamaños documentados de cada campo (`name` 64, `tipoOperacion` 3, `responsableDoc` 32, `id` 120) son **sugeridos**: sirven para dimensionar tus columnas, y la API no recorta el valor si lo excede.
 
 Con esto, la tabla de `fileTypeName` de la guía de [Documentación](./documentacion/index.md) pasa a ser una referencia: la lista viva se consulta por API.
+### Changed — Autorización por cuenta y nuevos endpoints de seguimiento
+
+**Cambio de comportamiento en producción.** `rut` pasa de ser un parámetro declarado a un control efectivo, y el portal documenta por primera vez `/dispatch/status`.
+
+#### `rut` ahora acota lo que devuelve la API
+
+| Endpoint | Antes | Ahora |
+|---|---|---|
+| `GET /dispatch/files/{n}` | `rut` declarado obligatorio, **no se validaba** | Exigido; el despacho debe ser de esa cuenta |
+| `GET /dispatch/status/{n}` | no pedía `rut` | Exigido; el despacho debe ser de esa cuenta |
+| `GET /dispatch/status` | no pedía `rut`, devolvía todos | Exigido; filtra por cuenta |
+
+Un despacho que no existe y uno que existe pero es de otro cliente devuelven la **misma** respuesta `404 DISPATCH_NOT_FOUND`. Es deliberado: si difirieran, probando números correlativos se podría deducir qué despachos existen en la agencia sin acceder a ninguno.
+
+#### Documentados por primera vez: `/dispatch/status`
+
+Dos endpoints que ya existían y el portal no describía: el detalle de un despacho y el listado de los de tu cuenta, con filtros por `recordType` e `isCompleted`, ordenamiento y `limit`.
+
+Su contrato es **distinto** al de documentos en dos puntos que conviene no confundir:
+
+- **Todas las claves están siempre presentes**; las vacías se emiten como `null` en vez de desaparecer.
+- **No hay paginación por cursor.** Se acota con `limit` (máximo 200), y `total` es la cantidad devuelta, no la existente.
+
+#### `nextToken` inválido pasa de silencio a `400`
+
+Un `nextToken` que no corresponde a un documento existente ahora responde `400 NEXT_TOKEN_INVALID`. Antes se ignoraba y se devolvía la primera página, lo que hacía que un recorrido largo **reiniciara y volviera a procesar lo ya procesado**, duplicando datos sin ninguna señal.
+
+#### `TENANT_UNRESOLVED`: nuevo código, y ya no es un `400`
+
+Cuando la configuración de la agencia no se puede resolver, la respuesta pasa de `400 PROJECT_ID_UNDEFINED` a **`500 TENANT_UNRESOLVED`**. Un `4xx` atribuía al integrador un fallo que es de configuración nuestra, y hacía que ni su monitoreo ni el nuestro lo trataran como incidente. Reintentar no lo resuelve: hay que reportar el `requestId`.
+
+#### Fechas y referencias en la respuesta
+
+Las marcas de tiempo se emiten siempre como ISO 8601 con zona, y las referencias a otros documentos como su identificador, nunca como una ruta interna. En `/dispatch/status` las fechas salían crudas (`{"_seconds":…,"_nanoseconds":…}`); era un defecto.
 
 ### Changed — El contrato publicado ahora refleja la API real
 

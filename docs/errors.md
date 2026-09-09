@@ -57,18 +57,25 @@ Cubre UUID, hexadecimal, `traceparent` de W3C e identificadores de Cloud Trace. 
 |---|---|---|
 | **403** | `API_KEY_INVALID` | Falta `?key=`, o el valor no es utilizable. También cuando llega repetida con valores distintos. |
 | **403** | `PROJECT_ID_UNAUTHORIZED` | La API Key no está autorizada para el `idAgencia` de la ruta. |
-| **400** | `PROJECT_ID_UNDEFINED` | Falta el `idAgencia` en el path, o su configuración no se pudo resolver. |
+| **400** | `PROJECT_ID_UNDEFINED` | Falta el `idAgencia` en el path. |
+| **500** | `TENANT_UNRESOLVED` | La configuración de tu agencia no se pudo resolver. **No es un error de tu request**: ver más abajo. |
 
 :::info No existe el 401
 Incluso cuando la API Key **falta**, la respuesta es `403`. Una versión anterior de esta documentación declaraba `401`.
 :::
 
-### `GET /dispatch/files/{numeroDespacho}`
+### Despachos: `/dispatch/files/{n}` y `/dispatch/status/{n}`
 
 | HTTP | `code` | Cuándo |
 |---|---|---|
 | **400** | `DISPATCH_ID_INVALID` | `numeroDespacho` vacío. |
-| **404** | `DISPATCH_NOT_FOUND` | El despacho no existe en tu agencia. |
+| **400** | `RUT_NUMBER_INVALID` | `rut` ausente, o su forma no es un RUT. |
+| **404** | `ACCOUNT_NOT_FOUND` | El RUT no es cliente o no está activo. |
+| **404** | `DISPATCH_NOT_FOUND` | El despacho no existe en tu agencia, **o no pertenece a la cuenta del `rut`**. |
+
+:::warning Los dos casos del 404 son indistinguibles, a propósito
+Un despacho inexistente y uno que existe pero es de otro cliente devuelven la **misma** respuesta. Si difirieran, probando números correlativos se podría deducir qué despachos existen en la agencia sin acceder a ninguno.
+:::
 
 ### `GET /dispatch/files`
 
@@ -81,6 +88,7 @@ Incluso cuando la API Key **falta**, la respuesta es `403`. Una versión anterio
 | **400** | `END_DATE_INVALID` | Ídem para `endDate`. |
 | **400** | `DATE_RANGE_INVALID` | `startDate` es mayor que `endDate`. |
 | **400** | `FILE_TYPE_NAME_INVALID` | Falta `fileTypeName`, que es obligatorio en este endpoint. |
+| **400** | `NEXT_TOKEN_INVALID` | El `nextToken` no corresponde a un documento existente. Puede pasar si el documento ancla se eliminó mientras recorrías las páginas. |
 | **404** | `ACCOUNT_NOT_FOUND` | El RUT está bien formado, pero no es cliente o no está activo para esta API. |
 
 ### `GET /master/file-types`
@@ -88,8 +96,7 @@ Incluso cuando la API Key **falta**, la respuesta es `403`. Una versión anterio
 | HTTP | `code` | Cuándo |
 |---|---|---|
 | **400** | `RECORD_TYPE_INVALID` | `recordType` trae un valor distinto de `impo` o `expo`, o llega repetido con valores distintos. Omitirlo es válido: devuelve ambos. |
-
-| **500** | `INTERNAL_ERROR` | Error no controlado. Acá el `code` es **siempre** `INTERNAL_ERROR`, nunca un código de la capa de datos: el detalle queda en los logs del servicio, y el `requestId` es lo que permite cruzarlo al reportar. |
+| **500** | `INTERNAL_ERROR` | Error no controlado. Acá el `code` es **siempre** `INTERNAL_ERROR`, nunca un código de la capa de datos: el detalle queda en los logs del servicio, y el `requestId` es lo que permite cruzarlo al reportar. El `TENANT_UNRESOLVED` de la capa de autenticación sigue siendo posible, como en cualquier endpoint. |
 
 :::note Este endpoint no emite 404
 No recibe `rut` ni identificador de despacho: una agencia sin tipos documentales activos responde `200` con `data: []`.
@@ -99,7 +106,8 @@ No recibe `rut` ni identificador de despacho: una agencia sin tipos documentales
 
 | HTTP | `code` | Cuándo |
 |---|---|---|
-| **500** | `INTERNAL_ERROR` o un código de la capa de datos | Error no controlado. |
+| **500** | `INTERNAL_ERROR` o un código de la capa de datos | Error no controlado. Reintentar con back-off. |
+| **500** | `TENANT_UNRESOLVED` | La configuración de tu agencia no se pudo resolver. **Reintentar no ayuda**: tu API Key y tu `idAgencia` son válidos, el problema es de configuración del lado de EURUS PRO. Reportar el `requestId`. |
 
 :::warning 400 y 404 significan cosas distintas
 `400 RUT_NUMBER_INVALID` dice que **la forma** del RUT es inválida: el error está en tu request. `404 ACCOUNT_NOT_FOUND` dice que el RUT es válido pero **no corresponde a un cliente activo**: el error está en los datos. Distinguirlos te evita depurar en el lugar equivocado.
@@ -174,7 +182,8 @@ X-Request-Id: b1e8a9c2-0000-4fff-a000-100000000004
 | **400** | **No** | Es un error de tu request. Reintentar da el mismo resultado. |
 | **403** | **No** | Revisa la API Key y el `idAgencia`. |
 | **404** | **No** | El recurso no existe. Puede empezar a existir más adelante, pero no por reintentar ahora. |
-| **500** | Sí | Back-off exponencial con jitter, máximo 5 intentos. Si persiste, reporta el `requestId`. |
+| **500** `INTERNAL_ERROR` | Sí | Back-off exponencial con jitter, máximo 5 intentos. Si persiste, reporta el `requestId`. |
+| **500** `TENANT_UNRESOLVED` | **No** | Reintentar no lo resuelve. Reporta el `requestId` a soporte. |
 
 La API **no emite** `408`, `409`, `422`, `429`, `502`, `503` ni `504`, así que no hace falta manejarlos.
 

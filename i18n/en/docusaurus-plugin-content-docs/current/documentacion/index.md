@@ -35,11 +35,11 @@ And a third one, under the **Maestros** (master data) tag, which feeds the other
 | `idAgencia` | Path (server variable) | Your EURUS PRO agency identifier. Assigned when access is provisioned. |
 | `key` | Query | API Key provided by EURUS PRO. See [Authentication](../authentication.md). |
 
-And this one only on the endpoints under `/dispatch/files`:
+And this one on the endpoints under `/dispatch/*` — documents and tracking:
 
 | Parameter | Location | Description |
 |---|---|---|
-| `rut` | Query | End client RUT (see [RUT format](../conventions.md#rut-format)). |
+| `rut` | Query | End client RUT (see [RUT format](../conventions.md#rut-format)). **It scopes what you see**: only dispatches of that account and their documents are returned. |
 
 `GET /master/file-types` takes **no `rut`**: the master list belongs to the agency, not to an end client.
 
@@ -88,7 +88,7 @@ If you build the URL with helpers like `URLSearchParams` (JS), `params={}` (`htt
 If your ERP registers a dispatch and wants to attach all its documents:
 
 ```bash
-curl "https://api-comex.eurus.pro/12345/v1/dispatch/files/DSP-2026-00123?key=$API_KEY&rut=765432101"
+curl "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/files/123457?key=$API_KEY&rut=999999999"
 ```
 
 ### 2. Pull all agency invoices of a month for accounting reconciliation
@@ -96,15 +96,15 @@ curl "https://api-comex.eurus.pro/12345/v1/dispatch/files/DSP-2026-00123?key=$AP
 For a monthly batch process — note the `%20` in place of the space:
 
 ```bash
-curl "https://api-comex.eurus.pro/12345/v1/dispatch/files?key=$API_KEY&rut=765432101&startDate=2026-01-01&endDate=2026-01-31&fileTypeName=FACTURA%20AGENCIA"
+curl "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/files?key=$API_KEY&rut=999999999&startDate=2026-01-01&endDate=2026-01-31&fileTypeName=FACTURA%20AGENCIA"
 ```
 
 Or, equivalently and more readable, using cURL's `--data-urlencode`:
 
 ```bash
-curl -G "https://api-comex.eurus.pro/12345/v1/dispatch/files" \
+curl -G "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/files" \
   --data-urlencode "key=$API_KEY" \
-  --data-urlencode "rut=765432101" \
+  --data-urlencode "rut=999999999" \
   --data-urlencode "startDate=2026-01-01" \
   --data-urlencode "endDate=2026-01-31" \
   --data-urlencode "fileTypeName=FACTURA AGENCIA"

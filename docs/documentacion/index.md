@@ -35,11 +35,11 @@ Estos dos los exige **toda** llamada a la API:
 | `idAgencia` | Path (variable de servidor) | Identificador de tu agencia EURUS PRO. Se asigna al provisionar el acceso. |
 | `key` | Query | API Key provista por EURUS PRO. Ver [Autenticación](../authentication.md). |
 
-Y este, solo en los endpoints bajo `/dispatch/files`:
+Y este, en los endpoints bajo `/dispatch/*` — documentos y seguimiento:
 
 | Parámetro | Ubicación | Descripción |
 |---|---|---|
-| `rut` | Query | RUT del cliente final (ver [formato de RUT](../conventions.md#formato-de-rut)). |
+| `rut` | Query | RUT del cliente final (ver [formato de RUT](../conventions.md#formato-de-rut)). **Acota lo que ves**: solo devuelve despachos de esa cuenta y sus documentos. |
 
 `GET /master/file-types` **no recibe `rut`**: el maestro es de la agencia, no de un cliente final.
 
@@ -88,7 +88,7 @@ Si construyes la URL con helpers como `URLSearchParams` (JS), `params={}` (`http
 Si tu ERP registra un despacho y quiere adjuntar todos sus documentos:
 
 ```bash
-curl "https://api-comex.eurus.pro/12345/v1/dispatch/files/DSP-2026-00123?key=$API_KEY&rut=765432101"
+curl "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/files/123457?key=$API_KEY&rut=999999999"
 ```
 
 ### 2. Extraer todas las facturas de agencia de un mes para conciliación contable
@@ -96,15 +96,15 @@ curl "https://api-comex.eurus.pro/12345/v1/dispatch/files/DSP-2026-00123?key=$AP
 Para un proceso batch mensual — nota el `%20` en lugar del espacio:
 
 ```bash
-curl "https://api-comex.eurus.pro/12345/v1/dispatch/files?key=$API_KEY&rut=765432101&startDate=2026-01-01&endDate=2026-01-31&fileTypeName=FACTURA%20AGENCIA"
+curl "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/files?key=$API_KEY&rut=999999999&startDate=2026-01-01&endDate=2026-01-31&fileTypeName=FACTURA%20AGENCIA"
 ```
 
 O, de forma equivalente y más legible, con `--data-urlencode` de cURL:
 
 ```bash
-curl -G "https://api-comex.eurus.pro/12345/v1/dispatch/files" \
+curl -G "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/files" \
   --data-urlencode "key=$API_KEY" \
-  --data-urlencode "rut=765432101" \
+  --data-urlencode "rut=999999999" \
   --data-urlencode "startDate=2026-01-01" \
   --data-urlencode "endDate=2026-01-31" \
   --data-urlencode "fileTypeName=FACTURA AGENCIA"
