@@ -7,7 +7,7 @@ description: Documentation module — query files and documents associated with 
 
 # Documentation
 
-The **Documentation** module lets you query the files and documents associated with foreign-trade dispatches managed by EURUS PRO: **commercial invoices, packing lists, Bill of Lading, certificates of origin, sanitary certificates** and any other document attached to a dispatch.
+The **Documentation** module lets you query the files and documents associated with foreign-trade dispatches managed by EURUS PRO®: **commercial invoices, packing lists, Bill of Lading, certificates of origin, sanitary certificates** and any other document attached to a dispatch.
 
 This module applies to both **imports** and **exports** — the API does not distinguish the operation type in its file-query endpoints.
 
@@ -32,8 +32,8 @@ And a third one, under the **Maestros** (master data) tag, which feeds the other
 
 | Parameter | Location | Description |
 |---|---|---|
-| `idAgencia` | Path (server variable) | Your EURUS PRO agency identifier. Assigned when access is provisioned. |
-| `key` | Query | API Key provided by EURUS PRO. See [Authentication](../authentication.md). |
+| `idAgencia` | Path (server variable) | Your EURUS PRO® agency identifier. Assigned when access is provisioned. |
+| `key` | Query | API Key provided by EURUS PRO®. See [Authentication](../authentication.md). |
 
 And this one on the endpoints under `/dispatch/*` — documents and tracking:
 
@@ -47,7 +47,7 @@ And this one on the endpoints under `/dispatch/*` — documents and tracking:
 
 ### Dispatch
 
-A **dispatch** is the operational unit that groups all documents of a foreign-trade operation. Each dispatch has a **number** (`numeroDespacho`) assigned by EURUS PRO at creation time.
+A **dispatch** is the operational unit that groups all documents of a foreign-trade operation. Each dispatch has a **number** (`numeroDespacho`) assigned by EURUS PRO® at creation time.
 
 ### `fileTypeName`
 
@@ -55,7 +55,7 @@ Identifies the **document type** within a dispatch. Values currently enabled in 
 
 | `fileTypeName` | Description |
 |---|---|
-| `FACTURA AGENCIA` | Invoice issued by the EURUS PRO agency. |
+| `FACTURA AGENCIA` | Invoice issued by the EURUS PRO® agency. |
 | `FACTURA TERCEROS` | Invoice issued by third parties (carriers, shipping lines, warehouses, etc.). |
 | `NOTA DE COBRO` | Collection note associated with the dispatch. |
 | `CERTIFICADO DE ORIGEN` | Certificate of origin of the goods. |

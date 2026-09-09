@@ -20,9 +20,11 @@ Nuevo endpoint que devuelve los **tipos documentales activos** de la agencia: lo
 - No requiere `rut`: el maestro es de la agencia, no de un cliente final.
 - No pagina: devuelve el catálogo completo, sin `nextToken`.
 - **No elimina las claves sin valor**, a diferencia de los endpoints de documentos: `name`, `tipoOperacion` y `responsableDoc` llegan en `null` cuando no están cargados, así que la forma de cada elemento es estable. Es el mismo criterio que `/dispatch/status`.
+- Respuesta cacheable: es el único endpoint que emite `Cache-Control` (`private, max-age=60`). Un tipo documental recién habilitado puede tardar hasta un minuto en aparecer si tu cliente HTTP respeta el header.
 - Los tamaños documentados de cada campo (`name` 64, `tipoOperacion` 3, `responsableDoc` 32, `id` 120) son **sugeridos**: sirven para dimensionar tus columnas, y la API no recorta el valor si lo excede.
 
 Con esto, la tabla de `fileTypeName` de la guía de [Documentación](./documentacion/index.md) pasa a ser una referencia: la lista viva se consulta por API.
+
 ### Changed — Autorización por cuenta y nuevos endpoints de seguimiento
 
 **Cambio de comportamiento en producción.** `rut` pasa de ser un parámetro declarado a un control efectivo, y el portal documenta por primera vez `/dispatch/status`.
@@ -123,7 +125,7 @@ Se retiran las cifras publicadas (60 req/min, 10 000 req/día) y los headers `X-
 - Endpoints del módulo de **Importaciones**.
 - Endpoints del módulo de **Exportaciones**.
 - Traducción profesional al inglés.
-- Aplicación del branding oficial de EURUS PRO.
+- Aplicación del branding oficial de EURUS PRO®.
 - Entorno sandbox con credenciales de prueba.
 - Postman collection oficial.
 - Cuotas de uso, si se definen.
@@ -150,7 +152,7 @@ Se retiran las cifras publicadas (60 req/min, 10 000 req/día) y los headers `X-
 - Documentación del **formato de RUT** exigido por la API (solo dígitos, K → 1).
 - Ejemplos de código en **cURL, Node.js y Python** para cada llamada, incluyendo helpers de normalización de RUT.
 - Workflow de GitHub Actions para **deploy automático a GitHub Pages** con dominio personalizado `api-comex-docs.eurus.pro`.
-- **Branding EURUS PRO** aplicado: paleta corporativa (`#004ea3`, `#00bee3`, `#001a5d`, `#001833`, `#f2f3f5`) en light/dark mode, logo del repositorio como placeholder SVG basado en el Brand Book 2024, favicon con gradiente azul corporativo.
+- **Branding EURUS PRO®** aplicado: paleta corporativa (`#004ea3`, `#00bee3`, `#001a5d`, `#001833`, `#f2f3f5`) en light/dark mode, logo del repositorio como placeholder SVG basado en el Brand Book 2024, favicon con gradiente azul corporativo.
 - Valores reales de **`fileTypeName`** documentados en el OpenAPI y en la página del módulo Documentación:
   - `FACTURA AGENCIA`
   - `FACTURA TERCEROS`

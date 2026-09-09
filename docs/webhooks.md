@@ -16,9 +16,9 @@ Los formatos exactos de payload y los tipos de eventos mostrados en esta página
 
 ## Cómo funcionan
 
-1. Registras una **URL HTTPS pública** en EURUS PRO como destino de webhooks (proceso manual actualmente, enviar a [api@eurus.pro](mailto:api@eurus.pro)).
-2. EURUS PRO te entrega un **secret** compartido que usarás para verificar la firma de cada evento.
-3. Cuando ocurre un evento, EURUS PRO envía un `POST` a tu URL con un payload JSON y headers específicos.
+1. Registras una **URL HTTPS pública** en EURUS PRO® como destino de webhooks (proceso manual actualmente, enviar a [soporte@eurus.pro](mailto:soporte@eurus.pro)).
+2. EURUS PRO® te entrega un **secret** compartido que usarás para verificar la firma de cada evento.
+3. Cuando ocurre un evento, EURUS PRO® envía un `POST` a tu URL con un payload JSON y headers específicos.
 4. Tu endpoint debe responder con `2xx` en menos de **5 segundos**. Si no, el evento se considera fallido y entra en cola de reintento.
 
 ## Eventos disponibles

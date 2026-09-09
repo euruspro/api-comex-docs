@@ -55,16 +55,16 @@
     "message": "Changelog",
     "description": "The label of footer link with label=Changelog"
   },
-  "link.item.label.EURUS PRO": {
-    "message": "EURUS PRO",
-    "description": "The label of footer link with label=EURUS PRO"
+  "link.item.label.EURUS PRO®": {
+    "message": "EURUS PRO®",
+    "description": "The label of footer link with label=EURUS PRO®"
   },
   "link.item.label.GitHub": {
     "message": "GitHub",
     "description": "The label of footer link with label=GitHub"
   },
   "copyright": {
-    "message": "Copyright © 2026 EURUS PRO. Built with Docusaurus.",
+    "message": "Copyright © 2026 EURUS PRO®. Built with Docusaurus.",
     "description": "The footer copyright"
   }
 }

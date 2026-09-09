@@ -8,7 +8,7 @@ description: Formatos, versionado, identificadores, paginación, rate limits y c
 
 # Convenciones
 
-Esta página describe los estándares y convenciones que la API Comex de EURUS PRO aplica de forma transversal a todos los endpoints. Conocerlas te ahorrará sorpresas al integrar.
+Esta página describe los estándares y convenciones que la API Comex de EURUS PRO® aplica de forma transversal a todos los endpoints. Conocerlas te ahorrará sorpresas al integrar.
 
 ## Base URL y versionado
 
@@ -20,7 +20,7 @@ https://api-comex.eurus.pro/{idAgencia}/v1/...
 
 | Segmento | Descripción |
 |---|---|
-| `{idAgencia}` | Identificador de tu agencia EURUS PRO. Es una cadena opaca, no un número: trátala como un string literal. Se asigna al provisionar el acceso. |
+| `{idAgencia}` | Identificador de tu agencia EURUS PRO®. Es una cadena opaca, no un número: trátala como un string literal. Se asigna al provisionar el acceso. |
 | `v1` | Versión mayor de la API. |
 
 - **Cambios breaking** se publican en una nueva versión mayor (`/v2`).
@@ -37,7 +37,7 @@ Casi todas las llamadas a la API Comex involucran estos tres identificadores:
 
 ### `idAgencia` (path)
 
-Segmento que identifica tu agencia EURUS PRO. Forma parte del path, antes de `/v1`.
+Segmento que identifica tu agencia EURUS PRO®. Forma parte del path, antes de `/v1`.
 
 ```
 https://api-comex.eurus.pro/z_cl_demo/v1/...

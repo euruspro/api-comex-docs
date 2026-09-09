@@ -65,8 +65,8 @@ Today a value outside that range does not produce an error: it is discarded and 
 
 | Parameter | Location | Description |
 |---|---|---|
-| `idAgencia` | Path (server variable) | Your EURUS PRO agency identifier. |
-| `key` | Query | API Key provided by EURUS PRO. See [Authentication](../authentication.md). |
+| `idAgencia` | Path (server variable) | Your EURUS PRO® agency identifier. |
+| `key` | Query | API Key provided by EURUS PRO®. See [Authentication](../authentication.md). |
 | `rut` | Query | End client RUT (see [RUT format](../conventions.md#rut-format)). **It scopes what you see**: only dispatches belonging to that account are returned. |
 
 A dispatch belonging to another client returns `404`, just like a nonexistent one. See [Errors](../errors.md).

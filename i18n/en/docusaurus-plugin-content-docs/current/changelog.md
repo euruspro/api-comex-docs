@@ -20,9 +20,11 @@ New endpoint returning the agency's **active document types**: the values accept
 - No `rut` required: the master list belongs to the agency, not to an end client.
 - No pagination: the full catalog comes back in one response, with no `nextToken`.
 - **It does not strip valueless keys**, unlike the document endpoints: `name`, `tipoOperacion` and `responsableDoc` come back as `null` when unset, so every element has the same shape. Same criterion as `/dispatch/status`.
+- Cacheable response: it is the only endpoint that emits `Cache-Control` (`private, max-age=60`). A newly enabled document type may take up to a minute to appear if your HTTP client honours the header.
 - The documented field sizes (`name` 64, `tipoOperacion` 3, `responsableDoc` 32, `id` 120) are **suggested**: they help you size your columns, and the API does not truncate a value that exceeds them.
 
 As a result, the `fileTypeName` table in the [Documentation](./documentacion/index.md) guide becomes a reference only: the live list is now available over the API.
+
 ### Changed — Account-scoped authorization and new tracking endpoints
 
 **Behaviour change in production.** `rut` goes from a declared parameter to an enforced control, and the portal documents `/dispatch/status` for the first time.
@@ -123,7 +125,7 @@ The published figures (60 req/min, 10,000 req/day) and the `X-RateLimit-*` heade
 - **Imports** module endpoints.
 - **Exports** module endpoints.
 - Professional English translation.
-- Official EURUS PRO branding.
+- Official EURUS PRO® branding.
 - Sandbox environment with test credentials.
 - Official Postman collection.
 - Usage quotas, if defined.
@@ -150,7 +152,7 @@ The published figures (60 req/min, 10,000 req/day) and the `X-RateLimit-*` heade
 - Documentation of the **RUT format** required by the API (digits only, K → 1).
 - Code examples in **cURL, Node.js and Python** for every call, including RUT-normalization helpers.
 - GitHub Actions workflow for **automatic deploy to GitHub Pages** with the custom domain `api-comex-docs.eurus.pro`.
-- **EURUS PRO branding** applied: corporate palette (`#004ea3`, `#00bee3`, `#001a5d`, `#001833`, `#f2f3f5`) in light/dark mode, repository logo as a placeholder SVG based on the 2024 Brand Book, favicon with the corporate blue gradient.
+- **EURUS PRO® branding** applied: corporate palette (`#004ea3`, `#00bee3`, `#001a5d`, `#001833`, `#f2f3f5`) in light/dark mode, repository logo as a placeholder SVG based on the 2024 Brand Book, favicon with the corporate blue gradient.
 - Real **`fileTypeName`** values documented in the OpenAPI spec and on the Documentation module page:
   - `FACTURA AGENCIA`
   - `FACTURA TERCEROS`

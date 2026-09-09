@@ -2,12 +2,12 @@
 id: index
 title: Exportaciones
 slug: /exportaciones
-description: Módulo de exportaciones de la API Comex de EURUS PRO.
+description: Módulo de exportaciones de la API Comex de EURUS PRO®.
 ---
 
 # Exportaciones
 
-Este módulo de la API Comex cubrirá las operaciones y consultas relacionadas con **operaciones de exportación** gestionadas por EURUS PRO.
+Este módulo de la API Comex cubrirá las operaciones y consultas relacionadas con **operaciones de exportación** gestionadas por EURUS PRO®.
 
 :::info Próximamente
 Los endpoints específicos de exportaciones estarán disponibles en una próxima iteración de la API. Actualmente, los documentos asociados a despachos de exportación se consultan mediante el módulo de [Documentación](../documentacion/index.md), que soporta tanto importaciones como exportaciones.

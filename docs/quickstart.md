@@ -8,15 +8,15 @@ description: Primera llamada a la API Comex en menos de 5 minutos, con ejemplos 
 
 # Quickstart
 
-Esta guía te lleva de cero a hacer tu primera llamada exitosa a la **API Comex de EURUS PRO** en menos de cinco minutos. Al finalizar tendrás una petición autenticada funcionando desde tu terminal o desde un script.
+Esta guía te lleva de cero a hacer tu primera llamada exitosa a la **API Comex de EURUS PRO®** en menos de cinco minutos. Al finalizar tendrás una petición autenticada funcionando desde tu terminal o desde un script.
 
 ## Prerrequisitos
 
-Para hacer tu primera llamada necesitas **tres datos** que debe proveerte EURUS PRO:
+Para hacer tu primera llamada necesitas **tres datos** que debe proveerte EURUS PRO®:
 
 | Dato | Descripción | Ejemplo |
 |---|---|---|
-| **`idAgencia`** | ID de tu agencia en EURUS PRO. Es un string opaco, no un número. | `z_cl_demo` |
+| **`idAgencia`** | ID de tu agencia en EURUS PRO®. Es un string opaco, no un número. | `z_cl_demo` |
 | **`key`** | API Key secreta para autenticar las llamadas. | `AIzaSy...` |
 | **`rut`** | RUT del cliente final, cuerpo más dígito verificador (ver [Formato de RUT](./conventions.md#formato-de-rut)). Acota los despachos que ves. | `999999999` |
 
@@ -28,9 +28,9 @@ Además necesitas:
 
 ## Paso 1 — Obtener credenciales
 
-Contacta al equipo de EURUS PRO para solicitar acceso a la API:
+Contacta al equipo de EURUS PRO® para solicitar acceso a la API:
 
-1. Envía un correo a [api@eurus.pro](mailto:api@eurus.pro) con el nombre de tu organización, el uso previsto y la dirección IP pública desde la que consumirás la API (opcional, para restringir el key).
+1. Envía un correo a [soporte@eurus.pro](mailto:soporte@eurus.pro) con el nombre de tu organización, el uso previsto y la dirección IP pública desde la que consumirás la API (opcional, para restringir el key).
 2. Recibirás:
    - Tu **`idAgencia`** asignado.
    - Un **API Key** único y secreto.

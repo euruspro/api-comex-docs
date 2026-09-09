@@ -8,7 +8,7 @@ description: Cómo autenticar tus llamadas a la API Comex mediante API Key en qu
 
 # Autenticación
 
-La API Comex de EURUS PRO está expuesta a través de una **pasarela de API gestionada**. La autenticación se realiza mediante un **API Key** que debe enviarse como **parámetro de query** en cada llamada.
+La API Comex de EURUS PRO® está expuesta a través de una **pasarela de API gestionada**. La autenticación se realiza mediante un **API Key** que debe enviarse como **parámetro de query** en cada llamada.
 
 :::important No uses `Authorization`
 A diferencia de muchas APIs REST, **la API Comex no acepta un header `Authorization`**. El API Key debe ir siempre en la query string con el nombre `key`. Es el mecanismo que exige la pasarela.
@@ -63,7 +63,7 @@ Siempre construye la URL con un helper que codifique correctamente los parámetr
 
 El proceso actual es manual:
 
-1. Envía un correo a [api@eurus.pro](mailto:api@eurus.pro) solicitando acceso.
+1. Envía un correo a [soporte@eurus.pro](mailto:soporte@eurus.pro) solicitando acceso.
 2. Indica:
    - Nombre de tu organización y RUT/ID fiscal.
    - Uso previsto (integración interna, portal, app móvil, etc.).
@@ -78,7 +78,7 @@ El proceso actual es manual:
 | Código | Causa | Acción |
 |---|---|---|
 | `403 Forbidden` + `code: API_KEY_INVALID` | API Key ausente, revocada o no utilizable. | Verifica que `?key=...` esté presente y sea la vigente. **La API responde 403, no 401, también cuando la key falta.** |
-| `403 Forbidden` + `code: PROJECT_ID_UNAUTHORIZED` | La API Key es válida pero no está autorizada para el `idAgencia` de la ruta. | Confirma con EURUS PRO qué agencias tiene autorizadas tu key. |
+| `403 Forbidden` + `code: PROJECT_ID_UNAUTHORIZED` | La API Key es válida pero no está autorizada para el `idAgencia` de la ruta. | Confirma con EURUS PRO® qué agencias tiene autorizadas tu key. |
 
 El cuerpo de la respuesta seguirá el [formato estándar de error](./errors.md).
 
@@ -102,7 +102,7 @@ Al solicitar el key, pide restricciones:
 
 ### 3. Rota regularmente
 
-Establece una política de rotación (por ejemplo, cada 90 días). Si sospechas que el key se ha filtrado, **rota inmediatamente** solicitando uno nuevo a EURUS PRO y descarta el anterior.
+Establece una política de rotación (por ejemplo, cada 90 días). Si sospechas que el key se ha filtrado, **rota inmediatamente** solicitando uno nuevo a EURUS PRO® y descarta el anterior.
 
 ### 4. Un key por entorno y por aplicación
 
@@ -110,11 +110,11 @@ No reutilices el mismo key entre producción y staging, ni entre aplicaciones di
 
 ### 5. Monitorea el uso
 
-Revisa periódicamente los logs y métricas de uso que EURUS PRO ponga a disposición. Alertas sobre picos anómalos de tráfico son una señal temprana de abuso o filtración.
+Revisa periódicamente los logs y métricas de uso que EURUS PRO® ponga a disposición. Alertas sobre picos anómalos de tráfico son una señal temprana de abuso o filtración.
 
 ## Qué hacer si el API Key se filtra
 
-1. **Revoca inmediatamente** el key contactando a EURUS PRO (`api@eurus.pro`) indicando el incidente.
+1. **Revoca inmediatamente** el key contactando a EURUS PRO® (`soporte@eurus.pro`) indicando el incidente.
 2. Solicita un key nuevo.
 3. Actualiza tus secretos y redeploya tus servicios.
 4. Revisa los logs buscando actividad no autorizada entre la filtración y la revocación.

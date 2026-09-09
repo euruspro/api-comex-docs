@@ -4,7 +4,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 import type * as OpenApiPlugin from 'docusaurus-plugin-openapi-docs';
 
 const config: Config = {
-  title: 'API Comex — EURUS PRO',
+  title: 'API Comex — EURUS PRO®',
   tagline: 'Documentación pública para la API de Comercio Exterior',
   favicon: 'img/favicon.svg',
 
@@ -107,7 +107,7 @@ const config: Config = {
     navbar: {
       title: 'API Comex',
       logo: {
-        alt: 'EURUS PRO',
+        alt: 'EURUS PRO®',
         src: 'img/logo.svg',
         srcDark: 'img/logo-dark.svg',
       },
@@ -177,7 +177,7 @@ const config: Config = {
           title: 'Más',
           items: [
             {
-              label: 'EURUS PRO',
+              label: 'EURUS PRO®',
               href: 'https://eurus.pro',
             },
             {
@@ -187,7 +187,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} EURUS PRO. Construido con Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} EURUS PRO®. Construido con Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,

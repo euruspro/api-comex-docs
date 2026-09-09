@@ -3,15 +3,15 @@ id: intro
 title: Introduction
 sidebar_position: 1
 slug: /intro
-description: Overview of the EURUS PRO Comex API, its scope and core concepts.
+description: Overview of the EURUS PRO® Comex API, its scope and core concepts.
 ---
 
-# Comex API — EURUS PRO
+# Comex API — EURUS PRO®
 
-Welcome to the public documentation for the **EURUS PRO Comex API**, a REST API that lets external systems integrate with EURUS PRO's **foreign trade** processes: querying import and export operations, and accessing documents and certificates associated with each dispatch.
+Welcome to the public documentation for the **EURUS PRO® Comex API**, a REST API that lets external systems integrate with EURUS PRO®'s **foreign trade** processes: querying import and export operations, and accessing documents and certificates associated with each dispatch.
 
 :::info Audience
-This documentation is aimed at **technical teams** integrating a system (ERP, TMS, in-house portal, middleware, internal script) with EURUS PRO services. Basic knowledge of HTTP, JSON and REST API consumption is assumed.
+This documentation is aimed at **technical teams** integrating a system (ERP, TMS, in-house portal, middleware, internal script) with EURUS PRO® services. Basic knowledge of HTTP, JSON and REST API consumption is assumed.
 :::
 
 ## API modules
@@ -28,7 +28,7 @@ In its initial stage, the Comex API exposes **three functional modules**:
 
 | Concept | Description |
 |---|---|
-| **Agency** | EURUS PRO unit that manages its clients' operations. Each agency has a unique `idAgencia` that forms part of every API path. |
+| **Agency** | EURUS PRO® unit that manages its clients' operations. Each agency has a unique `idAgencia` that forms part of every API path. |
 | **Client** | End organization (importer/exporter) identified by its **RUT**. Every call requires the `rut` parameter. |
 | **Dispatch** | Operational unit that groups the documents of a foreign-trade operation. Identified by a `numeroDespacho`. |
 | **Document** | File associated with a dispatch: commercial invoice, packing list, BL, certificate of origin, phytosanitary certificate, etc. Identified by its `fileTypeName`. |
@@ -48,7 +48,7 @@ The Comex API is exposed through a **managed API gateway**, which has a couple o
 https://api-comex.eurus.pro/{idAgencia}/v1
 ```
 
-The `{idAgencia}` is your agency identifier assigned by EURUS PRO: an opaque string, not a number. For example, if your agency ID is `z_cl_demo`, the real base URL will be:
+The `{idAgencia}` is your agency identifier assigned by EURUS PRO®: an opaque string, not a number. For example, if your agency ID is `z_cl_demo`, the real base URL will be:
 
 ```
 https://api-comex.eurus.pro/z_cl_demo/v1
