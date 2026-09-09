@@ -28,13 +28,20 @@ And a third one, under the **Maestros** (master data) tag, which feeds the other
 
 ## Common parameters
 
-All endpoints in this module require the following mandatory parameters:
+**Every** call to the API requires these two:
 
 | Parameter | Location | Description |
 |---|---|---|
 | `idAgencia` | Path (server variable) | Your EURUS PRO agency identifier. Assigned when access is provisioned. |
 | `key` | Query | API Key provided by EURUS PRO. See [Authentication](../authentication.md). |
-| `rut` | Query | End client RUT, **digits only** (see [RUT format](../conventions.md#rut-format)). |
+
+And this one only on the endpoints under `/dispatch/files`:
+
+| Parameter | Location | Description |
+|---|---|---|
+| `rut` | Query | End client RUT (see [RUT format](../conventions.md#rut-format)). |
+
+`GET /master/fileTypes` takes **no `rut`**: the master list belongs to the agency, not to an end client.
 
 ## Core concepts
 

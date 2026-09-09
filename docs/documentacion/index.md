@@ -28,13 +28,20 @@ Y un tercero, en la etiqueta **Maestros**, que alimenta a los dos anteriores:
 
 ## Parámetros comunes
 
-Todos los endpoints de este módulo requieren los siguientes parámetros obligatorios:
+Estos dos los exige **toda** llamada a la API:
 
 | Parámetro | Ubicación | Descripción |
 |---|---|---|
 | `idAgencia` | Path (variable de servidor) | Identificador de tu agencia EURUS PRO. Se asigna al provisionar el acceso. |
 | `key` | Query | API Key provista por EURUS PRO. Ver [Autenticación](../authentication.md). |
-| `rut` | Query | RUT del cliente final, **solo dígitos** (ver [formato de RUT](../conventions.md#formato-de-rut)). |
+
+Y este solo los endpoints bajo `/dispatch/files`:
+
+| Parámetro | Ubicación | Descripción |
+|---|---|---|
+| `rut` | Query | RUT del cliente final (ver [formato de RUT](../conventions.md#formato-de-rut)). |
+
+`GET /master/fileTypes` **no recibe `rut`**: el maestro es de la agencia, no de un cliente final.
 
 ## Conceptos clave
 

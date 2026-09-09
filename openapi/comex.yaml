@@ -33,10 +33,18 @@ info:
     parámetro de query `?key=<API_KEY>`. Este es el mecanismo estándar de
     Google API Gateway.
 
-    **Identificación**: cada llamada requiere además el parámetro `rut` del
-    cliente final (ver [Convenciones → RUT](/docs/conventions#formato-de-rut)).
+    **Identificación**: los endpoints bajo `/dispatch/*` requieren además el
+    parámetro `rut` del cliente final
+    (ver [Convenciones → RUT](/docs/conventions#formato-de-rut)). Los de
+    `/master/*` no lo reciben: son catálogos de la agencia, no datos de un
+    cliente.
 
     ## Antes de integrar: tres cosas que conviene saber
+
+    Las tres aplican a los endpoints de `/dispatch/*`, que son los que
+    devuelven documentos. Los de `/master/*` declaran su propio
+    comportamiento en cada operación, y en al menos un punto es el contrario:
+    emiten las claves sin valor como `null` en vez de eliminarlas.
 
     1. **La presencia de una clave no está garantizada.** Antes de serializar,
        la API elimina toda propiedad cuyo valor sea `null`, `undefined` o
@@ -237,12 +245,18 @@ components:
         | `expo` | Tipos documentales de **exportación** (DUS). |
         | *(omitido)* | Ambos. |
 
-        No distingue mayúsculas: `impo`, `IMPO` e `Impo` son equivalentes.
-        El `enum` lista las formas canónicas, que son las recomendadas.
+        El `enum` fija las **dos formas canónicas**, que son las que este
+        contrato compromete y las que conviene enviar: un cliente generado
+        desde este spec no necesita emitir ninguna otra.
+
+        Por tolerancia, el backend además acepta cualquier capitalización
+        (`IMPO`, `Impo`) y trata un valor vacío (`?recordType=`) como
+        omitido. Son comportamientos que no se rompen, pero quedan fuera del
+        `enum` a propósito: ampliarlo con cada variante de mayúsculas
+        ensuciaría el contrato y los SDK generados sin agregar capacidad.
 
         Cualquier otro valor —incluidos `din` y `dus`, que son la
-        nomenclatura interna— se rechaza con `400 RECORD_TYPE_INVALID`. Un
-        valor vacío (`?recordType=`) se trata como omitido.
+        nomenclatura interna— se rechaza con `400 RECORD_TYPE_INVALID`.
 
         Si el parámetro llega **repetido con valores distintos**
         (`?recordType=impo&recordType=expo`) también se rechaza con `400`:
