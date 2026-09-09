@@ -35,7 +35,7 @@ Estos dos los exige **toda** llamada a la API:
 | `idAgencia` | Path (variable de servidor) | Identificador de tu agencia EURUS PRO. Se asigna al provisionar el acceso. |
 | `key` | Query | API Key provista por EURUS PRO. Ver [Autenticación](../authentication.md). |
 
-Y este solo los endpoints bajo `/dispatch/files`:
+Y este, solo en los endpoints bajo `/dispatch/files`:
 
 | Parámetro | Ubicación | Descripción |
 |---|---|---|
