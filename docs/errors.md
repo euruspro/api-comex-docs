@@ -91,6 +91,18 @@ Un despacho inexistente y uno que existe pero es de otro cliente devuelven la **
 | **400** | `NEXT_TOKEN_INVALID` | El `nextToken` no corresponde a un documento existente. Puede pasar si el documento ancla se eliminó mientras recorrías las páginas. |
 | **404** | `ACCOUNT_NOT_FOUND` | El RUT está bien formado, pero no es cliente o no está activo para esta API. |
 
+### `GET /master/file-types`
+
+| HTTP | `code` | Cuándo |
+|---|---|---|
+| **400** | `RECORD_TYPE_INVALID` | `recordType` trae un valor distinto de `impo` o `expo`, o llega repetido con valores distintos. Omitirlo es válido: devuelve ambos. |
+| **500** | `INTERNAL_ERROR` | Fallo de la operación. Acá **nunca** se propaga el código de la capa de datos: el detalle queda en los logs del servicio, y el `requestId` es lo que permite cruzarlo al reportar. |
+| **500** | `TENANT_UNRESOLVED` | Lo emite la capa de autenticación, antes de llegar a esta operación, igual que en cualquier endpoint. Ver [Autenticación y agencia](#autenticación-y-agencia). |
+
+:::note Este endpoint no emite 404
+No recibe `rut` ni identificador de despacho: una agencia sin tipos documentales activos responde `200` con `data: []`.
+:::
+
 ### Errores del servidor
 
 | HTTP | `code` | Cuándo |

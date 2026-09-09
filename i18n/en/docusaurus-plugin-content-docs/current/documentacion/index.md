@@ -21,15 +21,27 @@ There are two main endpoints, both under the **Documentación** tag in the [API 
 2. **[`GET /dispatch/files`](../reference/listar-documentos-por-tipo-y-fecha.api.mdx)**
    Returns documents of a **specific type** (`fileTypeName`) issued within a **date range** for a client.
 
+And a third one, under the **Maestros** (master data) tag, which feeds the other two:
+
+3. **[`GET /master/file-types`](../reference/listar-tipos-documentales.api.mdx)**
+   Returns the agency's **active document types**: the values `fileTypeName` accepts. It takes no `rut`.
+
 ## Common parameters
 
-All endpoints in this module require the following mandatory parameters:
+**Every** call to the API requires these two:
 
 | Parameter | Location | Description |
 |---|---|---|
 | `idAgencia` | Path (server variable) | Your EURUS PRO agency identifier. Assigned when access is provisioned. |
 | `key` | Query | API Key provided by EURUS PRO. See [Authentication](../authentication.md). |
-| `rut` | Query | End client RUT (see [RUT format](../conventions.md#rut-format)). **It scopes what you see**: only dispatches belonging to that account, and their documents, are returned. |
+
+And this one on the endpoints under `/dispatch/*` — documents and tracking:
+
+| Parameter | Location | Description |
+|---|---|---|
+| `rut` | Query | End client RUT (see [RUT format](../conventions.md#rut-format)). **It scopes what you see**: only dispatches of that account and their documents are returned. |
+
+`GET /master/file-types` takes **no `rut`**: the master list belongs to the agency, not to an end client.
 
 ## Core concepts
 
@@ -49,8 +61,10 @@ Identifies the **document type** within a dispatch. Values currently enabled in 
 | `CERTIFICADO DE ORIGEN` | Certificate of origin of the goods. |
 | `CONOCIMIENTO DE EMBARQUE (B/L)` | Bill of Lading. |
 
-:::note
-New `fileTypeName` values will be enabled in the API as coverage expands. New values will be announced in the [Changelog](../changelog.md).
+:::tip The table above is a reference, not the source
+Each agency defines which values are enabled. Read them from [`GET /master/file-types`](../reference/listar-tipos-documentales.api.mdx) — one call at the start of your process — instead of hard-coding them: types enabled later show up without a deployment on your side.
+
+Coverage changes are still announced in the [Changelog](../changelog.md).
 :::
 
 :::warning URL encoding required

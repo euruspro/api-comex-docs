@@ -91,6 +91,18 @@ A nonexistent dispatch and one that exists but belongs to another client return 
 | **400** | `NEXT_TOKEN_INVALID` | The `nextToken` does not match an existing document. It can happen if the anchor document was removed while you were walking the pages. |
 | **404** | `ACCOUNT_NOT_FOUND` | The RUT is well formed but is not a client, or is not active for this API. |
 
+### `GET /master/file-types`
+
+| HTTP | `code` | When |
+|---|---|---|
+| **400** | `RECORD_TYPE_INVALID` | `recordType` carries a value other than `impo` or `expo`, or arrives repeated with conflicting values. Omitting it is valid: it returns both. |
+| **500** | `INTERNAL_ERROR` | Operation-level failure. The data-layer code is **never** propagated here: the detail stays in the service logs, and the `requestId` is what links the two when you report it. |
+| **500** | `TENANT_UNRESOLVED` | Emitted by the authentication layer, before the request reaches this operation, as on any endpoint. See [Authentication and agency](#authentication-and-agency). |
+
+:::note This endpoint never returns 404
+It takes no `rut` and no dispatch identifier: an agency with no active document types answers `200` with `data: []`.
+:::
+
 ### Server errors
 
 | HTTP | `code` | When |

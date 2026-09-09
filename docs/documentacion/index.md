@@ -21,15 +21,27 @@ Hay dos endpoints principales, ambos en la etiqueta **Documentación** de la [Re
 2. **[`GET /dispatch/files`](../reference/listar-documentos-por-tipo-y-fecha.api.mdx)**
    Devuelve los documentos de **un tipo específico** (`fileTypeName`) emitidos en un **rango de fechas** para un cliente.
 
+Y un tercero, en la etiqueta **Maestros**, que alimenta a los dos anteriores:
+
+3. **[`GET /master/file-types`](../reference/listar-tipos-documentales.api.mdx)**
+   Devuelve los **tipos documentales activos** de la agencia: los valores que acepta `fileTypeName`. No requiere `rut`.
+
 ## Parámetros comunes
 
-Todos los endpoints de este módulo requieren los siguientes parámetros obligatorios:
+Estos dos los exige **toda** llamada a la API:
 
 | Parámetro | Ubicación | Descripción |
 |---|---|---|
 | `idAgencia` | Path (variable de servidor) | Identificador de tu agencia EURUS PRO. Se asigna al provisionar el acceso. |
 | `key` | Query | API Key provista por EURUS PRO. Ver [Autenticación](../authentication.md). |
+
+Y este, en los endpoints bajo `/dispatch/*` — documentos y seguimiento:
+
+| Parámetro | Ubicación | Descripción |
+|---|---|---|
 | `rut` | Query | RUT del cliente final (ver [formato de RUT](../conventions.md#formato-de-rut)). **Acota lo que ves**: solo devuelve despachos de esa cuenta y sus documentos. |
+
+`GET /master/file-types` **no recibe `rut`**: el maestro es de la agencia, no de un cliente final.
 
 ## Conceptos clave
 
@@ -49,8 +61,10 @@ Identifica el **tipo de documento** dentro de un despacho. Valores actualmente h
 | `CERTIFICADO DE ORIGEN` | Certificado de origen de la mercancía. |
 | `CONOCIMIENTO DE EMBARQUE (B/L)` | Bill of Lading / conocimiento de embarque marítimo. |
 
-:::note
-Nuevos `fileTypeName` se irán habilitando en la API a medida que se amplíe su cobertura. Los nuevos valores se anunciarán en el [Changelog](../changelog.md).
+:::tip La lista de arriba es una referencia, no la fuente
+Los valores habilitados los define cada agencia. Consúltalos con [`GET /master/file-types`](../reference/listar-tipos-documentales.api.mdx) —una llamada al inicio de tu proceso— en vez de fijarlos en tu código: así los tipos que se habiliten después aparecen sin que tengas que desplegar nada.
+
+Los cambios de cobertura se anuncian igualmente en el [Changelog](../changelog.md).
 :::
 
 :::warning URL encoding obligatorio

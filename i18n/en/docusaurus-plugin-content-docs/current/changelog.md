@@ -12,6 +12,17 @@ All notable changes to the Comex API and its documentation are recorded here. Th
 
 ## [Unreleased]
 
+### Added — `GET /master/file-types`
+
+New endpoint returning the agency's **active document types**: the values accepted by the `fileTypeName` parameter of `GET /dispatch/files`.
+
+- Optional `recordType` parameter: `impo` (imports), `expo` (exports), or omitted (both). Case-insensitive; any other value returns `400 RECORD_TYPE_INVALID`.
+- No `rut` required: the master list belongs to the agency, not to an end client.
+- No pagination: the full catalog comes back in one response, with no `nextToken`.
+- **It does not strip valueless keys**, unlike the document endpoints: `name`, `tipoOperacion` and `responsableDoc` come back as `null` when unset, so every element has the same shape. Same criterion as `/dispatch/status`.
+- The documented field sizes (`name` 64, `tipoOperacion` 3, `responsableDoc` 32, `id` 120) are **suggested**: they help you size your columns, and the API does not truncate a value that exceeds them.
+
+As a result, the `fileTypeName` table in the [Documentation](./documentacion/index.md) guide becomes a reference only: the live list is now available over the API.
 ### Changed — Account-scoped authorization and new tracking endpoints
 
 **Behaviour change in production.** `rut` goes from a declared parameter to an enforced control, and the portal documents `/dispatch/status` for the first time.
