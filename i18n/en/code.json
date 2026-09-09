@@ -28,7 +28,7 @@
     "description": "Title of the REST feature card on homepage"
   },
   "home.feature.rest.description": {
-    "message": "JSON endpoints over HTTPS, managed by Google API Gateway with API Key authentication.",
+    "message": "JSON endpoints over HTTPS, served behind an API gateway with API Key authentication.",
     "description": "Description of the REST feature card on homepage"
   },
   "home.feature.interactive.title": {

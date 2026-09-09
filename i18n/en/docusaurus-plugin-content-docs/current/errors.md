@@ -47,7 +47,7 @@ Every response carries the invocation identifier in the `X-Request-Id` header, a
 | Length (measured after trimming whitespace) | up to 128 characters |
 | Allowed alphabet | `A-Z`, `a-z`, `0-9` and `_ . : @ + ~ / = -` |
 
-That covers UUIDs, hexadecimal, W3C `traceparent` and Cloud Trace identifiers. A value that does not qualify **is not an error**: the API generates its own UUID and returns it in the header, so you always get a usable identifier.
+That covers UUIDs, hexadecimal, W3C `traceparent` and the most common trace identifier formats. A value that does not qualify **is not an error**: the API generates its own UUID and returns it in the header, so you always get a usable identifier.
 
 ## Code catalog
 

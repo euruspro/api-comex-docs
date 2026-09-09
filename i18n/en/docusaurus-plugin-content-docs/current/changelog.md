@@ -81,7 +81,7 @@ The previous catalog (`INVALID_ARGUMENT`, `UNAUTHENTICATED`, `RATE_LIMITED`, `BU
 
 #### Rate limits
 
-The published figures (60 req/min, 10,000 req/day) and the `X-RateLimit-*` headers are withdrawn: **the API Gateway declares no quota** for these endpoints and the API does not emit `429`. When quotas are defined they will be announced here before taking effect.
+The published figures (60 req/min, 10,000 req/day) and the `X-RateLimit-*` headers are withdrawn: **the gateway declares no quota** for these endpoints and the API does not emit `429`. When quotas are defined they will be announced here before taking effect.
 
 #### Dates and RUT
 
@@ -92,7 +92,7 @@ The published figures (60 req/min, 10,000 req/day) and the `X-RateLimit-*` heade
 
 - `idAgencia` is no longer described as numeric: it is an opaque string.
 - Examples use the fictional tenant (`z_cl_demo`, dispatch `123457`, RUT `999999999`) instead of real-looking values.
-- The spec states explicitly that it describes **backend behaviour**, not API Gateway configuration.
+- The spec states explicitly that it describes **backend behaviour**, not gateway configuration.
 
 ### Added
 
@@ -135,7 +135,7 @@ The published figures (60 req/min, 10,000 req/day) and the `X-RateLimit-*` heade
   - `GET /{idAgencia}/v1/dispatch/files/{numeroDespacho}` — documents of a dispatch (with optional `fileTypeName` filter).
   - `GET /{idAgencia}/v1/dispatch/files` — documents by type and date range.
 - **Production base URL**: `https://api-comex.eurus.pro/{idAgencia}/v1`.
-- Authentication documented via **API Key in query parameter** (`?key=<API_KEY>`), consistent with Google Cloud API Gateway.
+- Authentication documented via **API Key in query parameter** (`?key=<API_KEY>`), consistent with the API gateway.
 - Documentation of the **RUT format** required by the API (digits only, K → 1).
 - Code examples in **cURL, Node.js and Python** for every call, including RUT-normalization helpers.
 - GitHub Actions workflow for **automatic deploy to GitHub Pages** with the custom domain `api-comex-docs.eurus.pro`.

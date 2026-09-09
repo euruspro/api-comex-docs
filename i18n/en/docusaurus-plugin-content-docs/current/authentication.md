@@ -8,10 +8,10 @@ description: How to authenticate your calls to the Comex API using an API Key in
 
 # Authentication
 
-The EURUS PRO Comex API is exposed through **Google Cloud API Gateway**. Authentication is done via an **API Key** sent as a **query parameter** in every call.
+The EURUS PRO Comex API is exposed through a **managed API gateway**. Authentication is done via an **API Key** sent as a **query parameter** in every call.
 
 :::important Don't use `Authorization`
-Unlike many REST APIs, **the Comex API does not accept an `Authorization` header**. The API Key must always go in the query string under the name `key`. This is the standard required by Google API Gateway.
+Unlike many REST APIs, **the Comex API does not accept an `Authorization` header**. The API Key must always go in the query string under the name `key`. It is the mechanism the gateway requires.
 :::
 
 ## Format

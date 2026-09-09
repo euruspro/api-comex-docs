@@ -47,7 +47,7 @@ Cada respuesta lleva el identificador de la invocación en el header `X-Request-
 | Largo (medido después de recortar espacios) | hasta 128 caracteres |
 | Alfabeto permitido | `A-Z`, `a-z`, `0-9` y `_ . : @ + ~ / = -` |
 
-Cubre UUID, hexadecimal, `traceparent` de W3C e identificadores de Cloud Trace. Un valor que no cumpla **no produce un error**: la API genera su propio UUID y te lo devuelve en el header, así que siempre recibes un identificador utilizable.
+Cubre UUID, hexadecimal, `traceparent` de W3C y los formatos de identificador de traza más habituales. Un valor que no cumpla **no produce un error**: la API genera su propio UUID y te lo devuelve en el header, así que siempre recibes un identificador utilizable.
 
 ## Catálogo de códigos
 

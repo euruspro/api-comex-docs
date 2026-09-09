@@ -40,7 +40,7 @@ function HomepageFeatures() {
       title: translate({id: 'home.feature.rest.title', message: 'REST sobre HTTPS'}),
       description: (
         <Translate id="home.feature.rest.description">
-          Endpoints JSON sobre HTTPS, gestionados por Google API Gateway con autenticación por API Key.
+          Endpoints JSON sobre HTTPS, servidos tras una pasarela de API con autenticación por API Key.
         </Translate>
       ),
     },

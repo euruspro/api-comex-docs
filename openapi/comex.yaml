@@ -3,19 +3,17 @@
 # OpenAPI 3.1 spec
 #
 # ALCANCE DE ESTE DOCUMENTO
-#   Describe el comportamiento del backend: lo que la Cloud Function devuelve
-#   de verdad, campo por campo. NO describe la configuración del API Gateway,
-#   que es un spec Swagger 2.0 aparte y expone estas rutas por un catch-all
-#   (`/{proxy=**}`) en lugar de declararlas una por una. Si algo difiere entre
-#   ambos, el que manda para el integrador es este.
+#   Describe el comportamiento observable de la API: lo que devuelve de
+#   verdad, campo por campo. NO describe la configuración de la pasarela que
+#   la publica, que se mantiene aparte. Si algo difiere entre ambos, el que
+#   manda para el integrador es este.
 #
 #   La forma de la respuesta está verificada contra la implementación, no
-#   inferida. Ver `docs/api-contract/dispatch-files.md` en el repositorio
-#   `api-comex-external`.
+#   inferida.
 #
 # NOTAS DE AUTENTICACIÓN Y RUTA
 #   - La autenticación es por query param `?key=<API_KEY>`, no por header
-#     Authorization: es el estándar de Google Cloud API Gateway.
+#     Authorization: es el mecanismo que exige la pasarela.
 #   - El `idAgencia` asignado por EURUS PRO va antes del segmento `/v1`, y se
 #     modela como variable de servidor.
 # =============================================================================
@@ -30,8 +28,8 @@ info:
     gestionados por una agencia EURUS PRO.
 
     **Autenticación**: todas las llamadas requieren enviar un API Key como
-    parámetro de query `?key=<API_KEY>`. Este es el mecanismo estándar de
-    Google API Gateway.
+    parámetro de query `?key=<API_KEY>`. Este es el mecanismo que exige la
+    pasarela de API que publica el servicio.
 
     **Identificación**: cada llamada requiere además el parámetro `rut` del
     cliente final (ver [Convenciones → RUT](/docs/conventions#formato-de-rut)).
@@ -86,8 +84,8 @@ components:
       name: key
       description: |
         API Key provista por EURUS PRO. Debe enviarse como query parameter
-        en todas las llamadas (`?key=<API_KEY>`), siguiendo el estándar de
-        Google Cloud API Gateway.
+        en todas las llamadas (`?key=<API_KEY>`), siguiendo el mecanismo de
+        la pasarela de API.
 
   parameters:
     RutParam:
