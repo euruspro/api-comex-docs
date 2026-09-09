@@ -1088,6 +1088,15 @@ paths:
       responses:
         "200":
           description: Catálogo de tipos documentales.
+          headers:
+            Cache-Control:
+              description: |
+                Directiva de caché de la respuesta. Es `private` porque el
+                maestro es dato de tu agencia y la API Key viaja en la URL:
+                ningún intermediario compartido debe almacenarlo.
+              schema:
+                type: string
+              example: private, max-age=60
           content:
             application/json:
               schema:
