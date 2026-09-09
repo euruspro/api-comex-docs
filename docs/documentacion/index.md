@@ -23,7 +23,7 @@ Hay dos endpoints principales, ambos en la etiqueta **Documentación** de la [Re
 
 Y un tercero, en la etiqueta **Maestros**, que alimenta a los dos anteriores:
 
-3. **[`GET /master/fileTypes`](../reference/listar-tipos-documentales.api.mdx)**
+3. **[`GET /master/file-types`](../reference/listar-tipos-documentales.api.mdx)**
    Devuelve los **tipos documentales activos** de la agencia: los valores que acepta `fileTypeName`. No requiere `rut`.
 
 ## Parámetros comunes
@@ -41,7 +41,7 @@ Y este, solo en los endpoints bajo `/dispatch/files`:
 |---|---|---|
 | `rut` | Query | RUT del cliente final (ver [formato de RUT](../conventions.md#formato-de-rut)). |
 
-`GET /master/fileTypes` **no recibe `rut`**: el maestro es de la agencia, no de un cliente final.
+`GET /master/file-types` **no recibe `rut`**: el maestro es de la agencia, no de un cliente final.
 
 ## Conceptos clave
 
@@ -62,7 +62,7 @@ Identifica el **tipo de documento** dentro de un despacho. Valores actualmente h
 | `CONOCIMIENTO DE EMBARQUE (B/L)` | Bill of Lading / conocimiento de embarque marítimo. |
 
 :::tip La lista de arriba es una referencia, no la fuente
-Los valores habilitados los define cada agencia. Consúltalos con [`GET /master/fileTypes`](../reference/listar-tipos-documentales.api.mdx) —una llamada al inicio de tu proceso— en vez de fijarlos en tu código: así los tipos que se habiliten después aparecen sin que tengas que desplegar nada.
+Los valores habilitados los define cada agencia. Consúltalos con [`GET /master/file-types`](../reference/listar-tipos-documentales.api.mdx) —una llamada al inicio de tu proceso— en vez de fijarlos en tu código: así los tipos que se habiliten después aparecen sin que tengas que desplegar nada.
 
 Los cambios de cobertura se anuncian igualmente en el [Changelog](../changelog.md).
 :::

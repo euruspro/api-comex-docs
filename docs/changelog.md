@@ -12,7 +12,7 @@ Todos los cambios notables en la API Comex y en su documentación se registran a
 
 ## [Unreleased]
 
-### Added — `GET /master/fileTypes`
+### Added — `GET /master/file-types`
 
 Nuevo endpoint que devuelve los **tipos documentales activos** de la agencia: los valores que acepta el parámetro `fileTypeName` de `GET /dispatch/files`.
 

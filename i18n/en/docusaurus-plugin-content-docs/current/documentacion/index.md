@@ -23,7 +23,7 @@ There are two main endpoints, both under the **Documentación** tag in the [API 
 
 And a third one, under the **Maestros** (master data) tag, which feeds the other two:
 
-3. **[`GET /master/fileTypes`](../reference/listar-tipos-documentales.api.mdx)**
+3. **[`GET /master/file-types`](../reference/listar-tipos-documentales.api.mdx)**
    Returns the agency's **active document types**: the values `fileTypeName` accepts. It takes no `rut`.
 
 ## Common parameters
@@ -41,7 +41,7 @@ And this one only on the endpoints under `/dispatch/files`:
 |---|---|---|
 | `rut` | Query | End client RUT (see [RUT format](../conventions.md#rut-format)). |
 
-`GET /master/fileTypes` takes **no `rut`**: the master list belongs to the agency, not to an end client.
+`GET /master/file-types` takes **no `rut`**: the master list belongs to the agency, not to an end client.
 
 ## Core concepts
 
@@ -62,7 +62,7 @@ Identifies the **document type** within a dispatch. Values currently enabled in 
 | `CONOCIMIENTO DE EMBARQUE (B/L)` | Bill of Lading. |
 
 :::tip The table above is a reference, not the source
-Each agency defines which values are enabled. Read them from [`GET /master/fileTypes`](../reference/listar-tipos-documentales.api.mdx) — one call at the start of your process — instead of hard-coding them: types enabled later show up without a deployment on your side.
+Each agency defines which values are enabled. Read them from [`GET /master/file-types`](../reference/listar-tipos-documentales.api.mdx) — one call at the start of your process — instead of hard-coding them: types enabled later show up without a deployment on your side.
 
 Coverage changes are still announced in the [Changelog](../changelog.md).
 :::

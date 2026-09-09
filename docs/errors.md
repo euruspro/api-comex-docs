@@ -83,7 +83,7 @@ Incluso cuando la API Key **falta**, la respuesta es `403`. Una versión anterio
 | **400** | `FILE_TYPE_NAME_INVALID` | Falta `fileTypeName`, que es obligatorio en este endpoint. |
 | **404** | `ACCOUNT_NOT_FOUND` | El RUT está bien formado, pero no es cliente o no está activo para esta API. |
 
-### `GET /master/fileTypes`
+### `GET /master/file-types`
 
 | HTTP | `code` | Cuándo |
 |---|---|---|
