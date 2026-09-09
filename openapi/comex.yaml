@@ -84,9 +84,12 @@ tags:
       exterior (facturas, packing list, BL, certificados, etc.).
   - name: Maestros
     description: |
-      Catálogos de la agencia: listas de valores estables que el resto de
-      los endpoints acepta como parámetro. Se consultan una vez y se
-      cachean; no cambian de una llamada a la siguiente.
+      Catálogos de la agencia: listas de valores que el resto de los
+      endpoints acepta como parámetro. Son de **baja rotación**, no
+      inmutables — la agencia puede habilitar o dar de baja entradas—, así
+      que conviene consultarlos al inicio del proceso y cachearlos por un
+      rato, no fijarlos en el código ni suponer que dos llamadas del mismo
+      día devuelven exactamente lo mismo.
 
 components:
   securitySchemes:
