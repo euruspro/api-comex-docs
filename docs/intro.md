@@ -3,15 +3,15 @@ id: intro
 title: Introducción
 sidebar_position: 1
 slug: /intro
-description: Visión general de la API Comex de EURUS PRO, su alcance y conceptos clave.
+description: Visión general de la API Comex de EURUS PRO®, su alcance y conceptos clave.
 ---
 
-# API Comex — EURUS PRO
+# API Comex — EURUS PRO®
 
-Bienvenido a la documentación pública de la **API Comex de EURUS PRO**, una API REST para integrar sistemas externos con los procesos de **comercio exterior** gestionados por EURUS PRO: consulta de operaciones de importación y exportación, y acceso a los documentos y certificados asociados a cada despacho.
+Bienvenido a la documentación pública de la **API Comex de EURUS PRO®**, una API REST para integrar sistemas externos con los procesos de **comercio exterior** gestionados por EURUS PRO®: consulta de operaciones de importación y exportación, y acceso a los documentos y certificados asociados a cada despacho.
 
 :::info Audiencia
-Esta documentación está dirigida a **equipos técnicos** que vayan a integrar un sistema (ERP, TMS, portal propio, middleware, script interno) con los servicios de EURUS PRO. Se asume conocimiento básico de HTTP, JSON y consumo de APIs REST.
+Esta documentación está dirigida a **equipos técnicos** que vayan a integrar un sistema (ERP, TMS, portal propio, middleware, script interno) con los servicios de EURUS PRO®. Se asume conocimiento básico de HTTP, JSON y consumo de APIs REST.
 :::
 
 ## Módulos de la API
@@ -28,7 +28,7 @@ En su etapa inicial, la API Comex expone **tres módulos funcionales**:
 
 | Concepto | Descripción |
 |---|---|
-| **Agencia** | Unidad de EURUS PRO que gestiona las operaciones de sus clientes. Cada agencia tiene un `idAgencia` único que forma parte del path de todas las llamadas. |
+| **Agencia** | Unidad de EURUS PRO® que gestiona las operaciones de sus clientes. Cada agencia tiene un `idAgencia` único que forma parte del path de todas las llamadas. |
 | **Cliente** | Organización final (importador/exportador) identificada por su **RUT**. Cada llamada requiere el parámetro `rut`. |
 | **Despacho** | Unidad operativa que agrupa los documentos de una operación de comercio exterior. Identificado por un `numeroDespacho`. |
 | **Documento** | Archivo asociado a un despacho: factura comercial, packing list, BL, certificado de origen, certificado fitosanitario, etc. Se identifican por su `fileTypeName`. |
@@ -48,7 +48,7 @@ La API Comex se expone a través de una **pasarela de API gestionada**, lo que t
 https://api-comex.eurus.pro/{idAgencia}/v1
 ```
 
-El `{idAgencia}` es tu identificador de agencia asignado por EURUS PRO: un string opaco, no un número. Por ejemplo, si tu agencia tiene el ID `z_cl_demo`, la URL base real será:
+El `{idAgencia}` es tu identificador de agencia asignado por EURUS PRO®: un string opaco, no un número. Por ejemplo, si tu agencia tiene el ID `z_cl_demo`, la URL base real será:
 
 ```
 https://api-comex.eurus.pro/z_cl_demo/v1

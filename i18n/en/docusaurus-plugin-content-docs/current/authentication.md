@@ -8,7 +8,7 @@ description: How to authenticate your calls to the Comex API using an API Key in
 
 # Authentication
 
-The EURUS PRO Comex API is exposed through a **managed API gateway**. Authentication is done via an **API Key** sent as a **query parameter** in every call.
+The EURUS PRO® Comex API is exposed through a **managed API gateway**. Authentication is done via an **API Key** sent as a **query parameter** in every call.
 
 :::important Don't use `Authorization`
 Unlike many REST APIs, **the Comex API does not accept an `Authorization` header**. The API Key must always go in the query string under the name `key`. It is the mechanism the gateway requires.
@@ -63,7 +63,7 @@ Always build the URL with a helper that properly encodes parameters (`URLSearchP
 
 The current process is manual:
 
-1. Email [api@eurus.pro](mailto:api@eurus.pro) to request access.
+1. Email [soporte@eurus.pro](mailto:soporte@eurus.pro) to request access.
 2. Provide:
    - Your organization's name and tax ID.
    - Intended use (internal integration, portal, mobile app, etc.).
@@ -78,7 +78,7 @@ The current process is manual:
 | Code | Cause | Action |
 |---|---|---|
 | `403 Forbidden` + `code: API_KEY_INVALID` | API Key missing, revoked or unusable. | Verify `?key=...` is present and current. **The API responds 403, not 401, even when the key is missing.** |
-| `403 Forbidden` + `code: PROJECT_ID_UNAUTHORIZED` | The API Key is valid but not authorized for the `idAgencia` in the path. | Confirm with EURUS PRO which agencies your key is authorized for. |
+| `403 Forbidden` + `code: PROJECT_ID_UNAUTHORIZED` | The API Key is valid but not authorized for the `idAgencia` in the path. | Confirm with EURUS PRO® which agencies your key is authorized for. |
 
 The response body follows the [standard error format](./errors.md).
 
@@ -102,7 +102,7 @@ When requesting the key, ask for restrictions:
 
 ### 3. Rotate regularly
 
-Set a rotation policy (e.g. every 90 days). If you suspect the key has leaked, **rotate immediately** by requesting a new one from EURUS PRO and discarding the old.
+Set a rotation policy (e.g. every 90 days). If you suspect the key has leaked, **rotate immediately** by requesting a new one from EURUS PRO® and discarding the old.
 
 ### 4. One key per environment and per application
 
@@ -110,11 +110,11 @@ Don't reuse the same key between production and staging, nor between different a
 
 ### 5. Monitor usage
 
-Periodically review the usage logs and metrics that EURUS PRO provides. Alerts on abnormal traffic spikes are an early signal of abuse or leaks.
+Periodically review the usage logs and metrics that EURUS PRO® provides. Alerts on abnormal traffic spikes are an early signal of abuse or leaks.
 
 ## What to do if the API Key leaks
 
-1. **Revoke immediately** by contacting EURUS PRO (`api@eurus.pro`) and reporting the incident.
+1. **Revoke immediately** by contacting EURUS PRO® (`soporte@eurus.pro`) and reporting the incident.
 2. Request a new key.
 3. Update your secrets and redeploy your services.
 4. Review logs looking for unauthorized activity between leak and revocation.

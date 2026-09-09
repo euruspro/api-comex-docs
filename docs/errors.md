@@ -108,7 +108,7 @@ No recibe `rut` ni identificador de despacho: una agencia sin tipos documentales
 | HTTP | `code` | Cuándo |
 |---|---|---|
 | **500** | `INTERNAL_ERROR` o un código de la capa de datos | Error no controlado. Reintentar con back-off. |
-| **500** | `TENANT_UNRESOLVED` | La configuración de tu agencia no se pudo resolver. **Reintentar no ayuda**: tu API Key y tu `idAgencia` son válidos, el problema es de configuración del lado de EURUS PRO. Reportar el `requestId`. |
+| **500** | `TENANT_UNRESOLVED` | La configuración de tu agencia no se pudo resolver. **Reintentar no ayuda**: tu API Key y tu `idAgencia` son válidos, el problema es de configuración del lado de EURUS PRO®. Reportar el `requestId`. |
 
 :::warning 400 y 404 significan cosas distintas
 `400 RUT_NUMBER_INVALID` dice que **la forma** del RUT es inválida: el error está en tu request. `404 ACCOUNT_NOT_FOUND` dice que el RUT es válido pero **no corresponde a un cliente activo**: el error está en los datos. Distinguirlos te evita depurar en el lugar equivocado.
@@ -235,7 +235,7 @@ Si aparece de forma recurrente, repórtalo con el `requestId`.
 
 ## Cómo reportar un error
 
-Cuando contactes al soporte de EURUS PRO, incluye **siempre**:
+Cuando contactes al soporte de EURUS PRO®, incluye **siempre**:
 
 1. El `requestId` de la respuesta (o el header `X-Request-Id`).
 2. El timestamp aproximado del request (UTC).

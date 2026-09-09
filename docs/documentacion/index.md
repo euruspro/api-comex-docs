@@ -7,7 +7,7 @@ description: Módulo de documentación — consulta documentos y archivos asocia
 
 # Documentación
 
-El módulo de **Documentación** permite consultar los archivos y documentos asociados a despachos de comercio exterior gestionados por EURUS PRO: **facturas comerciales, packing lists, Bill of Lading, certificados de origen, certificados sanitarios** y cualquier otro documento adjunto a un despacho.
+El módulo de **Documentación** permite consultar los archivos y documentos asociados a despachos de comercio exterior gestionados por EURUS PRO®: **facturas comerciales, packing lists, Bill of Lading, certificados de origen, certificados sanitarios** y cualquier otro documento adjunto a un despacho.
 
 Este módulo aplica tanto a **importaciones** como a **exportaciones** — la API no distingue el tipo de operación en sus endpoints de consulta de archivos.
 
@@ -32,8 +32,8 @@ Estos dos los exige **toda** llamada a la API:
 
 | Parámetro | Ubicación | Descripción |
 |---|---|---|
-| `idAgencia` | Path (variable de servidor) | Identificador de tu agencia EURUS PRO. Se asigna al provisionar el acceso. |
-| `key` | Query | API Key provista por EURUS PRO. Ver [Autenticación](../authentication.md). |
+| `idAgencia` | Path (variable de servidor) | Identificador de tu agencia EURUS PRO®. Se asigna al provisionar el acceso. |
+| `key` | Query | API Key provista por EURUS PRO®. Ver [Autenticación](../authentication.md). |
 
 Y este, en los endpoints bajo `/dispatch/*` — documentos y seguimiento:
 
@@ -47,7 +47,7 @@ Y este, en los endpoints bajo `/dispatch/*` — documentos y seguimiento:
 
 ### Despacho
 
-Un **despacho** es la unidad operativa que agrupa todos los documentos de una operación de comercio exterior. Cada despacho tiene un **número** (`numeroDespacho`) asignado por EURUS PRO al momento de su creación.
+Un **despacho** es la unidad operativa que agrupa todos los documentos de una operación de comercio exterior. Cada despacho tiene un **número** (`numeroDespacho`) asignado por EURUS PRO® al momento de su creación.
 
 ### `fileTypeName`
 
@@ -55,7 +55,7 @@ Identifica el **tipo de documento** dentro de un despacho. Valores actualmente h
 
 | `fileTypeName` | Descripción |
 |---|---|
-| `FACTURA AGENCIA` | Factura emitida por la agencia EURUS PRO. |
+| `FACTURA AGENCIA` | Factura emitida por la agencia EURUS PRO®. |
 | `FACTURA TERCEROS` | Factura emitida por terceros (navieras, transportistas, almacenes, etc.). |
 | `NOTA DE COBRO` | Nota de cobro asociada al despacho. |
 | `CERTIFICADO DE ORIGEN` | Certificado de origen de la mercancía. |

@@ -20,7 +20,7 @@ https://api-comex.eurus.pro/{idAgencia}/v1/...
 
 | Segment | Description |
 |---|---|
-| `{idAgencia}` | Your EURUS PRO agency identifier. It is an opaque string, not a number: treat it as a literal. Assigned when access is provisioned. |
+| `{idAgencia}` | Your EURUS PRO® agency identifier. It is an opaque string, not a number: treat it as a literal. Assigned when access is provisioned. |
 | `v1` | API major version. |
 
 - **Breaking changes** are published under a new major version (`/v2`).
@@ -37,7 +37,7 @@ Almost every call to the Comex API involves these three identifiers:
 
 ### `idAgencia` (path)
 
-Segment identifying your EURUS PRO agency. Part of the path, before `/v1`.
+Segment identifying your EURUS PRO® agency. Part of the path, before `/v1`.
 
 ```
 https://api-comex.eurus.pro/z_cl_demo/v1/...

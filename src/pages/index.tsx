@@ -13,7 +13,7 @@ function HomepageHeader() {
         <h1 className="hero__title">{siteConfig.title}</h1>
         <p className="hero__subtitle">
           <Translate id="home.tagline">
-            Documentación pública para integrar la API de Comercio Exterior de EURUS PRO.
+            Documentación pública para integrar la API de Comercio Exterior de EURUS PRO®.
           </Translate>
         </p>
         <div style={{display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap'}}>

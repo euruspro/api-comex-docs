@@ -65,8 +65,8 @@ Hoy un valor fuera de ahí no produce error: se descarta y se aplica el valor po
 
 | Parámetro | Ubicación | Descripción |
 |---|---|---|
-| `idAgencia` | Path (variable de servidor) | Identificador de tu agencia EURUS PRO. |
-| `key` | Query | API Key provista por EURUS PRO. Ver [Autenticación](../authentication.md). |
+| `idAgencia` | Path (variable de servidor) | Identificador de tu agencia EURUS PRO®. |
+| `key` | Query | API Key provista por EURUS PRO®. Ver [Autenticación](../authentication.md). |
 | `rut` | Query | RUT del cliente final (ver [formato de RUT](../conventions.md#formato-de-rut)). **Acota lo que ves**: solo devuelve despachos de esa cuenta. |
 
 Un despacho que pertenece a otro cliente responde `404`, igual que uno inexistente. Ver [Errores](../errors.md).

@@ -8,15 +8,15 @@ description: Make your first call to the Comex API in under 5 minutes, with cURL
 
 # Quickstart
 
-This guide takes you from zero to a successful call to the **EURUS PRO Comex API** in under five minutes. By the end you'll have an authenticated request working from your terminal or a script.
+This guide takes you from zero to a successful call to the **EURUS PRO® Comex API** in under five minutes. By the end you'll have an authenticated request working from your terminal or a script.
 
 ## Prerequisites
 
-To make your first call you need **three pieces of data** that must be provided by EURUS PRO:
+To make your first call you need **three pieces of data** that must be provided by EURUS PRO®:
 
 | Data | Description | Example |
 |---|---|---|
-| **`idAgencia`** | Your EURUS PRO agency ID. An opaque string, not a number. | `z_cl_demo` |
+| **`idAgencia`** | Your EURUS PRO® agency ID. An opaque string, not a number. | `z_cl_demo` |
 | **`key`** | Secret API Key to authenticate calls. | `AIzaSy...` |
 | **`rut`** | End client RUT, body plus check digit (see [RUT format](./conventions.md#rut-format)). It scopes the dispatches you see. | `999999999` |
 
@@ -28,9 +28,9 @@ In addition you need:
 
 ## Step 1 — Get credentials
 
-Contact the EURUS PRO team to request API access:
+Contact the EURUS PRO® team to request API access:
 
-1. Email [api@eurus.pro](mailto:api@eurus.pro) with your organization's name, intended use, and the public IP address from which you will consume the API (optional, to restrict the key).
+1. Email [soporte@eurus.pro](mailto:soporte@eurus.pro) with your organization's name, intended use, and the public IP address from which you will consume the API (optional, to restrict the key).
 2. You'll receive:
    - Your assigned **`idAgencia`**.
    - A unique, secret **API Key**.

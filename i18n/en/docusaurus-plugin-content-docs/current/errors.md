@@ -108,7 +108,7 @@ It takes no `rut` and no dispatch identifier: an agency with no active document 
 | HTTP | `code` | When |
 |---|---|---|
 | **500** | `INTERNAL_ERROR` or a data-layer code | Unhandled error. Retry with back-off. |
-| **500** | `TENANT_UNRESOLVED` | Your agency's configuration could not be resolved. **Retrying does not help**: your API Key and `idAgencia` are valid; the problem is configuration on the EURUS PRO side. Report the `requestId`. |
+| **500** | `TENANT_UNRESOLVED` | Your agency's configuration could not be resolved. **Retrying does not help**: your API Key and `idAgencia` are valid; the problem is configuration on the EURUS PRO® side. Report the `requestId`. |
 
 :::warning 400 and 404 mean different things
 `400 RUT_NUMBER_INVALID` says the **shape** of the RUT is invalid: the error is in your request. `404 ACCOUNT_NOT_FOUND` says the RUT is valid but **does not match an active client**: the error is in the data. Telling them apart saves you from debugging in the wrong place.
@@ -235,7 +235,7 @@ If it shows up repeatedly, report it with the `requestId`.
 
 ## How to report an error
 
-When contacting EURUS PRO support, **always** include:
+When contacting EURUS PRO® support, **always** include:
 
 1. The `requestId` from the response (or the `X-Request-Id` header).
 2. The approximate request timestamp (UTC).

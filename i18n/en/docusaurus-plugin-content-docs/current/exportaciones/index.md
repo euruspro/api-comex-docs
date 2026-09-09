@@ -2,12 +2,12 @@
 id: index
 title: Exports
 slug: /exportaciones
-description: Exports module of the EURUS PRO Comex API.
+description: Exports module of the EURUS PRO® Comex API.
 ---
 
 # Exports
 
-This module of the Comex API will cover operations and queries related to **export operations** managed by EURUS PRO.
+This module of the Comex API will cover operations and queries related to **export operations** managed by EURUS PRO®.
 
 :::info Coming soon
 The specific export endpoints will be available in a future iteration of the API. For now, the documents associated with export dispatches are queried through the [Documentation](../documentacion/index.md) module, which supports both imports and exports.

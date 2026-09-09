@@ -2,12 +2,12 @@
 id: index
 title: Importaciones
 slug: /importaciones
-description: Módulo de importaciones de la API Comex de EURUS PRO.
+description: Módulo de importaciones de la API Comex de EURUS PRO®.
 ---
 
 # Importaciones
 
-Este módulo de la API Comex cubrirá las operaciones y consultas relacionadas con **operaciones de importación** gestionadas por EURUS PRO.
+Este módulo de la API Comex cubrirá las operaciones y consultas relacionadas con **operaciones de importación** gestionadas por EURUS PRO®.
 
 :::info Próximamente
 Los endpoints específicos de importaciones estarán disponibles en una próxima iteración de la API. Actualmente, los documentos asociados a despachos de importación se consultan mediante el módulo de [Documentación](../documentacion/index.md), que soporta tanto importaciones como exportaciones.

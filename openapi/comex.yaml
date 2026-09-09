@@ -1,5 +1,5 @@
 # =============================================================================
-# API Comex — EURUS PRO
+# API Comex — EURUS PRO®
 # OpenAPI 3.1 spec
 #
 # ALCANCE DE ESTE DOCUMENTO
@@ -14,18 +14,18 @@
 # NOTAS DE AUTENTICACIÓN Y RUTA
 #   - La autenticación es por query param `?key=<API_KEY>`, no por header
 #     Authorization: es el mecanismo que exige la pasarela.
-#   - El `idAgencia` asignado por EURUS PRO va antes del segmento `/v1`, y se
+#   - El `idAgencia` asignado por EURUS PRO® va antes del segmento `/v1`, y se
 #     modela como variable de servidor.
 # =============================================================================
 
 openapi: 3.1.0
 info:
-  title: API Comex — EURUS PRO
+  title: API Comex — EURUS PRO®
   version: "2.1.0"
   description: |
-    API REST de Comercio Exterior de EURUS PRO. Permite consultar los
+    API REST de Comercio Exterior de EURUS PRO®. Permite consultar los
     documentos asociados a despachos de importación y exportación
-    gestionados por una agencia EURUS PRO.
+    gestionados por una agencia EURUS PRO®.
 
     **Autenticación**: todas las llamadas requieren enviar un API Key como
     parámetro de query `?key=<API_KEY>`. Este es el mecanismo que exige la
@@ -58,9 +58,9 @@ info:
     Las tres están explicadas en detalle en
     [Convenciones](/docs/conventions).
   contact:
-    name: EURUS PRO
+    name: EURUS PRO®
     url: https://eurus.pro
-    email: api@eurus.pro
+    email: soporte@eurus.pro
   license:
     name: Propietaria
     url: https://eurus.pro
@@ -72,7 +72,7 @@ servers:
       idAgencia:
         default: YOUR_AGENCY_ID
         description: |
-          Identificador de tu agencia asignado por EURUS PRO. Se incluye
+          Identificador de tu agencia asignado por EURUS PRO®. Se incluye
           como primer segmento del path en todas las llamadas.
 
 tags:
@@ -99,7 +99,7 @@ components:
       in: query
       name: key
       description: |
-        API Key provista por EURUS PRO. Debe enviarse como query parameter
+        API Key provista por EURUS PRO®. Debe enviarse como query parameter
         en todas las llamadas (`?key=<API_KEY>`), siguiendo el mecanismo de
         la pasarela de API.
 
@@ -1066,13 +1066,19 @@ paths:
         GET https://api-comex.eurus.pro/{idAgencia}/v1/master/file-types?key=...&recordType=impo
         ```
 
-        Tres diferencias con los endpoints de `/dispatch/files`:
+        Cuatro diferencias con los endpoints de `/dispatch/files`:
 
         - **No requiere `rut`**: el maestro es de la agencia, no de un
           cliente final.
         - **No pagina**: devuelve el catálogo completo, sin `nextToken`.
         - **No omite las claves sin valor**: emite `null`, así que la forma
           de cada elemento es siempre la misma.
+        - **Es el único endpoint que se puede cachear**: la respuesta trae
+          `Cache-Control: private, max-age=60`. Es `private` porque el
+          maestro es dato de tu agencia y la API Key viaja en la URL: ningún
+          intermediario compartido debe guardarlo. En la práctica, un tipo
+          documental que la agencia habilite puede tardar hasta un minuto en
+          aparecer si tu cliente HTTP respeta el header.
 
         Solo se devuelven los tipos documentales **activos**. Uno dado de
         baja en la agencia desaparece de la lista, pero los documentos ya
@@ -1082,6 +1088,15 @@ paths:
       responses:
         "200":
           description: Catálogo de tipos documentales.
+          headers:
+            Cache-Control:
+              description: |
+                Directiva de caché de la respuesta. Es `private` porque el
+                maestro es dato de tu agencia y la API Key viaja en la URL:
+                ningún intermediario compartido debe almacenarlo.
+              schema:
+                type: string
+              example: private, max-age=60
           content:
             application/json:
               schema:
