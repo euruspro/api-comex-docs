@@ -8,10 +8,10 @@ description: Cómo autenticar tus llamadas a la API Comex mediante API Key en qu
 
 # Autenticación
 
-La API Comex de EURUS PRO está expuesta a través de **Google Cloud API Gateway**. La autenticación se realiza mediante un **API Key** que debe enviarse como **parámetro de query** en cada llamada.
+La API Comex de EURUS PRO está expuesta a través de una **pasarela de API gestionada**. La autenticación se realiza mediante un **API Key** que debe enviarse como **parámetro de query** en cada llamada.
 
 :::important No uses `Authorization`
-A diferencia de muchas APIs REST, **la API Comex no acepta un header `Authorization`**. El API Key debe ir siempre en la query string con el nombre `key`. Este es el estándar exigido por Google API Gateway.
+A diferencia de muchas APIs REST, **la API Comex no acepta un header `Authorization`**. El API Key debe ir siempre en la query string con el nombre `key`. Es el mecanismo que exige la pasarela.
 :::
 
 ## Formato

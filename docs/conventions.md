@@ -117,7 +117,7 @@ normalizar_rut("99.999.999-9")  # "999999999"
 
 ### Convenciones de valores
 
-Firestore es NoSQL: la API **no impone longitudes de campo**. Lo que sigue es guía para tu modelado, no una garantía del contrato:
+La API **no impone longitudes de campo**. Lo que sigue es guía para tu modelado, no una garantía del contrato:
 
 | Tipo | Convención | Ejemplo |
 |---|---|---|
@@ -127,16 +127,16 @@ Firestore es NoSQL: la API **no impone longitudes de campo**. Lo que sigue es gu
 | Números con decimales | Hasta 4 decimales (ej. tipo de cambio) | `850.2534` |
 | Strings | Sin límite declarado | — |
 
-## Tipos de Firestore en la respuesta
+## Tipos internos en la respuesta
 
-La API guarda los datos en Firestore, que maneja dos tipos que **no son JSON**. Ambos se convierten antes de responder:
+El almacenamiento interno de la API maneja dos tipos que **no son JSON**. Ambos se convierten antes de responder:
 
 | Tipo interno | Se emite como | Ejemplo |
 |---|---|---|
 | Marca de tiempo | string ISO 8601 con zona | `"2026-01-31T22:04:31.000Z"` |
 | Referencia a otro documento | **el identificador**, no una ruta interna | `"acc-1"` |
 
-No vas a ver `{"_seconds":…,"_nanoseconds":…}` ni rutas del tipo `agencia/objects/accounts/...`. Si alguna vez lo ves, es un defecto: repórtalo con el `requestId`.
+No vas a ver marcas de tiempo en formato interno (`{"_seconds":…,"_nanoseconds":…}`) ni rutas internas de almacenamiento. Si alguna vez lo ves, es un defecto: repórtalo con el `requestId`.
 
 ## Presencia de campos: lo que más sorprende al integrar
 

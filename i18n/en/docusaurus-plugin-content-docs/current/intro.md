@@ -35,10 +35,10 @@ In its initial stage, the Comex API exposes **three functional modules**:
 
 ## Technical architecture
 
-The Comex API is exposed through **Google Cloud API Gateway**, which has a couple of important implications for your integration:
+The Comex API is exposed through a **managed API gateway**, which has a couple of important implications for your integration:
 
 - **All calls use HTTPS**. Plain HTTP is not accepted.
-- **Authentication uses an API Key sent as a query parameter** (`?key=<API_KEY>`), not as an `Authorization` header. This is specific to Google API Gateway. See [Authentication](./authentication.md) for details.
+- **Authentication uses an API Key sent as a query parameter** (`?key=<API_KEY>`), not as an `Authorization` header. It is the mechanism the gateway requires. See [Authentication](./authentication.md) for details.
 - **The `idAgencia` is part of the path** (before the `/v1` segment) and is assigned when access is provisioned.
 - **The client `rut`** is sent as a query parameter on every call, in digits-only format. See [Conventions → RUT format](./conventions.md#rut-format).
 

@@ -81,7 +81,7 @@ El catálogo anterior (`INVALID_ARGUMENT`, `UNAUTHENTICATED`, `RATE_LIMITED`, `B
 
 #### Rate limits
 
-Se retiran las cifras publicadas (60 req/min, 10 000 req/día) y los headers `X-RateLimit-*`: **el API Gateway no declara ninguna cuota** para estos endpoints y la API no emite `429`. Cuando se definan cuotas se anunciarán acá antes de aplicarse.
+Se retiran las cifras publicadas (60 req/min, 10 000 req/día) y los headers `X-RateLimit-*`: **la pasarela no declara ninguna cuota** para estos endpoints y la API no emite `429`. Cuando se definan cuotas se anunciarán acá antes de aplicarse.
 
 #### Fechas y RUT
 
@@ -92,7 +92,7 @@ Se retiran las cifras publicadas (60 req/min, 10 000 req/día) y los headers `X-
 
 - `idAgencia` deja de describirse como numérico: es una cadena opaca.
 - Los ejemplos usan el tenant ficticio (`z_cl_demo`, despacho `123457`, RUT `999999999`) en vez de valores con apariencia de reales.
-- El spec declara explícitamente que describe el **comportamiento del backend**, no la configuración del API Gateway.
+- El spec declara explícitamente que describe el **comportamiento del backend**, no la configuración de la pasarela.
 
 ### Added
 
@@ -135,7 +135,7 @@ Se retiran las cifras publicadas (60 req/min, 10 000 req/día) y los headers `X-
   - `GET /{idAgencia}/v1/dispatch/files/{numeroDespacho}` — documentos de un despacho (con filtro opcional por `fileTypeName`).
   - `GET /{idAgencia}/v1/dispatch/files` — documentos por tipo y rango de fechas.
 - **Base URL de producción**: `https://api-comex.eurus.pro/{idAgencia}/v1`.
-- Autenticación documentada vía **API Key en query parameter** (`?key=<API_KEY>`), consistente con Google Cloud API Gateway.
+- Autenticación documentada vía **API Key en query parameter** (`?key=<API_KEY>`), consistente con la pasarela de API.
 - Documentación del **formato de RUT** exigido por la API (solo dígitos, K → 1).
 - Ejemplos de código en **cURL, Node.js y Python** para cada llamada, incluyendo helpers de normalización de RUT.
 - Workflow de GitHub Actions para **deploy automático a GitHub Pages** con dominio personalizado `api-comex-docs.eurus.pro`.

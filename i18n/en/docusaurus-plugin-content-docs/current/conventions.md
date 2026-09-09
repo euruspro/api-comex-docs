@@ -117,7 +117,7 @@ normalize_rut("99.999.999-9")  # "999999999"
 
 ### Value conventions
 
-Firestore is NoSQL: the API **does not enforce field lengths**. What follows is guidance for your own modelling, not a contract guarantee:
+The API **does not enforce field lengths**. What follows is guidance for your own modelling, not a contract guarantee:
 
 | Type | Convention | Example |
 |---|---|---|
@@ -127,16 +127,16 @@ Firestore is NoSQL: the API **does not enforce field lengths**. What follows is 
 | Decimal numbers | Up to 4 decimals (e.g. exchange rate) | `850.2534` |
 | Strings | No declared limit | — |
 
-## Firestore types in the response
+## Internal types in the response
 
-The API stores data in Firestore, which has two types that are **not JSON**. Both are converted before responding:
+The API's internal storage has two types that are **not JSON**. Both are converted before responding:
 
 | Internal type | Emitted as | Example |
 |---|---|---|
 | Timestamp | ISO 8601 string with zone | `"2026-01-31T22:04:31.000Z"` |
 | Reference to another document | **the identifier**, not an internal path | `"acc-1"` |
 
-You will not see `{"_seconds":…,"_nanoseconds":…}` or paths like `agency/objects/accounts/...`. If you ever do, that is a defect: report it with the `requestId`.
+You will not see timestamps in internal form (`{"_seconds":…,"_nanoseconds":…}`) or internal storage paths. If you ever do, that is a defect: report it with the `requestId`.
 
 ## Field presence: the thing that surprises integrators most
 
