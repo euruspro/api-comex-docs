@@ -16,7 +16,7 @@ Para hacer tu primera llamada necesitas **tres datos** que debe proveerte EURUS 
 
 | Dato | Descripción | Ejemplo |
 |---|---|---|
-| **`idAgencia`** | ID numérico de tu agencia en EURUS PRO. | `12345` |
+| **`idAgencia`** | ID de tu agencia en EURUS PRO. Es un string opaco, no un número. | `z_cl_demo` |
 | **`key`** | API Key secreta para autenticar las llamadas. | `AIzaSy...` |
 | **`rut`** | RUT del cliente final, cuerpo más dígito verificador (ver [Formato de RUT](./conventions.md#formato-de-rut)). Acota los despachos que ves. | `999999999` |
 

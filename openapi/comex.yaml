@@ -274,9 +274,11 @@ components:
 
         Hoy la API aplica ese valor por defecto cuando recibe un número fuera
         de rango o un valor no numérico, pero **ese comportamiento no es parte
-        del contrato** y puede pasar a responder `400` sin aviso previo. No lo
-        uses para "pedir todo": para recorrer más de 200 despachos usa
-        `nextToken`.
+        del contrato** y puede pasar a responder `400` sin aviso previo.
+
+        Este endpoint **no tiene paginación por cursor**: 200 es el techo duro
+        por respuesta. Si necesitás más despachos, acotá con `recordType`,
+        `isCompleted` o consultá por número de despacho.
       example: 50
 
     NextTokenParam:

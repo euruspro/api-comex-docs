@@ -48,7 +48,7 @@ La API Comex se expone a través de **Google Cloud API Gateway**, lo que tiene u
 https://api-comex.eurus.pro/{idAgencia}/v1
 ```
 
-El `{idAgencia}` es tu identificador de agencia asignado por EURUS PRO. Por ejemplo, si tu agencia tiene el ID `12345`, la URL base real será:
+El `{idAgencia}` es tu identificador de agencia asignado por EURUS PRO: un string opaco, no un número. Por ejemplo, si tu agencia tiene el ID `z_cl_demo`, la URL base real será:
 
 ```
 https://api-comex.eurus.pro/z_cl_demo/v1
