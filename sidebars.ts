@@ -37,6 +37,13 @@ const sidebars: SidebarsConfig = {
       items: openapiSidebar as any,
     },
     {
+      type: 'category',
+      label: 'Seguimiento',
+      collapsed: false,
+      link: {type: 'doc', id: 'seguimiento/index'},
+      items: [],
+    },
+    {
       type: 'doc',
       id: 'changelog',
       label: 'Changelog',

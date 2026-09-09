@@ -16,9 +16,9 @@ Para hacer tu primera llamada necesitas **tres datos** que debe proveerte EURUS 
 
 | Dato | Descripción | Ejemplo |
 |---|---|---|
-| **`idAgencia`** | ID numérico de tu agencia en EURUS PRO. | `12345` |
+| **`idAgencia`** | ID de tu agencia en EURUS PRO. Es un string opaco, no un número. | `z_cl_demo` |
 | **`key`** | API Key secreta para autenticar las llamadas. | `AIzaSy...` |
-| **`rut`** | RUT del cliente final, en formato **solo dígitos** (ver [Formato de RUT](./conventions.md#formato-de-rut)). | `765432101` |
+| **`rut`** | RUT del cliente final, cuerpo más dígito verificador (ver [Formato de RUT](./conventions.md#formato-de-rut)). Acota los despachos que ves. | `999999999` |
 
 Además necesitas:
 
@@ -60,6 +60,8 @@ El parámetro `rut` es el **cuerpo más el dígito verificador**. Se aceptan var
 | `99999999K` | `999999991` |
 
 La forma canónica —solo dígitos, con la `K` convertida a `1`— es la recomendada. Ver [Convenciones → Formato de RUT](./conventions.md#formato-de-rut) para qué se rechaza y por qué.
+
+**El `rut` acota lo que ves**: solo se devuelven despachos de esa cuenta y sus documentos. Un despacho de otro cliente responde `404`, igual que uno inexistente.
 :::
 
 ### cURL

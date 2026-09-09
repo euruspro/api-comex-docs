@@ -48,10 +48,10 @@ The Comex API is exposed through **Google Cloud API Gateway**, which has a coupl
 https://api-comex.eurus.pro/{idAgencia}/v1
 ```
 
-The `{idAgencia}` is your agency identifier assigned by EURUS PRO. For example, if your agency ID is `12345`, the real base URL will be:
+The `{idAgencia}` is your agency identifier assigned by EURUS PRO: an opaque string, not a number. For example, if your agency ID is `z_cl_demo`, the real base URL will be:
 
 ```
-https://api-comex.eurus.pro/12345/v1
+https://api-comex.eurus.pro/z_cl_demo/v1
 ```
 
 ## Next steps

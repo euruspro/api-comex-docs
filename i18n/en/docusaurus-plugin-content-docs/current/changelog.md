@@ -12,6 +12,41 @@ All notable changes to the Comex API and its documentation are recorded here. Th
 
 ## [Unreleased]
 
+### Changed — Account-scoped authorization and new tracking endpoints
+
+**Behaviour change in production.** `rut` goes from a declared parameter to an enforced control, and the portal documents `/dispatch/status` for the first time.
+
+#### `rut` now scopes what the API returns
+
+| Endpoint | Before | Now |
+|---|---|---|
+| `GET /dispatch/files/{n}` | `rut` declared required, **not validated** | Enforced; the dispatch must belong to that account |
+| `GET /dispatch/status/{n}` | did not ask for `rut` | Enforced; the dispatch must belong to that account |
+| `GET /dispatch/status` | did not ask for `rut`, returned all | Enforced; filters by account |
+
+A dispatch that does not exist and one that exists but belongs to another client return the **same** `404 DISPATCH_NOT_FOUND`. That is deliberate: if they differed, walking correlative numbers would reveal which dispatches exist in the agency without accessing any of them.
+
+#### Documented for the first time: `/dispatch/status`
+
+Two endpoints that already existed and the portal did not describe: a dispatch's detail, and the listing of those in your account, with `recordType` and `isCompleted` filters, ordering and `limit`.
+
+Their contract **differs** from the documents one in two ways worth not confusing:
+
+- **Every key is always present**; empty ones are emitted as `null` instead of disappearing.
+- **There is no cursor pagination.** It is bounded by `limit` (200 max), and `total` is how many were returned, not how many exist.
+
+#### An invalid `nextToken` goes from silence to `400`
+
+A `nextToken` that does not match an existing document now returns `400 NEXT_TOKEN_INVALID`. It used to be ignored, returning the first page, which made a long walk **restart and reprocess what it had already processed**, duplicating data with no signal.
+
+#### `TENANT_UNRESOLVED`: new code, and no longer a `400`
+
+When the agency's configuration cannot be resolved, the response goes from `400 PROJECT_ID_UNDEFINED` to **`500 TENANT_UNRESOLVED`**. A `4xx` blamed the integrator for a configuration failure that is ours, and meant neither their monitoring nor ours treated it as an incident. Retrying does not fix it: report the `requestId`.
+
+#### Dates and references in the response
+
+Timestamps are always emitted as ISO 8601 with zone, and references to other documents as their identifier, never as an internal path. On `/dispatch/status` the dates came out raw (`{"_seconds":…,"_nanoseconds":…}`); that was a defect.
+
 ### Changed — The published contract now reflects the real API
 
 This release fixes a wide divergence between what the portal documented and what the API returns. **If you already integrated against the previous documentation, read this section: several fields the spec declared do not exist.**

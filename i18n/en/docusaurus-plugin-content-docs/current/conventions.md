@@ -91,8 +91,8 @@ function normalizeRut(rut) {
   return clean.endsWith("K") ? clean.slice(0, -1) + "1" : clean;
 }
 
-normalizeRut("76.543.210-K"); // "765432101"
-normalizeRut("12.345.678-9"); // "123456789"
+normalizeRut("99.999.999-K"); // "999999991"
+normalizeRut("99.999.999-9"); // "999999999"
 ```
 
 #### Python helper
@@ -102,8 +102,8 @@ def normalize_rut(rut: str) -> str:
     clean = rut.replace(".", "").replace("-", "").replace(" ", "").upper()
     return clean[:-1] + "1" if clean.endswith("K") else clean
 
-normalize_rut("76.543.210-K")  # "765432101"
-normalize_rut("12.345.678-9")  # "123456789"
+normalize_rut("99.999.999-K")  # "999999991"
+normalize_rut("99.999.999-9")  # "999999999"
 ```
 
 ## Request and response format
@@ -127,9 +127,24 @@ Firestore is NoSQL: the API **does not enforce field lengths**. What follows is 
 | Decimal numbers | Up to 4 decimals (e.g. exchange rate) | `850.2534` |
 | Strings | No declared limit | — |
 
+## Firestore types in the response
+
+The API stores data in Firestore, which has two types that are **not JSON**. Both are converted before responding:
+
+| Internal type | Emitted as | Example |
+|---|---|---|
+| Timestamp | ISO 8601 string with zone | `"2026-01-31T22:04:31.000Z"` |
+| Reference to another document | **the identifier**, not an internal path | `"acc-1"` |
+
+You will not see `{"_seconds":…,"_nanoseconds":…}` or paths like `agency/objects/accounts/...`. If you ever do, that is a defect: report it with the `requestId`.
+
 ## Field presence: the thing that surprises integrators most
 
 This is the convention worth reading before you write the first line of code.
+
+:::info Applies to documents, not to statuses
+What follows holds for `GET /dispatch/files`. On `GET /dispatch/status` it is the opposite: **every key is always present**, and those with no value are emitted as `null`. They are two different contracts; do not assume one while reading the other.
+:::
 
 Before serializing the response, the API **recursively removes every property whose value is `null`, `undefined` or `""`** (empty string).
 
@@ -250,8 +265,16 @@ Two behaviours worth tolerating explicitly:
 A total of **exactly 100** results returns a `nextToken` whose next page comes back with `data: []`. It is not an error: it is how the walk ends.
 :::
 
-:::warning An invalid `nextToken` is not an error
-If the token does not match an existing document — because the document was deleted in the meantime, for instance — **it is silently ignored and the first page is returned**. If your stop condition compared pages instead of checking for the absence of `nextToken`, it might never terminate.
+:::warning An invalid `nextToken` returns `400`
+If the token does not match an existing document — because the document was removed while you were walking the pages, for instance — the response is `400 NEXT_TOKEN_INVALID`.
+
+That case used to be silently ignored, returning the first page, which was worse than it sounds: the walk **restarted and reprocessed what it had already processed**, duplicating data with no signal at all. A reconciliation job loaded the same invoices twice.
+
+On that error, restart the walk from the beginning without `nextToken`.
+:::
+
+:::note `/dispatch/status` does not use this mechanism
+The status listing is bounded by `limit` (200 max) and has no cursor. There, `total` is how many were returned, not how many exist: if it equals `limit`, there are probably more.
 :::
 
 ## Rate limits

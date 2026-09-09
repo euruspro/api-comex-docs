@@ -18,7 +18,7 @@ To make your first call you need **three pieces of data** that must be provided 
 |---|---|---|
 | **`idAgencia`** | Your EURUS PRO agency ID. An opaque string, not a number. | `z_cl_demo` |
 | **`key`** | Secret API Key to authenticate calls. | `AIzaSy...` |
-| **`rut`** | End client RUT, body plus check digit (see [RUT format](./conventions.md#rut-format)). | `999999999` |
+| **`rut`** | End client RUT, body plus check digit (see [RUT format](./conventions.md#rut-format)). It scopes the dispatches you see. | `999999999` |
 
 In addition you need:
 
@@ -60,6 +60,8 @@ The `rut` parameter is the **body plus the check digit**. Several forms are acce
 | `99999999K` | `999999991` |
 
 The canonical form — digits only, with `K` folded to `1` — is the recommended one. See [Conventions → RUT format](./conventions.md#rut-format) for what gets rejected and why.
+
+**The `rut` scopes what you see**: only dispatches belonging to that account, and their documents, are returned. A dispatch belonging to another client returns `404`, just like a nonexistent one.
 :::
 
 ### cURL
