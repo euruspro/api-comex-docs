@@ -169,6 +169,19 @@ The API **does not emit** `408`, `409`, `422`, `429`, `502`, `503` or `504`, so 
 ### Exponential back-off in Node.js
 
 ```javascript
+// `fn` must throw an error that exposes the status. `fetch` does not throw on
+// 4xx/5xx, so you have to build it:
+//
+//   const res = await fetch(url);
+//   if (!res.ok) {
+//     const body = await res.json().catch(() => ({}));
+//     throw Object.assign(new Error(body.message ?? res.statusText), {
+//       status: res.status,
+//       code: body.code,
+//       requestId: body.requestId,
+//     });
+//   }
+
 async function withRetry(fn, { maxAttempts = 5 } = {}) {
   let attempt = 0;
   while (true) {
@@ -176,9 +189,11 @@ async function withRetry(fn, { maxAttempts = 5 } = {}) {
       return await fn();
     } catch (err) {
       attempt++;
-      // Only 500 is retriable on this API.
-      const retriable = err.status >= 500 && err.status < 600;
-      if (!retriable || attempt >= maxAttempts) throw err;
+      // Only 500 is retriable on this API: it emits no 502, 503 or 504.
+      // If the error carries no status, do not retry: failing visibly beats
+      // repeating blindly.
+      const status = err?.status ?? err?.response?.status;
+      if (status !== 500 || attempt >= maxAttempts) throw err;
 
       const base = Math.min(1000 * 2 ** attempt, 30_000); // cap 30s
       const jitter = Math.random() * base * 0.3;

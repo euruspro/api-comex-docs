@@ -51,10 +51,15 @@ GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/files/{numeroDespacho}?k
 Reemplaza `{idAgencia}`, `<API_KEY>`, `{numeroDespacho}` y `<RUT>` por tus valores reales.
 
 :::tip Formato del RUT
-El parámetro `rut` debe enviarse **solo con dígitos**, sin puntos, sin guion y sin la letra verificadora. Si el RUT termina en "K", reemplaza la K por "1".
+El parámetro `rut` es el **cuerpo más el dígito verificador**. Se aceptan varias formas y la API las normaliza internamente a la misma consulta:
 
-- `76.543.210-K` → `765432101`
-- `12.345.678-9` → `123456789`
+| Lo que envías | Se consulta como |
+|---|---|
+| `999999999` | `999999999` |
+| `99.999.999-9` | `999999999` |
+| `99999999K` | `999999991` |
+
+La forma canónica —solo dígitos, con la `K` convertida a `1`— es la recomendada. Ver [Convenciones → Formato de RUT](./conventions.md#formato-de-rut) para qué se rechaza y por qué.
 :::
 
 ### cURL

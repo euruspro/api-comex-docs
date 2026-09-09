@@ -4,18 +4,18 @@
 #
 # ALCANCE DE ESTE DOCUMENTO
 #   Describe el comportamiento del backend: lo que la Cloud Function devuelve
-#   de verdad, campo por campo. NO describe la configuracion del API Gateway,
+#   de verdad, campo por campo. NO describe la configuración del API Gateway,
 #   que es un spec Swagger 2.0 aparte y expone estas rutas por un catch-all
 #   (`/{proxy=**}`) en lugar de declararlas una por una. Si algo difiere entre
 #   ambos, el que manda para el integrador es este.
 #
-#   La forma de la respuesta esta verificada contra la implementacion, no
+#   La forma de la respuesta está verificada contra la implementación, no
 #   inferida. Ver `docs/api-contract/dispatch-files.md` en el repositorio
 #   `api-comex-external`.
 #
-# NOTAS DE AUTENTICACION Y RUTA
-#   - La autenticacion es por query param `?key=<API_KEY>`, no por header
-#     Authorization: es el estandar de Google Cloud API Gateway.
+# NOTAS DE AUTENTICACIÓN Y RUTA
+#   - La autenticación es por query param `?key=<API_KEY>`, no por header
+#     Authorization: es el estándar de Google Cloud API Gateway.
 #   - El `idAgencia` asignado por EURUS PRO va antes del segmento `/v1`, y se
 #     modela como variable de servidor.
 # =============================================================================
