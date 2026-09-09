@@ -12,6 +12,18 @@ Todos los cambios notables en la API Comex y en su documentación se registran a
 
 ## [Unreleased]
 
+### Added — `GET /master/fileTypes`
+
+Nuevo endpoint que devuelve los **tipos documentales activos** de la agencia: los valores que acepta el parámetro `fileTypeName` de `GET /dispatch/files`.
+
+- Parámetro opcional `recordType`: `impo` (importación), `expo` (exportación) u omitido (ambos). No distingue mayúsculas; cualquier otro valor da `400 RECORD_TYPE_INVALID`.
+- No requiere `rut`: el maestro es de la agencia, no de un cliente final.
+- No pagina: devuelve el catálogo completo, sin `nextToken`.
+- **A diferencia del resto de la API, no elimina las claves sin valor**: `name`, `tipoOperacion` y `responsableDoc` llegan en `null` cuando no están cargados, así que la forma de cada elemento es estable.
+- Los tamaños documentados de cada campo (`name` 64, `tipoOperacion` 3, `responsableDoc` 32, `id` 120) son **sugeridos**: sirven para dimensionar tus columnas, y la API no recorta el valor si lo excede.
+
+Con esto, la tabla de `fileTypeName` de la guía de [Documentación](./documentacion/index.md) pasa a ser una referencia: la lista viva se consulta por API.
+
 ### Changed — El contrato publicado ahora refleja la API real
 
 Esta versión corrige una divergencia amplia entre lo que el portal documentaba y lo que la API devuelve. **Si ya integraste contra la documentación anterior, revisa esta sección: varios campos que el spec declaraba no existen.**

@@ -83,6 +83,16 @@ Even when the API Key is **missing**, the response is `403`. An earlier version 
 | **400** | `FILE_TYPE_NAME_INVALID` | `fileTypeName` is missing; it is required on this endpoint. |
 | **404** | `ACCOUNT_NOT_FOUND` | The RUT is well formed but is not a client, or is not active for this API. |
 
+### `GET /master/fileTypes`
+
+| HTTP | `code` | When |
+|---|---|---|
+| **400** | `RECORD_TYPE_INVALID` | `recordType` carries a value other than `impo` or `expo`, or arrives repeated with conflicting values. Omitting it is valid: it returns both. |
+
+:::note This endpoint never returns 404
+It takes no `rut` and no dispatch identifier: an agency with no active document types answers `200` with `data: []`.
+:::
+
 ### Server errors
 
 | HTTP | `code` | When |

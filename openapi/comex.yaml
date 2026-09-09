@@ -23,7 +23,7 @@
 openapi: 3.1.0
 info:
   title: API Comex — EURUS PRO
-  version: "2.0.0"
+  version: "2.1.0"
   description: |
     API REST de Comercio Exterior de EURUS PRO. Permite consultar los
     documentos asociados a despachos de importación y exportación
@@ -74,6 +74,11 @@ tags:
     description: |
       Consulta de documentos y archivos asociados a despachos de comercio
       exterior (facturas, packing list, BL, certificados, etc.).
+  - name: Maestros
+    description: |
+      Catálogos de la agencia: listas de valores estables que el resto de
+      los endpoints acepta como parámetro. Se consultan una vez y se
+      cachean; no cambian de una llamada a la siguiente.
 
 components:
   securitySchemes:
@@ -213,6 +218,36 @@ components:
         cortarse por la *ausencia* de `nextToken` en la respuesta, nunca por
         comparar el contenido de dos páginas.
       example: SqboswZtrqP1mDJl6dFj
+
+    RecordTypeParam:
+      name: recordType
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [impo, expo]
+      description: |
+        Tipo de operación por el que filtrar el maestro. **Opcional**: si se
+        omite, se devuelven los tipos documentales de importación y de
+        exportación juntos.
+
+        | Valor | Devuelve |
+        |---|---|
+        | `impo` | Tipos documentales de **importación** (DIN). |
+        | `expo` | Tipos documentales de **exportación** (DUS). |
+        | *(omitido)* | Ambos. |
+
+        No distingue mayúsculas: `impo`, `IMPO` e `Impo` son equivalentes.
+        El `enum` lista las formas canónicas, que son las recomendadas.
+
+        Cualquier otro valor —incluidos `din` y `dus`, que son la
+        nomenclatura interna— se rechaza con `400 RECORD_TYPE_INVALID`. Un
+        valor vacío (`?recordType=`) se trata como omitido.
+
+        Si el parámetro llega **repetido con valores distintos**
+        (`?recordType=impo&recordType=expo`) también se rechaza con `400`:
+        la API no elige uno ni asume "ambos".
+      example: impo
 
   schemas:
     Error:
@@ -442,6 +477,72 @@ components:
             recurrente, conviene reportarlo con el `requestId`.
           example: 2
 
+    FileType:
+      type: object
+      additionalProperties: false
+      required: [id, name, tipoOperacion, responsableDoc]
+      description: |
+        Tipo documental habilitado en la agencia.
+
+        **Las cuatro claves están siempre presentes.** A diferencia de
+        `GET /dispatch/files`, este endpoint no elimina las propiedades sin
+        valor: emite `null`. Un tipo documental con un campo sin cargar
+        aparece igual en la lista.
+
+        Los tamaños indicados abajo son **sugeridos**, no un límite que la
+        API imponga: sirven para dimensionar las columnas de tu lado. Si un
+        valor mal cargado en la agencia los excede, se devuelve completo en
+        vez de recortado, para que el problema sea visible.
+      properties:
+        id:
+          type: string
+          description: |
+            Identificador del tipo documental. Tamaño sugerido: **120**.
+          example: 8kQpZ3mTn2VbYc7Lr5Xd
+        name:
+          type: [string, "null"]
+          description: |
+            Nombre del tipo documental. Es el mismo valor que acepta el
+            parámetro `fileTypeName` de `GET /dispatch/files`, así que este
+            endpoint es la forma de obtener esa lista sin fijarla en tu
+            código. Tamaño sugerido: **64**.
+          example: FACTURA AGENCIA
+        tipoOperacion:
+          type: [string, "null"]
+          description: |
+            Tipo de operación aduanera al que aplica el documento. Tamaño
+            sugerido: **3**.
+          example: IMP
+        responsableDoc:
+          type: [string, "null"]
+          description: |
+            Responsable de entregar el documento. Tamaño sugerido: **32**.
+          example: AGENCIA
+
+    FileTypesResponse:
+      type: object
+      additionalProperties: false
+      required: [date, data]
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: |
+            **Instante en que se sirvió la respuesta**, en ISO 8601 UTC. No
+            es una fecha del dato.
+          example: "2026-01-31T22:04:31.000Z"
+        data:
+          type: array
+          description: |
+            Tipos documentales **activos** que coinciden con el filtro,
+            ordenados por `name`. Puede venir vacío.
+
+            **No hay paginación**: el maestro se devuelve completo en una
+            sola respuesta, sin `nextToken`. Es un catálogo de decenas de
+            elementos, no un listado de operaciones.
+          items:
+            $ref: '#/components/schemas/FileType'
+
   responses:
     BadRequest:
       description: |
@@ -449,7 +550,7 @@ components:
         `DISPATCH_ID_INVALID`, `RUT_NUMBER_INVALID`, `START_DATE_REQUIRED`,
         `END_DATE_REQUIRED`, `START_DATE_INVALID`, `END_DATE_INVALID`,
         `DATE_RANGE_INVALID`, `FILE_TYPE_NAME_INVALID`,
-        `PROJECT_ID_UNDEFINED`.
+        `RECORD_TYPE_INVALID`, `PROJECT_ID_UNDEFINED`.
       content:
         application/json:
           schema:
@@ -708,5 +809,107 @@ paths:
           $ref: '#/components/responses/Forbidden'
         "404":
           $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalError'
+
+  /master/fileTypes:
+    get:
+      tags: [Maestros]
+      operationId: listarTiposDocumentales
+      summary: Tipos documentales de la agencia
+      description: |
+        Devuelve el catálogo de **tipos documentales activos** de la agencia,
+        opcionalmente filtrado por tipo de operación.
+
+        Es la fuente de los valores que acepta el parámetro `fileTypeName`
+        de `GET /dispatch/files`. Consultarlo una vez al inicio del proceso
+        evita fijar la lista en el código: los tipos nuevos que la agencia
+        habilite aparecen acá sin que tengas que desplegar nada.
+
+        ```
+        GET https://api-comex.eurus.pro/{idAgencia}/v1/master/fileTypes?key=...
+        GET https://api-comex.eurus.pro/{idAgencia}/v1/master/fileTypes?key=...&recordType=impo
+        ```
+
+        Tres diferencias con los endpoints de `/dispatch/files`:
+
+        - **No requiere `rut`**: el maestro es de la agencia, no de un
+          cliente final.
+        - **No pagina**: devuelve el catálogo completo, sin `nextToken`.
+        - **No omite las claves sin valor**: emite `null`, así que la forma
+          de cada elemento es siempre la misma.
+
+        Solo se devuelven los tipos documentales **activos**. Uno dado de
+        baja en la agencia desaparece de la lista, pero los documentos ya
+        emitidos con ese tipo siguen consultándose por `fileTypeName`.
+      parameters:
+        - $ref: '#/components/parameters/RecordTypeParam'
+      responses:
+        "200":
+          description: Catálogo de tipos documentales.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileTypesResponse'
+              examples:
+                todos:
+                  summary: Sin filtro — importación y exportación
+                  description: |
+                    Sin `recordType` se devuelven los tipos de ambas
+                    operaciones, ordenados por `name`.
+                  value:
+                    date: "2026-01-31T22:04:31.000Z"
+                    data:
+                      - id: 8kQpZ3mTn2VbYc7Lr5Xd
+                        name: CERTIFICADO DE ORIGEN
+                        tipoOperacion: IMP
+                        responsableDoc: CLIENTE
+                      - id: Lm4tRv9WqA1sEd6Fg2Hj
+                        name: FACTURA AGENCIA
+                        tipoOperacion: IMP
+                        responsableDoc: AGENCIA
+                      - id: Zx7Cv2Bn8Mk3Ql5Wt9Yu
+                        name: MANIFIESTO DE EXPORTACION
+                        tipoOperacion: EXP
+                        responsableDoc: NAVIERA
+                soloImportacion:
+                  summary: Filtrado por `recordType=impo`
+                  description: |
+                    Solo los tipos documentales de importación.
+                  value:
+                    date: "2026-01-31T22:04:31.000Z"
+                    data:
+                      - id: 8kQpZ3mTn2VbYc7Lr5Xd
+                        name: CERTIFICADO DE ORIGEN
+                        tipoOperacion: IMP
+                        responsableDoc: CLIENTE
+                      - id: Lm4tRv9WqA1sEd6Fg2Hj
+                        name: FACTURA AGENCIA
+                        tipoOperacion: IMP
+                        responsableDoc: AGENCIA
+                camposSinCargar:
+                  summary: Un tipo documental con campos sin valor
+                  description: |
+                    Las claves no desaparecen: llegan en `null`. Verifica el
+                    valor, no la presencia de la clave.
+                  value:
+                    date: "2026-01-31T22:04:31.000Z"
+                    data:
+                      - id: Zx7Cv2Bn8Mk3Ql5Wt9Yu
+                        name: DOCUMENTO SIN CLASIFICAR
+                        tipoOperacion: null
+                        responsableDoc: null
+                sinResultados:
+                  summary: Agencia sin tipos documentales activos
+                  description: |
+                    `data` vacío no es un error: es un `200` con cero
+                    resultados.
+                  value:
+                    date: "2026-01-31T22:04:31.000Z"
+                    data: []
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "500":
           $ref: '#/components/responses/InternalError'

@@ -83,6 +83,16 @@ Incluso cuando la API Key **falta**, la respuesta es `403`. Una versión anterio
 | **400** | `FILE_TYPE_NAME_INVALID` | Falta `fileTypeName`, que es obligatorio en este endpoint. |
 | **404** | `ACCOUNT_NOT_FOUND` | El RUT está bien formado, pero no es cliente o no está activo para esta API. |
 
+### `GET /master/fileTypes`
+
+| HTTP | `code` | Cuándo |
+|---|---|---|
+| **400** | `RECORD_TYPE_INVALID` | `recordType` trae un valor distinto de `impo` o `expo`, o llega repetido con valores distintos. Omitirlo es válido: devuelve ambos. |
+
+:::note Este endpoint no emite 404
+No recibe `rut` ni identificador de despacho: una agencia sin tipos documentales activos responde `200` con `data: []`.
+:::
+
 ### Errores del servidor
 
 | HTTP | `code` | Cuándo |
