@@ -57,18 +57,25 @@ That covers UUIDs, hexadecimal, W3C `traceparent` and Cloud Trace identifiers. A
 |---|---|---|
 | **403** | `API_KEY_INVALID` | `?key=` is missing, or the value is not usable. Also when it arrives repeated with conflicting values. |
 | **403** | `PROJECT_ID_UNAUTHORIZED` | The API Key is not authorized for the `idAgencia` in the path. |
-| **400** | `PROJECT_ID_UNDEFINED` | The `idAgencia` is missing from the path, or its configuration could not be resolved. |
+| **400** | `PROJECT_ID_UNDEFINED` | The `idAgencia` is missing from the path. |
+| **500** | `TENANT_UNRESOLVED` | Your agency's configuration could not be resolved. **Not an error in your request**: see below. |
 
 :::info There is no 401
 Even when the API Key is **missing**, the response is `403`. An earlier version of this documentation declared `401`.
 :::
 
-### `GET /dispatch/files/{numeroDespacho}`
+### Dispatches: `/dispatch/files/{n}` and `/dispatch/status/{n}`
 
 | HTTP | `code` | When |
 |---|---|---|
 | **400** | `DISPATCH_ID_INVALID` | `numeroDespacho` is empty. |
-| **404** | `DISPATCH_NOT_FOUND` | The dispatch does not exist in your agency. |
+| **400** | `RUT_NUMBER_INVALID` | `rut` is missing, or its shape is not a RUT. |
+| **404** | `ACCOUNT_NOT_FOUND` | The RUT is not a client, or is not active. |
+| **404** | `DISPATCH_NOT_FOUND` | The dispatch does not exist in your agency, **or does not belong to the account behind `rut`**. |
+
+:::warning The two 404 cases are indistinguishable, by design
+A nonexistent dispatch and one that exists but belongs to another client return the **same** response. If they differed, walking correlative numbers would reveal which dispatches exist in the agency without accessing any of them.
+:::
 
 ### `GET /dispatch/files`
 
@@ -81,13 +88,15 @@ Even when the API Key is **missing**, the response is `403`. An earlier version 
 | **400** | `END_DATE_INVALID` | Same for `endDate`. |
 | **400** | `DATE_RANGE_INVALID` | `startDate` is greater than `endDate`. |
 | **400** | `FILE_TYPE_NAME_INVALID` | `fileTypeName` is missing; it is required on this endpoint. |
+| **400** | `NEXT_TOKEN_INVALID` | The `nextToken` does not match an existing document. It can happen if the anchor document was removed while you were walking the pages. |
 | **404** | `ACCOUNT_NOT_FOUND` | The RUT is well formed but is not a client, or is not active for this API. |
 
 ### Server errors
 
 | HTTP | `code` | When |
 |---|---|---|
-| **500** | `INTERNAL_ERROR` or a data-layer code | Unhandled error. |
+| **500** | `INTERNAL_ERROR` or a data-layer code | Unhandled error. Retry with back-off. |
+| **500** | `TENANT_UNRESOLVED` | Your agency's configuration could not be resolved. **Retrying does not help**: your API Key and `idAgencia` are valid; the problem is configuration on the EURUS PRO side. Report the `requestId`. |
 
 :::warning 400 and 404 mean different things
 `400 RUT_NUMBER_INVALID` says the **shape** of the RUT is invalid: the error is in your request. `404 ACCOUNT_NOT_FOUND` says the RUT is valid but **does not match an active client**: the error is in the data. Telling them apart saves you from debugging in the wrong place.
@@ -162,7 +171,8 @@ X-Request-Id: b1e8a9c2-0000-4fff-a000-100000000004
 | **400** | **No** | It is an error in your request. Retrying returns the same result. |
 | **403** | **No** | Check the API Key and the `idAgencia`. |
 | **404** | **No** | The resource does not exist. It may start existing later, but not because you retried now. |
-| **500** | Yes | Exponential back-off with jitter, at most 5 attempts. If it persists, report the `requestId`. |
+| **500** `INTERNAL_ERROR` | Yes | Exponential back-off with jitter, at most 5 attempts. If it persists, report the `requestId`. |
+| **500** `TENANT_UNRESOLVED` | **No** | Retrying will not fix it. Report the `requestId` to support. |
 
 The API **does not emit** `408`, `409`, `422`, `429`, `502`, `503` or `504`, so you do not need to handle them.
 

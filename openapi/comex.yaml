@@ -70,6 +70,9 @@ servers:
           como primer segmento del path en todas las llamadas.
 
 tags:
+  - name: Seguimiento
+    description: |
+      Estado y trazabilidad de los despachos de comercio exterior.
   - name: Documentación
     description: |
       Consulta de documentos y archivos asociados a despachos de comercio
@@ -112,6 +115,10 @@ components:
         de miles del cuerpo.
 
         El largo **no** se valida: el RUT existe o no existe como cliente.
+
+        **El RUT acota lo que ves.** Solo se devuelven despachos de la cuenta
+        a la que resuelve, y sus documentos. Un despacho de otra cuenta
+        responde `404`, igual que uno inexistente — ver la respuesta `404`.
       example: "999999999"
 
     FileTypeNameOptional:
@@ -197,6 +204,69 @@ components:
         `400 DATE_RANGE_INVALID`.
       example: "2026-01-31"
 
+    RecordTypeParam:
+      name: recordType
+      in: query
+      required: false
+      schema:
+        type: string
+      description: |
+        Filtra por tipo de registro. Valores observados: `din` (importación),
+        `dus` (exportación), `smda`. El filtro es exacto.
+      example: din
+
+    IsCompletedParam:
+      name: isCompleted
+      in: query
+      required: false
+      schema:
+        type: boolean
+      description: |
+        Filtra por despachos cerrados (`true`) o abiertos (`false`). Cualquier
+        otro valor se ignora y no filtra.
+      example: false
+
+    StatusOrderByParam:
+      name: orderBy
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [lastModifiedDate, createdDate, recordType, isCompleted]
+        default: lastModifiedDate
+      description: |
+        Campo de ordenamiento. Un valor fuera de la lista **no es un error**:
+        se ignora y se ordena por `lastModifiedDate`.
+      example: createdDate
+
+    StatusOrderDirectionParam:
+      name: orderDirection
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+      description: |
+        Dirección del ordenamiento. Cualquier valor distinto de `asc` se trata
+        como `desc`.
+      example: desc
+
+    StatusLimitParam:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 50
+      description: |
+        Cantidad máxima de despachos a devolver. Fuera del rango 1–200 —o si
+        no es un número— **no es un error**: se aplica el valor por defecto de
+        50.
+      example: 50
+
     NextTokenParam:
       name: nextToken
       in: query
@@ -207,11 +277,17 @@ components:
         Cursor de paginación: el valor `nextToken` que devolvió la respuesta
         anterior. Se omite para pedir la primera página.
 
-        **Si el token no corresponde a un documento existente se ignora en
-        silencio y se devuelve la primera página.** No hay error para un
-        token inválido o expirado, así que un bucle de paginación debe
-        cortarse por la *ausencia* de `nextToken` en la respuesta, nunca por
-        comparar el contenido de dos páginas.
+        **Si el token no corresponde a un documento existente se responde
+        `400 NEXT_TOKEN_INVALID`.** Puede pasar si el documento ancla se
+        eliminó mientras recorrías las páginas.
+
+        Antes ese caso se ignoraba en silencio y se devolvía la primera
+        página, lo que hacía que un recorrido largo reiniciara y volviera a
+        procesar lo ya procesado, duplicando datos sin ninguna señal.
+
+        La condición de corte de tu bucle sigue siendo la **ausencia** de
+        `nextToken` en la respuesta, nunca comparar el contenido de dos
+        páginas.
       example: SqboswZtrqP1mDJl6dFj
 
   schemas:
@@ -442,6 +518,123 @@ components:
             recurrente, conviene reportarlo con el `requestId`.
           example: 2
 
+    DispatchStatus:
+      type: object
+      additionalProperties: false
+      required:
+        [id, numeroDespacho, recordType, EstadoDIN, EstadoDUS, isCompleted,
+         dueStatus, priority, allowEdit, createdDate, lastModifiedDate,
+         fechaEta, fechaLegalizacion]
+      description: |
+        Estado de seguimiento de un despacho.
+
+        **A diferencia de los documentos, acá todas las claves están siempre
+        presentes**: las que no tienen valor se emiten como `null` en lugar de
+        desaparecer del JSON. Son dos contratos distintos a propósito, y
+        conviene no asumir el de un endpoint al leer el otro.
+      properties:
+        id:
+          type: string
+          description: ID del despacho.
+          example: "123457"
+        numeroDespacho:
+          type: [string, 'null']
+          description: Número de despacho del negocio.
+          example: "123457"
+        recordType:
+          type: [string, 'null']
+          description: 'Tipo de registro. Valores observados: `din`, `dus`, `smda`.'
+          example: din
+        EstadoDIN:
+          type: [string, 'null']
+          description: Estado de la Declaración de Ingreso, en importaciones.
+          example: ACEPTADA
+        EstadoDUS:
+          type: [string, 'null']
+          description: Estado del Documento Único de Salida, en exportaciones.
+          example: null
+        isCompleted:
+          type: boolean
+          description: Si el despacho está cerrado. Cae a `false`.
+          example: false
+        dueStatus:
+          type: [string, 'null']
+          description: Estado respecto de su vencimiento.
+          example: EN_PLAZO
+        priority:
+          type: [string, 'null']
+          description: Prioridad asignada al despacho.
+          example: ALTA
+        allowEdit:
+          type: boolean
+          description: Si el despacho admite edición. Cae a `true`.
+          example: true
+        createdDate:
+          type: [string, 'null']
+          format: date-time
+          description: Creación del registro, en ISO 8601 UTC.
+          example: "2026-01-05T13:00:00.000Z"
+        lastModifiedDate:
+          type: [string, 'null']
+          format: date-time
+          description: Última modificación, en ISO 8601 UTC.
+          example: "2026-01-18T09:10:00.000Z"
+        fechaEta:
+          type: [string, 'null']
+          format: date-time
+          description: ETA de la carga, en ISO 8601 UTC.
+          example: "2026-01-22T00:00:00.000Z"
+        fechaLegalizacion:
+          type: [string, 'null']
+          format: date-time
+          description: Fecha de legalización, en ISO 8601 UTC.
+          example: null
+
+    DispatchStatusResponse:
+      type: object
+      additionalProperties: false
+      required: [status, id, data]
+      description: |
+        Envelope del detalle. **No es el mismo que el de documentos**: acá no
+        hay `date` ni paginación.
+      properties:
+        status:
+          type: integer
+          description: Código HTTP, repetido en el cuerpo.
+          example: 200
+        id:
+          type: string
+          description: ID del despacho consultado.
+          example: "123457"
+        data:
+          $ref: '#/components/schemas/DispatchStatus'
+
+    DispatchStatusListResponse:
+      type: object
+      additionalProperties: false
+      required: [status, total, limit, data]
+      description: |
+        Envelope de la lista. **`total` es la cantidad devuelta en esta
+        respuesta, no el total existente**: si es igual a `limit`, es probable
+        que haya más y convenga pedir con un `limit` mayor o afinar los
+        filtros. Este endpoint no tiene paginación por cursor.
+      properties:
+        status:
+          type: integer
+          example: 200
+        total:
+          type: integer
+          description: Cantidad de elementos en `data`.
+          example: 2
+        limit:
+          type: integer
+          description: Límite aplicado a esta consulta.
+          example: 50
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DispatchStatus'
+
   responses:
     BadRequest:
       description: |
@@ -449,7 +642,7 @@ components:
         `DISPATCH_ID_INVALID`, `RUT_NUMBER_INVALID`, `START_DATE_REQUIRED`,
         `END_DATE_REQUIRED`, `START_DATE_INVALID`, `END_DATE_INVALID`,
         `DATE_RANGE_INVALID`, `FILE_TYPE_NAME_INVALID`,
-        `PROJECT_ID_UNDEFINED`.
+        `NEXT_TOKEN_INVALID`, `PROJECT_ID_UNDEFINED`.
       content:
         application/json:
           schema:
@@ -466,18 +659,27 @@ components:
             $ref: '#/components/schemas/Error'
     NotFound:
       description: |
-        El recurso no existe en la agencia. Códigos: `DISPATCH_NOT_FOUND`
-        (el despacho no existe) y `ACCOUNT_NOT_FOUND` (el RUT no es cliente
-        o no está activo para esta API).
+        El recurso no existe **o no pertenece a la cuenta del `rut`**.
+        Códigos: `DISPATCH_NOT_FOUND` y `ACCOUNT_NOT_FOUND` (el RUT no es
+        cliente o no está activo para esta API).
+
+        Los dos casos del despacho —inexistente y de otra cuenta— devuelven
+        la **misma** respuesta a propósito. Distinguirlos permitiría deducir,
+        probando números correlativos, qué despachos existen en la agencia
+        sin acceder a ninguno.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
     InternalError:
       description: |
-        Error no controlado. El `code` puede ser un código de Firestore o
-        `INTERNAL_ERROR`. Reintentar con back-off; si persiste, reportar el
-        `requestId`.
+        Error del servidor. Códigos posibles:
+
+        - `INTERNAL_ERROR` o un código de la capa de datos: error no
+          controlado. Reintentar con back-off.
+        - `TENANT_UNRESOLVED`: la configuración de tu agencia no se pudo
+          resolver. **No es un error de tu request** — tu API Key y tu
+          `idAgencia` son válidos. Reportar el `requestId` a soporte.
       content:
         application/json:
           schema:
@@ -701,6 +903,156 @@ paths:
                     resultados.
                   value:
                     date: "2026-01-31T22:04:31.000Z"
+                    data: []
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalError'
+
+  /dispatch/status/{numeroDespacho}:
+    get:
+      tags: [Seguimiento]
+      operationId: consultarEstadoDespacho
+      summary: Estado de un despacho
+      description: |
+        Devuelve el estado de seguimiento de un **despacho específico**: tipo
+        de registro, estado de la DIN o el DUS, fechas y prioridad.
+
+        A diferencia de los endpoints de documentos, acá **todas las claves
+        están siempre presentes**: las que no tienen valor se emiten como
+        `null`.
+
+        ```
+        GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/status/{numeroDespacho}?key=...&rut=...
+        ```
+      parameters:
+        - name: numeroDespacho
+          in: path
+          required: true
+          schema:
+            type: string
+          description: |
+            Número de despacho del negocio. Se responde `404` si no existe en
+            la agencia **o si no pertenece a la cuenta del `rut`**.
+          example: "123457"
+        - $ref: '#/components/parameters/RutParam'
+      responses:
+        "200":
+          description: Estado del despacho.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispatchStatusResponse'
+              examples:
+                importacionEnCurso:
+                  summary: Importación aceptada, aún abierta
+                  value:
+                    status: 200
+                    id: "123457"
+                    data:
+                      id: "123457"
+                      numeroDespacho: "123457"
+                      recordType: din
+                      EstadoDIN: ACEPTADA
+                      EstadoDUS: null
+                      isCompleted: false
+                      dueStatus: EN_PLAZO
+                      priority: ALTA
+                      allowEdit: true
+                      createdDate: "2026-01-05T13:00:00.000Z"
+                      lastModifiedDate: "2026-01-18T09:10:00.000Z"
+                      fechaEta: "2026-01-22T00:00:00.000Z"
+                      fechaLegalizacion: null
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalError'
+
+  /dispatch/status:
+    get:
+      tags: [Seguimiento]
+      operationId: listarEstadosDespacho
+      summary: Estados de tus despachos
+      description: |
+        Devuelve los despachos de la cuenta del `rut`, con filtros y
+        ordenamiento opcionales.
+
+        **Solo devuelve despachos de esa cuenta.** No hay forma de listar los
+        de otro cliente.
+
+        Este endpoint **no tiene paginación por cursor**: se acota con `limit`,
+        que como máximo trae 200. Si `total` viene igual a `limit`, es probable
+        que haya más resultados de los que estás viendo.
+
+        Los filtros y el ordenamiento **fallan de forma silenciosa hacia el
+        valor por defecto**: un `orderBy` desconocido o un `limit` fuera de
+        rango no producen error, simplemente se ignoran.
+
+        ```
+        GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/status?key=...&rut=...
+        ```
+      parameters:
+        - $ref: '#/components/parameters/RutParam'
+        - $ref: '#/components/parameters/RecordTypeParam'
+        - $ref: '#/components/parameters/IsCompletedParam'
+        - $ref: '#/components/parameters/StatusOrderByParam'
+        - $ref: '#/components/parameters/StatusOrderDirectionParam'
+        - $ref: '#/components/parameters/StatusLimitParam'
+      responses:
+        "200":
+          description: Despachos de la cuenta.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispatchStatusListResponse'
+              examples:
+                dosDespachos:
+                  summary: Dos despachos abiertos
+                  value:
+                    status: 200
+                    total: 2
+                    limit: 50
+                    data:
+                      - id: "123457"
+                        numeroDespacho: "123457"
+                        recordType: din
+                        EstadoDIN: ACEPTADA
+                        EstadoDUS: null
+                        isCompleted: false
+                        dueStatus: EN_PLAZO
+                        priority: ALTA
+                        allowEdit: true
+                        createdDate: "2026-01-05T13:00:00.000Z"
+                        lastModifiedDate: "2026-01-18T09:10:00.000Z"
+                        fechaEta: "2026-01-22T00:00:00.000Z"
+                        fechaLegalizacion: null
+                      - id: "123458"
+                        numeroDespacho: "123458"
+                        recordType: dus
+                        EstadoDIN: null
+                        EstadoDUS: EN_TRAMITE
+                        isCompleted: false
+                        dueStatus: EN_PLAZO
+                        priority: null
+                        allowEdit: true
+                        createdDate: "2026-01-12T11:00:00.000Z"
+                        lastModifiedDate: "2026-01-19T15:40:00.000Z"
+                        fechaEta: null
+                        fechaLegalizacion: null
+                sinResultados:
+                  summary: La cuenta no tiene despachos con esos filtros
+                  value:
+                    status: 200
+                    total: 0
+                    limit: 50
                     data: []
         "400":
           $ref: '#/components/responses/BadRequest'

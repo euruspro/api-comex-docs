@@ -91,8 +91,8 @@ function normalizarRut(rut) {
   return limpio.endsWith("K") ? limpio.slice(0, -1) + "1" : limpio;
 }
 
-normalizarRut("76.543.210-K"); // "765432101"
-normalizarRut("12.345.678-9"); // "123456789"
+normalizarRut("99.999.999-K"); // "999999991"
+normalizarRut("99.999.999-9"); // "999999999"
 ```
 
 #### Helper en Python
@@ -102,8 +102,8 @@ def normalizar_rut(rut: str) -> str:
     limpio = rut.replace(".", "").replace("-", "").replace(" ", "").upper()
     return limpio[:-1] + "1" if limpio.endswith("K") else limpio
 
-normalizar_rut("76.543.210-K")  # "765432101"
-normalizar_rut("12.345.678-9")  # "123456789"
+normalizar_rut("99.999.999-K")  # "999999991"
+normalizar_rut("99.999.999-9")  # "999999999"
 ```
 
 ## Formato de request y response
@@ -127,9 +127,24 @@ Firestore es NoSQL: la API **no impone longitudes de campo**. Lo que sigue es gu
 | Números con decimales | Hasta 4 decimales (ej. tipo de cambio) | `850.2534` |
 | Strings | Sin límite declarado | — |
 
+## Tipos de Firestore en la respuesta
+
+La API guarda los datos en Firestore, que maneja dos tipos que **no son JSON**. Ambos se convierten antes de responder:
+
+| Tipo interno | Se emite como | Ejemplo |
+|---|---|---|
+| Marca de tiempo | string ISO 8601 con zona | `"2026-01-31T22:04:31.000Z"` |
+| Referencia a otro documento | **el identificador**, no una ruta interna | `"acc-1"` |
+
+No vas a ver `{"_seconds":…,"_nanoseconds":…}` ni rutas del tipo `agencia/objects/accounts/...`. Si alguna vez lo ves, es un defecto: repórtalo con el `requestId`.
+
 ## Presencia de campos: lo que más sorprende al integrar
 
 Esta es la convención que conviene leer antes de escribir la primera línea de código.
+
+:::info Aplica a los documentos, no a los estados
+Lo que sigue rige para `GET /dispatch/files`. En `GET /dispatch/status` es al revés: **todas las claves están siempre presentes** y las que no tienen valor se emiten como `null`. Son dos contratos distintos; no asumas el de un endpoint al leer el otro.
+:::
 
 Antes de serializar la respuesta, la API **elimina recursivamente toda propiedad cuyo valor sea `null`, `undefined` o `""`** (string vacío).
 
@@ -250,8 +265,16 @@ Dos comportamientos que conviene tolerar explícitamente:
 Un total de **exactamente 100** resultados devuelve un `nextToken` cuya página siguiente viene con `data: []`. No es un error: es la forma en que termina el recorrido.
 :::
 
-:::warning Un `nextToken` inválido no da error
-Si el token no corresponde a un documento existente —por ejemplo, porque el documento se eliminó entremedio— **se ignora en silencio y se devuelve la primera página**. Si tu bucle de corte dependiera de comparar páginas en vez de la ausencia de `nextToken`, podría no terminar nunca.
+:::warning Un `nextToken` inválido da `400`
+Si el token no corresponde a un documento existente —por ejemplo, porque el documento se eliminó mientras recorrías las páginas— la respuesta es `400 NEXT_TOKEN_INVALID`.
+
+Antes ese caso se ignoraba en silencio y se devolvía la primera página, lo que era peor de lo que parece: el recorrido **reiniciaba y volvía a procesar lo ya procesado**, duplicando datos sin ninguna señal. Un job de conciliación cargaba las mismas facturas dos veces.
+
+Ante ese error, reinicia el recorrido desde el principio sin `nextToken`.
+:::
+
+:::note `/dispatch/status` no usa este mecanismo
+El listado de estados se acota con `limit` (máximo 200) y no tiene cursor. Ahí `total` es la cantidad devuelta, no la existente: si viene igual a `limit`, probablemente haya más.
 :::
 
 ## Rate limits

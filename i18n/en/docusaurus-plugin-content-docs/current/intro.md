@@ -51,7 +51,7 @@ https://api-comex.eurus.pro/{idAgencia}/v1
 The `{idAgencia}` is your agency identifier assigned by EURUS PRO. For example, if your agency ID is `12345`, the real base URL will be:
 
 ```
-https://api-comex.eurus.pro/12345/v1
+https://api-comex.eurus.pro/z_cl_demo/v1
 ```
 
 ## Next steps
