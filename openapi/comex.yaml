@@ -929,4 +929,12 @@ paths:
         "403":
           $ref: '#/components/responses/Forbidden'
         "500":
-          $ref: '#/components/responses/InternalError'
+          description: |
+            Error no controlado. A diferencia de `/dispatch/*`, acá el `code`
+            es **siempre** `INTERNAL_ERROR` y el mensaje es genérico: el
+            detalle del fallo queda en los logs del servicio. Reintentar con
+            back-off; si persiste, reportar el `requestId`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

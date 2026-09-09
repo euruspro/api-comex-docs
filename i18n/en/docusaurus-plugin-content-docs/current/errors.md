@@ -89,6 +89,8 @@ Even when the API Key is **missing**, the response is `403`. An earlier version 
 |---|---|---|
 | **400** | `RECORD_TYPE_INVALID` | `recordType` carries a value other than `impo` or `expo`, or arrives repeated with conflicting values. Omitting it is valid: it returns both. |
 
+| **500** | `INTERNAL_ERROR` | Unhandled error. Here `code` is **always** `INTERNAL_ERROR`, never a data-layer code: the detail stays in the service logs, and the `requestId` is what links the two when you report it. |
+
 :::note This endpoint never returns 404
 It takes no `rut` and no dispatch identifier: an agency with no active document types answers `200` with `data: []`.
 :::

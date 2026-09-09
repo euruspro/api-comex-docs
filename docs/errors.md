@@ -89,6 +89,8 @@ Incluso cuando la API Key **falta**, la respuesta es `403`. Una versión anterio
 |---|---|---|
 | **400** | `RECORD_TYPE_INVALID` | `recordType` trae un valor distinto de `impo` o `expo`, o llega repetido con valores distintos. Omitirlo es válido: devuelve ambos. |
 
+| **500** | `INTERNAL_ERROR` | Error no controlado. Acá el `code` es **siempre** `INTERNAL_ERROR`, nunca un código de la capa de datos: el detalle queda en los logs del servicio, y el `requestId` es lo que permite cruzarlo al reportar. |
+
 :::note Este endpoint no emite 404
 No recibe `rut` ni identificador de despacho: una agencia sin tipos documentales activos responde `200` con `data: []`.
 :::
