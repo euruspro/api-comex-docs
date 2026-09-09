@@ -16,9 +16,9 @@ To make your first call you need **three pieces of data** that must be provided 
 
 | Data | Description | Example |
 |---|---|---|
-| **`idAgencia`** | Your EURUS PRO agency numeric ID. | `12345` |
+| **`idAgencia`** | Your EURUS PRO agency ID. An opaque string, not a number. | `z_cl_demo` |
 | **`key`** | Secret API Key to authenticate calls. | `AIzaSy...` |
-| **`rut`** | End client RUT, in **digits-only** format (see [RUT format](./conventions.md#rut-format)). | `765432101` |
+| **`rut`** | End client RUT, body plus check digit (see [RUT format](./conventions.md#rut-format)). | `999999999` |
 
 In addition you need:
 
@@ -51,21 +51,26 @@ GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/files/{numeroDespacho}?k
 Replace `{idAgencia}`, `<API_KEY>`, `{numeroDespacho}` and `<RUT>` with your real values.
 
 :::tip RUT format
-The `rut` parameter must be sent **digits only**, with no dots, no dashes and no verifier letter. If the RUT ends in "K", replace the K with "1".
+The `rut` parameter is the **body plus the check digit**. Several forms are accepted and the API normalizes them internally to the same query:
 
-- `76.543.210-K` → `765432101`
-- `12.345.678-9` → `123456789`
+| What you send | Queried as |
+|---|---|
+| `999999999` | `999999999` |
+| `99.999.999-9` | `999999999` |
+| `99999999K` | `999999991` |
+
+The canonical form — digits only, with `K` folded to `1` — is the recommended one. See [Conventions → RUT format](./conventions.md#rut-format) for what gets rejected and why.
 :::
 
 ### cURL
 
 ```bash
 export EURUS_API_KEY="your-api-key-here"
-export EURUS_AGENCIA="12345"
-export EURUS_RUT="765432101"
+export EURUS_AGENCIA="z_cl_demo"
+export EURUS_RUT="999999999"
 
 curl -X GET \
-  "https://api-comex.eurus.pro/$EURUS_AGENCIA/v1/dispatch/files/DSP-2026-00123?key=$EURUS_API_KEY&rut=$EURUS_RUT" \
+  "https://api-comex.eurus.pro/$EURUS_AGENCIA/v1/dispatch/files/123457?key=$EURUS_API_KEY&rut=$EURUS_RUT" \
   -H "Accept: application/json"
 ```
 
@@ -73,9 +78,9 @@ curl -X GET \
 
 ```javascript
 const API_KEY = process.env.EURUS_API_KEY;
-const AGENCIA = process.env.EURUS_AGENCIA;       // e.g. "12345"
-const RUT = process.env.EURUS_RUT;               // e.g. "765432101"
-const numeroDespacho = "DSP-2026-00123";
+const AGENCIA = process.env.EURUS_AGENCIA;       // e.g. "z_cl_demo"
+const RUT = process.env.EURUS_RUT;               // e.g. "999999999"
+const numeroDespacho = "123457";
 
 const url = new URL(
   `https://api-comex.eurus.pro/${AGENCIA}/v1/dispatch/files/${encodeURIComponent(numeroDespacho)}`
@@ -91,10 +96,17 @@ if (!response.ok) {
   throw new Error(`Error ${response.status}: ${await response.text()}`);
 }
 
-const { data, total } = await response.json();
-console.log(`${total} documents found`);
+const { data, nextToken, unsignedCount } = await response.json();
+
+// There is no `total` field: count what the page returned.
+console.log(`${data.length} documents on this page`);
+if (nextToken) console.log("More pages available; request with ?nextToken=" + nextToken);
+if (unsignedCount) console.warn(`${unsignedCount} document(s) without a download URL`);
+
 for (const doc of data) {
-  console.log(`- ${doc.fileTypeName}: ${doc.url}`);
+  // `name` is the document TYPE. And `url` may be missing: either the document
+  // has no file, or its URL could not be signed.
+  console.log(`- ${doc.name ?? "(no type)"}: ${doc.url ?? "(no URL)"}`);
 }
 ```
 
@@ -105,9 +117,9 @@ import os
 import httpx
 
 API_KEY = os.environ["EURUS_API_KEY"]
-AGENCIA = os.environ["EURUS_AGENCIA"]    # e.g. "12345"
-RUT = os.environ["EURUS_RUT"]            # e.g. "765432101"
-numero_despacho = "DSP-2026-00123"
+AGENCIA = os.environ["EURUS_AGENCIA"]    # e.g. "z_cl_demo"
+RUT = os.environ["EURUS_RUT"]            # e.g. "999999999"
+numero_despacho = "123457"
 
 base = f"https://api-comex.eurus.pro/{AGENCIA}/v1"
 response = httpx.get(
@@ -119,9 +131,17 @@ response = httpx.get(
 response.raise_for_status()
 
 payload = response.json()
-print(f"{payload['total']} documents found")
+
+# There is no `total` field: count what the page returned.
+print(f"{len(payload['data'])} documents on this page")
+if payload.get("nextToken"):
+    print("More pages available; request with ?nextToken=" + payload["nextToken"])
+if payload.get("unsignedCount"):
+    print(f"{payload['unsignedCount']} document(s) without a download URL")
+
 for doc in payload["data"]:
-    print(f"- {doc['fileTypeName']}: {doc['url']}")
+    # `name` is the document TYPE, and `url` may be missing.
+    print(f"- {doc.get('name', '(no type)')}: {doc.get('url', '(no URL)')}")
 ```
 
 ## Step 3 — Understand the response
@@ -130,29 +150,52 @@ A successful request returns **HTTP 200** with a JSON body like this:
 
 ```json
 {
+  "date": "2026-01-31T22:04:31.000Z",
   "data": [
     {
-      "fileName": "FAC-AG-2026-00045.pdf",
-      "fileTypeName": "FACTURA AGENCIA",
-      "dispatchNumber": "DSP-2026-00123",
-      "url": "https://storage.eurus.pro/files/765432101/dsp-2026-00123/fac-ag-00045.pdf",
-      "issuedAt": "2026-04-10T15:02:44Z"
+      "id": "SqboswZtrqP1mDJl6dFj",
+      "isActive": true,
+      "name": "FACTURA AGENCIA",
+      "numeroDespacho": "123457",
+      "dispatch": {
+        "id": "123457",
+        "referencia": "REF-DEMO-0001"
+      },
+      "infoDoc": {
+        "document": {
+          "number": "45",
+          "type": "FACTURA ELECTRONICA",
+          "issueDate": "2026-01-05"
+        }
+      },
+      "url": "https://storage.googleapis.com/demo-bucket/files/45.pdf?X-Goog-Signature=..."
     },
     {
-      "fileName": "BL-2026-00045.pdf",
-      "fileTypeName": "CONOCIMIENTO DE EMBARQUE (B/L)",
-      "dispatchNumber": "DSP-2026-00123",
-      "url": "https://storage.eurus.pro/files/765432101/dsp-2026-00123/bl-00045.pdf",
-      "issuedAt": "2026-04-12T09:30:00Z"
+      "id": "FILE-001",
+      "isActive": false,
+      "dispatch": {},
+      "infoDoc": {}
     }
-  ],
-  "total": 2
+  ]
 }
 ```
 
-Each element of `data` has a signed URL you can use to **download the document** directly.
+Four things about this response worth looking at before you write the parser:
 
-If something fails, you'll receive an HTTP error code with a standard error body. See [Errors](./errors.md).
+| Observation | Detail |
+|---|---|
+| `date` is the response instant | Not a date of the document, nor of the range you queried. |
+| **There is no `total`** | Pagination is cursor-based: see [Conventions → Pagination](./conventions.md#pagination). |
+| `name` is the document **type** | Not the file name. It is the same value you send in `fileTypeName`. |
+| The second element is real, not filler | It shows the guaranteed minimum: only `id`, `isActive`, `dispatch` and `infoDoc` are always there. Everything else **disappears from the JSON** when its value is empty, and can vary between elements of the same response. |
+
+:::warning `dispatch` and `infoDoc` always exist, but may come back empty
+And `{}` is truthy in JavaScript, so `if (item.infoDoc)` passes even when there is nothing inside. Check content: `item.infoDoc?.document?.number`. Explained in [Conventions → Field presence](./conventions.md#field-presence-the-thing-that-surprises-integrators-most).
+:::
+
+The `url` is a signed URL you can use to **download the document** directly, and it **expires in 1 hour**. It may be missing for two different reasons: the document has no associated file, or its URL could not be signed — that second case is counted in `unsignedCount`.
+
+If something fails, you'll receive an HTTP error code with the standard error body. See [Errors](./errors.md).
 
 ## Step 4 — What's next
 

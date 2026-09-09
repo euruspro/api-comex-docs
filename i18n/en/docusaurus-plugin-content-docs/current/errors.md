@@ -3,119 +3,154 @@ id: errors
 title: Errors
 sidebar_position: 6
 slug: /errors
-description: Standard error format and code catalog of the Comex API.
+description: Standard error format and the real code catalog of the Comex API.
 ---
 
 # Errors
 
-The Comex API uses a **standard error format** for all responses with HTTP code ≥ 400. This lets you have a single error handler in your client, regardless of the endpoint.
+The Comex API uses a **single error format** for every response with an HTTP code ≥ 400, so one handler covers all endpoints.
 
 ## Standard format
 
-All error responses use `Content-Type: application/json` and a body with this structure:
+`Content-Type: application/json`, with this structure:
 
 ```json
 {
-  "code": "INVALID_ARGUMENT",
-  "message": "The 'rut' parameter is required.",
-  "details": [
-    {
-      "field": "rut",
-      "issue": "required"
-    }
-  ],
+  "status": 400,
+  "code": "RUT_NUMBER_INVALID",
+  "message": "The RUT parameter is required and must include the check digit.",
   "requestId": "6b3f5c8e-1234-4abc-9def-0123456789ab"
 }
 ```
 
 | Field | Type | Description |
 |---|---|---|
-| `code` | string | Stable, machine-readable code. Use it in your logic (don't parse `message`). |
-| `message` | string | Human-readable description, potentially localized. |
-| `details` | array of objects | Extra information (invalid fields, values, IDs, etc.). Optional. |
-| `requestId` | UUID | Unique request identifier. **Always include it when reporting issues to support.** |
+| `status` | integer | The HTTP code, repeated in the body to simplify your logging. |
+| `code` | string | Stable code. **Branch on this field**, not on `message`. |
+| `message` | string | Human-readable description, **in English**. Not meant to be shown to end users untranslated. |
+| `requestId` | string | Unique identifier of the invocation. **Include it when reporting an issue.** |
+
+All four fields are **always** present. There is no `details` field.
 
 :::tip Use `code`, not `message`
-The `message` field may change between versions or languages. Your client logic should branch on `code`, which is stable.
+The wording of `message` can change without notice — it did change in the latest version, to fix messages that described the error incorrectly. The `code` is the contract.
 :::
 
-## HTTP code catalog
+## `requestId` and the `X-Request-Id` header
 
-| HTTP | Code | Meaning |
+Every response carries the invocation identifier in the `X-Request-Id` header, and errors repeat it in the body. It is how support locates your request in the logs.
+
+**You can supply your own.** If you send `X-Request-Id` with the request, the API honours it, so a trace spanning several of your services keeps the same identifier:
+
+| Condition | Value |
+|---|---|
+| Length (measured after trimming whitespace) | up to 128 characters |
+| Allowed alphabet | `A-Z`, `a-z`, `0-9` and `_ . : @ + ~ / = -` |
+
+That covers UUIDs, hexadecimal, W3C `traceparent` and Cloud Trace identifiers. A value that does not qualify **is not an error**: the API generates its own UUID and returns it in the header, so you always get a usable identifier.
+
+## Code catalog
+
+### Authentication and agency
+
+| HTTP | `code` | When |
 |---|---|---|
-| **400** | `INVALID_ARGUMENT` | Request is syntactically correct but a parameter is invalid. |
-| **400** | `MALFORMED_BODY` | Body is not valid JSON or does not match the schema. |
-| **401** | `UNAUTHENTICATED` | API Key missing, expired or revoked. |
-| **403** | `PERMISSION_DENIED` | Valid API Key but no permission for the resource. |
-| **403** | `IP_NOT_ALLOWED` | Source IP not in the API Key's allowlist. |
-| **404** | `NOT_FOUND` | Requested resource does not exist or is out of the key's scope. |
-| **409** | `CONFLICT` | State conflict (e.g. trying to cancel an already closed operation). |
-| **409** | `DUPLICATE` | A resource with the same unique identifiers already exists. |
-| **422** | `BUSINESS_RULE_VIOLATION` | Request is syntactically valid but violates a business rule. |
-| **429** | `RATE_LIMITED` | You exceeded the request limit. Check `X-RateLimit-*` headers. |
-| **500** | `INTERNAL` | Unexpected server error. Report the `requestId` to support. |
-| **503** | `UNAVAILABLE` | Service temporarily unavailable. Retry with back-off. |
+| **403** | `API_KEY_INVALID` | `?key=` is missing, or the value is not usable. Also when it arrives repeated with conflicting values. |
+| **403** | `PROJECT_ID_UNAUTHORIZED` | The API Key is not authorized for the `idAgencia` in the path. |
+| **400** | `PROJECT_ID_UNDEFINED` | The `idAgencia` is missing from the path, or its configuration could not be resolved. |
+
+:::info There is no 401
+Even when the API Key is **missing**, the response is `403`. An earlier version of this documentation declared `401`.
+:::
+
+### `GET /dispatch/files/{numeroDespacho}`
+
+| HTTP | `code` | When |
+|---|---|---|
+| **400** | `DISPATCH_ID_INVALID` | `numeroDespacho` is empty. |
+| **404** | `DISPATCH_NOT_FOUND` | The dispatch does not exist in your agency. |
+
+### `GET /dispatch/files`
+
+| HTTP | `code` | When |
+|---|---|---|
+| **400** | `RUT_NUMBER_INVALID` | `rut` is missing, or its shape is not a RUT. See [Conventions → RUT format](./conventions.md#rut-format). |
+| **400** | `START_DATE_REQUIRED` | `startDate` is missing. |
+| **400** | `END_DATE_REQUIRED` | `endDate` is missing. |
+| **400** | `START_DATE_INVALID` | `startDate` has an unrecognized format, or is a date that does not exist. |
+| **400** | `END_DATE_INVALID` | Same for `endDate`. |
+| **400** | `DATE_RANGE_INVALID` | `startDate` is greater than `endDate`. |
+| **400** | `FILE_TYPE_NAME_INVALID` | `fileTypeName` is missing; it is required on this endpoint. |
+| **404** | `ACCOUNT_NOT_FOUND` | The RUT is well formed but is not a client, or is not active for this API. |
+
+### Server errors
+
+| HTTP | `code` | When |
+|---|---|---|
+| **500** | `INTERNAL_ERROR` or a data-layer code | Unhandled error. |
+
+:::warning 400 and 404 mean different things
+`400 RUT_NUMBER_INVALID` says the **shape** of the RUT is invalid: the error is in your request. `404 ACCOUNT_NOT_FOUND` says the RUT is valid but **does not match an active client**: the error is in the data. Telling them apart saves you from debugging in the wrong place.
+:::
 
 ## Examples
 
-### 400 — Invalid argument
+### 403 — API Key missing or invalid
 
 ```http
-HTTP/1.1 400 Bad Request
+HTTP/1.1 403 Forbidden
 Content-Type: application/json
+X-Request-Id: b1e8a9c2-0000-4fff-a000-100000000001
 
 {
-  "code": "INVALID_ARGUMENT",
-  "message": "The 'rut' parameter must contain digits only (no dots, dashes or letters).",
-  "details": [
-    { "field": "rut", "value": "76.543.210-K", "issue": "invalid_format" }
-  ],
+  "status": 403,
+  "code": "API_KEY_INVALID",
+  "message": "API key is invalid or missing",
   "requestId": "b1e8a9c2-0000-4fff-a000-100000000001"
 }
 ```
 
-### 401 — Unauthenticated
+### 400 — RUT with an invalid shape
 
 ```http
-HTTP/1.1 401 Unauthorized
+HTTP/1.1 400 Bad Request
 Content-Type: application/json
+X-Request-Id: b1e8a9c2-0000-4fff-a000-100000000002
 
 {
-  "code": "UNAUTHENTICATED",
-  "message": "API Key missing or invalid.",
+  "status": 400,
+  "code": "RUT_NUMBER_INVALID",
+  "message": "The RUT parameter is required and must include the check digit. Accepted forms: 765011379, 76501137-9, 76.501.137-9 and the K check digit (76501137K).",
   "requestId": "b1e8a9c2-0000-4fff-a000-100000000002"
 }
 ```
 
-### 422 — Business rule
+### 400 — Inverted date range
 
 ```http
-HTTP/1.1 422 Unprocessable Entity
+HTTP/1.1 400 Bad Request
 Content-Type: application/json
+X-Request-Id: b1e8a9c2-0000-4fff-a000-100000000003
 
 {
-  "code": "BUSINESS_RULE_VIOLATION",
-  "message": "The date range cannot exceed 90 days.",
-  "details": [
-    { "rule": "max_date_range_days", "max": 90, "requested": 180 }
-  ],
+  "status": 400,
+  "code": "DATE_RANGE_INVALID",
+  "message": "startDate must not be greater than endDate.",
   "requestId": "b1e8a9c2-0000-4fff-a000-100000000003"
 }
 ```
 
-### 429 — Rate limit
+### 404 — The RUT is not an active client
 
 ```http
-HTTP/1.1 429 Too Many Requests
+HTTP/1.1 404 Not Found
 Content-Type: application/json
-Retry-After: 42
-X-RateLimit-Limit: 60
-X-RateLimit-Remaining: 0
-X-RateLimit-Reset: 1744303200
+X-Request-Id: b1e8a9c2-0000-4fff-a000-100000000004
 
 {
-  "code": "RATE_LIMITED",
-  "message": "You exceeded the 60-requests-per-minute limit.",
+  "status": 404,
+  "code": "ACCOUNT_NOT_FOUND",
+  "message": "The provided RUT (Chilean tax ID) is not a client or is not active for the use of this API.",
   "requestId": "b1e8a9c2-0000-4fff-a000-100000000004"
 }
 ```
@@ -124,14 +159,29 @@ X-RateLimit-Reset: 1744303200
 
 | Code | Retry? | How |
 |---|---|---|
-| `4xx` (except 408, 429) | **No** | Client errors — retrying won't help. Fix the request. |
-| `408 Request Timeout` | Yes | Immediate retry, then back-off. |
-| `429 Rate Limited` | Yes | Respect `Retry-After` or `X-RateLimit-Reset`. |
-| `500`, `502`, `503`, `504` | Yes | Exponential back-off with jitter, max 5 attempts. |
+| **400** | **No** | It is an error in your request. Retrying returns the same result. |
+| **403** | **No** | Check the API Key and the `idAgencia`. |
+| **404** | **No** | The resource does not exist. It may start existing later, but not because you retried now. |
+| **500** | Yes | Exponential back-off with jitter, at most 5 attempts. If it persists, report the `requestId`. |
 
-### Exponential back-off example in Node.js
+The API **does not emit** `408`, `409`, `422`, `429`, `502`, `503` or `504`, so you do not need to handle them.
+
+### Exponential back-off in Node.js
 
 ```javascript
+// `fn` must throw an error that exposes the status. `fetch` does not throw on
+// 4xx/5xx, so you have to build it:
+//
+//   const res = await fetch(url);
+//   if (!res.ok) {
+//     const body = await res.json().catch(() => ({}));
+//     throw Object.assign(new Error(body.message ?? res.statusText), {
+//       status: res.status,
+//       code: body.code,
+//       requestId: body.requestId,
+//     });
+//   }
+
 async function withRetry(fn, { maxAttempts = 5 } = {}) {
   let attempt = 0;
   while (true) {
@@ -139,29 +189,38 @@ async function withRetry(fn, { maxAttempts = 5 } = {}) {
       return await fn();
     } catch (err) {
       attempt++;
-      const status = err.response?.status;
-      const retriable = status === 408 || status === 429 || (status >= 500 && status < 600);
-      if (!retriable || attempt >= maxAttempts) throw err;
+      // Only 500 is retriable on this API: it emits no 502, 503 or 504.
+      // If the error carries no status, do not retry: failing visibly beats
+      // repeating blindly.
+      const status = err?.status ?? err?.response?.status;
+      if (status !== 500 || attempt >= maxAttempts) throw err;
 
       const base = Math.min(1000 * 2 ** attempt, 30_000); // cap 30s
       const jitter = Math.random() * base * 0.3;
-      const delay = base + jitter;
-      await new Promise((r) => setTimeout(r, delay));
+      await new Promise((r) => setTimeout(r, base + jitter));
     }
   }
 }
 ```
 
+## Not an error: `unsignedCount`
+
+A `200` response may carry `unsignedCount` in the envelope. It counts the documents on that page whose **download URL could not be signed**: they come back without a `url` field.
+
+It is not an error — the rest of the page is valid and usable — but it is not normal either. It exists precisely so the failure is not silent, and so you can tell *"this document has no file"* from *"its URL could not be generated"*.
+
+If it shows up repeatedly, report it with the `requestId`.
+
 ## How to report an error
 
 When contacting EURUS PRO support, **always** include:
 
-1. The `requestId` from the error response.
+1. The `requestId` from the response (or the `X-Request-Id` header).
 2. The approximate request timestamp (UTC).
 3. The HTTP method and path (e.g. `GET /{idAgencia}/v1/dispatch/files/{numeroDespacho}`).
-4. Your `idAgencia` and the `rut` queried (without the API Key).
-5. The first/last 4 characters of the API Key used (never the full key).
-6. A summary of the parameters sent (no sensitive data).
+4. Your `idAgencia` and the `rut` you queried — **never the API Key**.
+5. The first and last 4 characters of the API Key used, if relevant.
+6. A summary of the parameters sent.
 7. The full response received.
 
-This accelerates traceability in the EURUS PRO team's logs.
+The `requestId` is the single most useful item: it appears in the backend's structured logs next to the operation that failed.
