@@ -61,11 +61,11 @@ El parámetro `rut` debe enviarse **solo con dígitos**, sin puntos, sin guion y
 
 ```bash
 export EURUS_API_KEY="tu-api-key-aqui"
-export EURUS_AGENCIA="12345"
-export EURUS_RUT="765432101"
+export EURUS_AGENCIA="z_cl_demo"
+export EURUS_RUT="999999999"
 
 curl -X GET \
-  "https://api-comex.eurus.pro/$EURUS_AGENCIA/v1/dispatch/files/DSP-2026-00123?key=$EURUS_API_KEY&rut=$EURUS_RUT" \
+  "https://api-comex.eurus.pro/$EURUS_AGENCIA/v1/dispatch/files/123457?key=$EURUS_API_KEY&rut=$EURUS_RUT" \
   -H "Accept: application/json"
 ```
 
@@ -73,9 +73,9 @@ curl -X GET \
 
 ```javascript
 const API_KEY = process.env.EURUS_API_KEY;
-const AGENCIA = process.env.EURUS_AGENCIA;       // ej. "12345"
-const RUT = process.env.EURUS_RUT;               // ej. "765432101"
-const numeroDespacho = "DSP-2026-00123";
+const AGENCIA = process.env.EURUS_AGENCIA;       // ej. "z_cl_demo"
+const RUT = process.env.EURUS_RUT;               // ej. "999999999"
+const numeroDespacho = "123457";
 
 const url = new URL(
   `https://api-comex.eurus.pro/${AGENCIA}/v1/dispatch/files/${encodeURIComponent(numeroDespacho)}`
@@ -91,10 +91,17 @@ if (!response.ok) {
   throw new Error(`Error ${response.status}: ${await response.text()}`);
 }
 
-const { data, total } = await response.json();
-console.log(`${total} documentos encontrados`);
+const { data, nextToken, unsignedCount } = await response.json();
+
+// No hay campo `total`: se cuenta lo que trajo la pagina.
+console.log(`${data.length} documentos en esta pagina`);
+if (nextToken) console.log("Hay mas paginas; pedir con ?nextToken=" + nextToken);
+if (unsignedCount) console.warn(`${unsignedCount} documento(s) sin URL de descarga`);
+
 for (const doc of data) {
-  console.log(`- ${doc.fileTypeName}: ${doc.url}`);
+  // `name` es el TIPO de documento. Y `url` puede faltar: el documento no
+  // tiene archivo, o su URL no se pudo firmar.
+  console.log(`- ${doc.name ?? "(sin tipo)"}: ${doc.url ?? "(sin URL)"}`);
 }
 ```
 
@@ -105,9 +112,9 @@ import os
 import httpx
 
 API_KEY = os.environ["EURUS_API_KEY"]
-AGENCIA = os.environ["EURUS_AGENCIA"]    # e.g. "12345"
-RUT = os.environ["EURUS_RUT"]            # e.g. "765432101"
-numero_despacho = "DSP-2026-00123"
+AGENCIA = os.environ["EURUS_AGENCIA"]    # e.g. "z_cl_demo"
+RUT = os.environ["EURUS_RUT"]            # e.g. "999999999"
+numero_despacho = "123457"
 
 base = f"https://api-comex.eurus.pro/{AGENCIA}/v1"
 response = httpx.get(
@@ -119,9 +126,17 @@ response = httpx.get(
 response.raise_for_status()
 
 payload = response.json()
-print(f"{payload['total']} documentos encontrados")
+
+# No hay campo `total`: se cuenta lo que trajo la pagina.
+print(f"{len(payload['data'])} documentos en esta pagina")
+if payload.get("nextToken"):
+    print("Hay mas paginas; pedir con ?nextToken=" + payload["nextToken"])
+if payload.get("unsignedCount"):
+    print(f"{payload['unsignedCount']} documento(s) sin URL de descarga")
+
 for doc in payload["data"]:
-    print(f"- {doc['fileTypeName']}: {doc['url']}")
+    # `name` es el TIPO de documento, y `url` puede faltar.
+    print(f"- {doc.get('name', '(sin tipo)')}: {doc.get('url', '(sin URL)')}")
 ```
 
 ## Paso 3 — Entender la respuesta
@@ -130,29 +145,52 @@ Un request exitoso devuelve **HTTP 200** con un cuerpo JSON como el siguiente:
 
 ```json
 {
+  "date": "2026-01-31T22:04:31.000Z",
   "data": [
     {
-      "fileName": "FAC-AG-2026-00045.pdf",
-      "fileTypeName": "FACTURA AGENCIA",
-      "dispatchNumber": "DSP-2026-00123",
-      "url": "https://storage.eurus.pro/files/765432101/dsp-2026-00123/fac-ag-00045.pdf",
-      "issuedAt": "2026-04-10T15:02:44Z"
+      "id": "SqboswZtrqP1mDJl6dFj",
+      "isActive": true,
+      "name": "FACTURA AGENCIA",
+      "numeroDespacho": "123457",
+      "dispatch": {
+        "id": "123457",
+        "referencia": "REF-DEMO-0001"
+      },
+      "infoDoc": {
+        "document": {
+          "number": "45",
+          "type": "FACTURA ELECTRONICA",
+          "issueDate": "2026-01-05"
+        }
+      },
+      "url": "https://storage.googleapis.com/demo-bucket/files/45.pdf?X-Goog-Signature=..."
     },
     {
-      "fileName": "BL-2026-00045.pdf",
-      "fileTypeName": "CONOCIMIENTO DE EMBARQUE (B/L)",
-      "dispatchNumber": "DSP-2026-00123",
-      "url": "https://storage.eurus.pro/files/765432101/dsp-2026-00123/bl-00045.pdf",
-      "issuedAt": "2026-04-12T09:30:00Z"
+      "id": "FILE-001",
+      "isActive": false,
+      "dispatch": {},
+      "infoDoc": {}
     }
-  ],
-  "total": 2
+  ]
 }
 ```
 
-Cada elemento de `data` tiene una URL firmada que puedes usar para **descargar el documento** directamente.
+Cuatro cosas de esta respuesta que conviene mirar antes de escribir el parser:
 
-Si algo falla, recibirás un código HTTP de error con un cuerpo estándar de error. Ver [Errores](./errors.md).
+| Observación | Detalle |
+|---|---|
+| `date` es el instante de la respuesta | No es una fecha del documento ni del rango consultado. |
+| **No hay `total`** | La paginación es por cursor: ver [Convenciones → Paginación](./conventions.md#paginación). |
+| `name` es el **tipo** de documento | No es el nombre del archivo. Es el mismo valor que se envía en `fileTypeName`. |
+| El segundo elemento es real, no un relleno | Muestra el mínimo garantizado: solo `id`, `isActive`, `dispatch` e `infoDoc` están siempre. El resto **desaparece del JSON** cuando su valor es vacío, y puede variar entre elementos de la misma respuesta. |
+
+:::warning `dispatch` e `infoDoc` existen siempre, pero pueden venir vacíos
+Y `{}` es *truthy* en JavaScript, así que `if (item.infoDoc)` se cumple aunque no haya nada dentro. Verifica contenido: `item.infoDoc?.document?.number`. Está explicado en [Convenciones → Presencia de campos](./conventions.md#presencia-de-campos-lo-que-más-sorprende-al-integrar).
+:::
+
+La `url` es una URL firmada que puedes usar para **descargar el documento** directamente, y **caduca en 1 hora**. Puede faltar por dos motivos distintos: el documento no tiene archivo asociado, o su URL no se pudo firmar — ese segundo caso se cuenta en `unsignedCount`.
+
+Si algo falla, recibirás un código HTTP de error con el cuerpo estándar. Ver [Errores](./errors.md).
 
 ## Paso 4 — Qué hacer a continuación
 

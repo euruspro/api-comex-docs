@@ -77,9 +77,8 @@ The current process is manual:
 
 | Code | Cause | Action |
 |---|---|---|
-| `401 Unauthorized` | API Key missing, expired or revoked. | Verify `?key=...` is present and current. |
-| `403 Forbidden` | Valid API Key but no permission, or IP/referrer blocked. | Confirm permissions and restrictions with EURUS PRO. |
-| `429 Too Many Requests` | You exceeded the per-minute call limit. | Implement exponential back-off and review [rate limits](./conventions.md#rate-limits). |
+| `403 Forbidden` + `code: API_KEY_INVALID` | API Key missing, revoked or unusable. | Verify `?key=...` is present and current. **The API responds 403, not 401, even when the key is missing.** |
+| `403 Forbidden` + `code: PROJECT_ID_UNAUTHORIZED` | The API Key is valid but not authorized for the `idAgencia` in the path. | Confirm with EURUS PRO which agencies your key is authorized for. |
 
 The response body follows the [standard error format](./errors.md).
 
