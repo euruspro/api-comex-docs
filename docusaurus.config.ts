@@ -67,6 +67,25 @@ const config: Config = {
           comex: {
             specPath: 'openapi/comex.yaml',
             outputDir: 'docs/reference',
+            /**
+             * El botón "Send API Request" dispara un fetch desde el navegador
+             * contra https://api-comex.eurus.pro. Esa llamada no puede
+             * completarse hoy: la pasarela no devuelve ningún header
+             * `Access-Control-*`, así que el navegador bloquea la lectura de la
+             * respuesta aunque la API conteste 200. Verificado contra
+             * producción, en GET y en preflight OPTIONS.
+             *
+             * Se oculta el botón en vez de abrir CORS en la pasarela: hacerlo
+             * obligaría al integrador a pegar su API key en el navegador y
+             * enviarla en la query string, donde queda en el historial, en los
+             * logs del balanceador y al alcance de cualquier extensión.
+             *
+             * El arreglo previsto es un proxy de pruebas en el dominio del
+             * portal que inyecte la key del lado servidor: resuelve el CORS por
+             * mismo origen y la key nunca toca el navegador. Cuando exista,
+             * quitar esta opción.
+             */
+            hideSendButton: true,
           } satisfies OpenApiPlugin.Options,
         } satisfies Record<string, OpenApiPlugin.Options>,
       },
