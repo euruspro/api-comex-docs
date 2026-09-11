@@ -61,11 +61,51 @@ npm install
 
 ### Generar la referencia de la API
 
-La referencia de endpoints se genera desde `openapi/comex.yaml`. Cada vez que modifiques la spec, regenera:
+La referencia de endpoints se genera desde `openapi/comex.yaml`. `prestart` y `prebuild` la regeneran solos, así que en el flujo normal no hay que correr nada. Para hacerlo a mano:
 
 ```bash
 npm run clean-api-docs:comex
 npm run gen-api-docs:comex
+```
+
+El `clean` **es obligatorio**: `gen-api-docs` no sobrescribe los archivos que ya existen y no avisa. Sin limpiar antes, un cambio en la config del plugin o en la spec no se refleja, y quedás mirando la referencia vieja. Por eso `prestart` y `prebuild` encadenan los dos comandos.
+
+`clean-api-docs` borra también `docs/reference/sidebar.ts`, que está trackeado en git y que `sidebars.ts` importa. El plugin no lo recrea, así que `clean-api-docs:comex` encadena `scripts/restore-sidebar-stub.js` para reponerlo. Si alguna vez ves este error, es que el stub falta — restauralo con `git checkout -- docs/reference/sidebar.ts`:
+
+```
+[ERROR] Sidebars file at "sidebars.ts" failed to be loaded.
+[ERROR] Unable to build website for locale es.
+```
+
+### Probar la API desde el portal
+
+El panel **"Try it"** de cada endpoint —donde se completan `idAgencia` y `key` y se ejecuta el GET— está **deshabilitado por defecto**, y no es un descuido: ejecuta el request desde el navegador, y `api-comex.eurus.pro` no devuelve ningún header `Access-Control-*`. El navegador descarta la respuesta aunque la API conteste 200, así que el panel no puede mostrar nada. Un botón que siempre falla le dice al integrador que la API está rota cuando el problema es la consola.
+
+Para habilitarlo **en local**, el repo trae un proxy de desarrollo sin dependencias:
+
+```bash
+# Terminal 1
+npm run dev:proxy
+
+# Terminal 2 — bash/zsh
+OPENAPI_PROXY=http://127.0.0.1:8788 npm run start
+
+# Terminal 2 — PowerShell
+$env:OPENAPI_PROXY = "http://127.0.0.1:8788"; npm run start
+```
+
+Con `OPENAPI_PROXY` definida, el plugin escribe `proxy` en el frontmatter en vez de `hide_send_button`, y el panel sale habilitado enrutando por ahí.
+
+El proxy escucha **solo en 127.0.0.1** y solo reenvía a `api-comex.eurus.pro` (ampliable con `DEV_PROXY_ALLOW=host1,host2`); sin esa lista blanca sería un proxy abierto en tu máquina. Las credenciales se enmascaran en los logs.
+
+**No uses un proxy CORS público** para esto: mandarías tu API key de producción a un servidor ajeno.
+
+> **Esto no habilita el panel en el sitio publicado.** El proxy corre en tu máquina; el navegador de quien abre GitHub Pages no puede alcanzarlo. Para que funcione en público hace falta un proxy con URL pública que además inyecte la API key del lado servidor, en vez de pedírsela al visitante. Está pendiente de diseño.
+
+Mientras tanto, `curl` no pasa por CORS y sirve para verificar comportamiento:
+
+```bash
+curl -s "https://api-comex.eurus.pro/$AG/v1/master/file-types?key=$KEY" | jq
 ```
 
 ### Validar antes de commitear

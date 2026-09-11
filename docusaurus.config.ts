@@ -70,22 +70,29 @@ const config: Config = {
             /**
              * El botón "Send API Request" dispara un fetch desde el navegador
              * contra https://api-comex.eurus.pro. Esa llamada no puede
-             * completarse hoy: la pasarela no devuelve ningún header
+             * completarse: la pasarela no devuelve ningún header
              * `Access-Control-*`, así que el navegador bloquea la lectura de la
              * respuesta aunque la API conteste 200. Verificado contra
              * producción, en GET y en preflight OPTIONS.
              *
-             * Se oculta el botón en vez de abrir CORS en la pasarela: hacerlo
-             * obligaría al integrador a pegar su API key en el navegador y
-             * enviarla en la query string, donde queda en el historial, en los
-             * logs del balanceador y al alcance de cualquier extensión.
+             * Por defecto se oculta el botón. Un botón que siempre falla es
+             * peor que no tenerlo: le dice al integrador que la API está rota
+             * cuando el problema es la consola.
              *
-             * El arreglo previsto es un proxy de pruebas en el dominio del
-             * portal que inyecte la key del lado servidor: resuelve el CORS por
-             * mismo origen y la key nunca toca el navegador. Cuando exista,
-             * quitar esta opción.
+             * Con `OPENAPI_PROXY` apuntando a un proxy, el panel se habilita y
+             * las llamadas salen por ahí. Para desarrollo local está
+             * `npm run dev:proxy` (127.0.0.1, no alcanzable desde el sitio
+             * publicado); ver README → "Probar la API desde el portal".
+             *
+             * Lo que NO se hace es abrir CORS en la pasarela: obligaría al
+             * integrador a pegar su API key en el navegador y a enviarla en la
+             * query string, donde queda en el historial, en los logs del
+             * balanceador y al alcance de cualquier extensión. El proxy público
+             * pendiente resuelve eso inyectando la key del lado servidor.
              */
-            hideSendButton: true,
+            ...(process.env.OPENAPI_PROXY
+              ? {proxy: process.env.OPENAPI_PROXY}
+              : {hideSendButton: true}),
           } satisfies OpenApiPlugin.Options,
         } satisfies Record<string, OpenApiPlugin.Options>,
       },
