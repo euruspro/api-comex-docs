@@ -19,7 +19,7 @@ Unlike many REST APIs, **the Comex API does not accept an `Authorization` header
 Add the `?key=<API_KEY>` parameter at the end of any URL:
 
 ```
-GET https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/files/123457?key=YOUR_API_KEY&rut=999999999
+GET https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files?key=YOUR_API_KEY&rut=999999999
 ```
 
 :::note Required parameters
@@ -31,13 +31,13 @@ In addition to `key`, almost all endpoints also require the `rut` parameter (see
 ### cURL
 
 ```bash
-curl "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/files/123457?key=$EURUS_API_KEY&rut=999999999"
+curl "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files?key=$EURUS_API_KEY&rut=999999999"
 ```
 
 ### Node.js
 
 ```javascript
-const url = new URL("https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/files/123457");
+const url = new URL("https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files");
 url.searchParams.set("key", process.env.EURUS_API_KEY);
 url.searchParams.set("rut", "999999999");
 
@@ -50,7 +50,7 @@ const response = await fetch(url);
 import httpx, os
 
 response = httpx.get(
-    "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/files/123457",
+    "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files",
     params={"key": os.environ["EURUS_API_KEY"], "rut": "999999999"},
 )
 ```

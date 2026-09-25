@@ -143,7 +143,7 @@ No vas a ver marcas de tiempo en formato interno (`{"_seconds":…,"_nanoseconds
 Esta es la convención que conviene leer antes de escribir la primera línea de código.
 
 :::info Aplica a los documentos, no a los estados
-Lo que sigue rige para `GET /dispatch/files`. En `GET /dispatch/status` es al revés: **todas las claves están siempre presentes** y las que no tienen valor se emiten como `null`. Son dos contratos distintos; no asumas el de un endpoint al leer el otro.
+Lo que sigue rige para los endpoints de archivos (`GET /dispatch/{numeroDespacho}/files` y `GET /files`). En `GET /dispatch/status` es al revés: **todas las claves están siempre presentes** y las que no tienen valor se emiten como `null`. Son dos contratos distintos; no asumas el de un endpoint al leer el otro.
 :::
 
 Antes de serializar la respuesta, la API **elimina recursivamente toda propiedad cuyo valor sea `null`, `undefined` o `""`** (string vacío).
@@ -163,7 +163,7 @@ Un campo presente en un elemento **puede faltar en el siguiente de la misma resp
 
 ### Lo único garantizado
 
-En `GET /dispatch/files` (ambas variantes), cada elemento de `data` trae siempre estos cuatro:
+En los dos endpoints de archivos, cada elemento de `data` trae siempre estos cuatro:
 
 | Campo | Por qué siempre está |
 |---|---|
@@ -255,7 +255,7 @@ do {
   const params = new URLSearchParams({ key, rut, fileTypeName, startDate, endDate });
   if (nextToken) params.set("nextToken", nextToken);
 
-  const res = await fetch(`${BASE}/dispatch/files?${params}`);
+  const res = await fetch(`${BASE}/files?${params}`);
   if (!res.ok) throw new Error(`${res.status} ${(await res.json()).code}`);
 
   const pagina = await res.json();

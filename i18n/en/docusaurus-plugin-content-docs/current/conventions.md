@@ -143,7 +143,7 @@ You will not see timestamps in internal form (`{"_seconds":â€¦,"_nanoseconds":â€
 This is the convention worth reading before you write the first line of code.
 
 :::info Applies to documents, not to statuses
-What follows holds for `GET /dispatch/files`. On `GET /dispatch/status` it is the opposite: **every key is always present**, and those with no value are emitted as `null`. They are two different contracts; do not assume one while reading the other.
+What follows holds for the file endpoints (`GET /dispatch/{numeroDespacho}/files` and `GET /files`). On `GET /dispatch/status` it is the opposite: **every key is always present**, and those with no value are emitted as `null`. They are two different contracts; do not assume one while reading the other.
 :::
 
 Before serializing the response, the API **recursively removes every property whose value is `null`, `undefined` or `""`** (empty string).
@@ -163,7 +163,7 @@ A field present in one element **may be missing from the next one in the same re
 
 ### The only guarantees
 
-On `GET /dispatch/files` (both variants), every element of `data` always carries these four:
+On both file endpoints, every element of `data` always carries these four:
 
 | Field | Why it is always there |
 |---|---|
@@ -255,7 +255,7 @@ do {
   const params = new URLSearchParams({ key, rut, fileTypeName, startDate, endDate });
   if (nextToken) params.set("nextToken", nextToken);
 
-  const res = await fetch(`${BASE}/dispatch/files?${params}`);
+  const res = await fetch(`${BASE}/files?${params}`);
   if (!res.ok) throw new Error(`${res.status} ${(await res.json()).code}`);
 
   const page = await res.json();

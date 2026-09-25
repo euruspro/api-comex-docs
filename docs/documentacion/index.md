@@ -15,10 +15,10 @@ Este módulo aplica tanto a **importaciones** como a **exportaciones** — la AP
 
 Hay dos endpoints principales, ambos en la etiqueta **Documentación** de la [Referencia de la API](../reference/api-comex-eurus-pro.info.mdx):
 
-1. **[`GET /dispatch/files/{numeroDespacho}`](../reference/listar-documentos-despacho.api.mdx)**
+1. **[`GET /dispatch/{numeroDespacho}/files`](../reference/listar-documentos-despacho.api.mdx)**
    Devuelve **todos los documentos** (o filtrados por `fileTypeName`) de un **despacho específico** del cliente.
 
-2. **[`GET /dispatch/files`](../reference/listar-documentos-por-tipo-y-fecha.api.mdx)**
+2. **[`GET /files`](../reference/listar-documentos-por-tipo-y-fecha.api.mdx)**
    Devuelve los documentos de **un tipo específico** (`fileTypeName`) emitidos en un **rango de fechas** para un cliente.
 
 Y un tercero, en la etiqueta **Maestros**, que alimenta a los dos anteriores:
@@ -35,7 +35,7 @@ Estos dos los exige **toda** llamada a la API:
 | `idAgencia` | Path (variable de servidor) | Identificador de tu agencia EURUS PRO®. Se asigna al provisionar el acceso. |
 | `key` | Query | API Key provista por EURUS PRO®. Ver [Autenticación](../authentication.md). |
 
-Y este, en los endpoints bajo `/dispatch/*` — documentos y seguimiento:
+Y este, en los endpoints bajo `/dispatch/*` y en `GET /files`:
 
 | Parámetro | Ubicación | Descripción |
 |---|---|---|
@@ -88,7 +88,7 @@ Si construyes la URL con helpers como `URLSearchParams` (JS), `params={}` (`http
 Si tu ERP registra un despacho y quiere adjuntar todos sus documentos:
 
 ```bash
-curl "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/files/123457?key=$API_KEY&rut=999999999"
+curl "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files?key=$API_KEY&rut=999999999"
 ```
 
 ### 2. Extraer todas las facturas de agencia de un mes para conciliación contable
@@ -96,13 +96,13 @@ curl "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/files/123457?key=$API_KE
 Para un proceso batch mensual — nota el `%20` en lugar del espacio:
 
 ```bash
-curl "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/files?key=$API_KEY&rut=999999999&startDate=2026-01-01&endDate=2026-01-31&fileTypeName=FACTURA%20AGENCIA"
+curl "https://api-comex.eurus.pro/z_cl_demo/v1/files?key=$API_KEY&rut=999999999&startDate=2026-01-01&endDate=2026-01-31&fileTypeName=FACTURA%20AGENCIA"
 ```
 
 O, de forma equivalente y más legible, con `--data-urlencode` de cURL:
 
 ```bash
-curl -G "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/files" \
+curl -G "https://api-comex.eurus.pro/z_cl_demo/v1/files" \
   --data-urlencode "key=$API_KEY" \
   --data-urlencode "rut=999999999" \
   --data-urlencode "startDate=2026-01-01" \

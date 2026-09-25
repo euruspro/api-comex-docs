@@ -12,23 +12,40 @@ Todos los cambios notables en la API Comex y en su documentación se registran a
 
 ## [Unreleased]
 
+### Changed — Rutas de despacho y de archivos (spec 3.0.0)
+
+**Las rutas anteriores siguen funcionando**: no hay que cambiar nada para seguir operando. Pero el spec ya no las declara, así que conviene migrar, sobre todo si generas un cliente desde él.
+
+| Antes | Ahora |
+|---|---|
+| `GET /dispatch/files/{numeroDespacho}` | `GET /dispatch/{numeroDespacho}/files` |
+| `GET /dispatch/status/{numeroDespacho}` | `GET /dispatch/{numeroDespacho}/status` |
+| `GET /dispatch/files` | `GET /files` |
+| `GET /dispatch/status` | sin cambio |
+
+Los parámetros, las respuestas y los errores no cambian: es el mismo endpoint en otra ruta.
+
+**Por qué.** Los recursos de un despacho pasan a colgar del despacho —`/dispatch/{numeroDespacho}/<recurso>`, igual que el nuevo `/desembolsos`—. Mezclar esa forma con la anterior hacía que una misma URL pudiera leerse de dos maneras. `/files` sale de `/dispatch` porque devuelve los archivos del cliente, que cruzan todos sus despachos.
+
+La versión mayor responde al spec, no al servicio: un cliente generado desde la 3.0.0 no trae los métodos de las rutas anteriores.
+
 ### Added — `GET /dispatch/{numeroDespacho}/desembolsos`
 
 Nuevo endpoint que devuelve **todos los desembolsos** de un despacho: los gastos que la agencia pagó por cuenta del cliente, con su estado, montos y documentos de respaldo. Nuevo módulo [Desembolsos](./desembolsos/index.md).
 
-- Mismo acceso que `GET /dispatch/files/{numeroDespacho}`: `rut` obligatorio y despacho de esa cuenta. Uno de otro cliente responde `404`, igual que uno inexistente.
+- Mismo acceso que `GET /dispatch/{numeroDespacho}/files`: `rut` obligatorio y despacho de esa cuenta. Uno de otro cliente responde `404`, igual que uno inexistente.
 - Responde `{ date, total, data }`, sin paginación. `data` viene en orden cronológico por `fechaDesembolso`.
 - Cada elemento trae el despacho asociado en `dispatch`, con estados de aforo y DIN, fechas del ciclo aduanero y valores CIF, FOB, flete y seguro.
 - **Criterio propio de presencia**: los opcionales se omiten, los obligatorios de texto vienen como `""`, y las fechas y montos obligatorios como `null`, nunca `0`.
 - El `500` es siempre `INTERNAL_ERROR`: el detalle de la capa de datos no se expone.
 
-### Changed — `dispatch` en `GET /dispatch/files`
+### Changed — `dispatch` en los endpoints de archivos
 
 En los dos endpoints de archivos, `dispatch` pasa de `{ id, referencia }` a los datos completos del despacho: el mismo contrato que usa [Desembolsos](./desembolsos/index.md), más el `id`.
 
 - **Es aditivo**: `id` y `referencia` siguen ahí.
 - **Ya no puede venir vacío.** `dispatch` trae siempre todas sus claves, con `""` en los textos y `null` en fechas y montos. Es la única parte del archivo a la que no se aplica la eliminación de claves vacías. Si tu código trataba `dispatch: {}` como "sin despacho", ahora tiene que mirar `dispatch.id`.
-- **`GET /dispatch/files` por rango ahora emite `dispatch.referencia`.** Antes no leía el despacho y la propiedad no aparecía nunca. Cada archivo trae su propio despacho, porque una página puede mezclar varios.
+- **`GET /files` ahora emite `dispatch.referencia`.** Antes no leía el despacho y la propiedad no aparecía nunca. Cada archivo trae su propio despacho, porque una página puede mezclar varios.
 
 ### Added — `GET /master/file-types`
 

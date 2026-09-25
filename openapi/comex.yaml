@@ -21,7 +21,7 @@
 openapi: 3.1.0
 info:
   title: API Comex — EURUS PRO®
-  version: "2.2.0"
+  version: "3.0.0"
   description: |
     API REST de Comercio Exterior de EURUS PRO®. Permite consultar los
     documentos asociados a despachos de importación y exportación
@@ -31,16 +31,17 @@ info:
     parámetro de query `?key=<API_KEY>`. Este es el mecanismo que exige la
     pasarela de API que publica el servicio.
 
-    **Identificación**: los endpoints bajo `/dispatch/*` requieren además el
-    parámetro `rut` del cliente final
+    **Identificación**: los endpoints bajo `/dispatch/*` y `GET /files`
+    requieren además el parámetro `rut` del cliente final
     (ver [Convenciones → RUT](/docs/conventions#formato-de-rut)). Los de
     `/master/*` no lo reciben: son catálogos de la agencia, no datos de un
     cliente.
 
     ## Antes de integrar: tres cosas que conviene saber
 
-    Las tres aplican a los endpoints de `/dispatch/*`, que son los que
-    devuelven documentos. Los de `/master/*` declaran su propio
+    Las tres aplican a los endpoints de archivos
+    (`GET /dispatch/{numeroDespacho}/files` y `GET /files`), que son los que
+    devuelven documentos. Los demás declaran su propio
     comportamiento en cada operación, y en al menos un punto es el contrario:
     emiten las claves sin valor como `null` en vez de eliminarlas.
 
@@ -187,7 +188,7 @@ components:
         el campo `name` de la respuesta, se recortan los espacios, y debe
         enviarse URL-encoded. Ver la lista de valores soportados en el
         parámetro `fileTypeName` de
-        `GET /dispatch/files/{numeroDespacho}`.
+        `GET /dispatch/{numeroDespacho}/files`.
       example: FACTURA AGENCIA
 
     StartDateParam:
@@ -599,7 +600,7 @@ components:
         Tipo documental habilitado en la agencia.
 
         **Las cuatro claves están siempre presentes.** A diferencia de
-        `GET /dispatch/files`, este endpoint no elimina las propiedades sin
+        los endpoints de archivos, este no elimina las propiedades sin
         valor: emite `null`. Un tipo documental con un campo sin cargar
         aparece igual en la lista.
 
@@ -617,7 +618,7 @@ components:
           type: [string, "null"]
           description: |
             Nombre del tipo documental. Es el mismo valor que acepta el
-            parámetro `fileTypeName` de `GET /dispatch/files`, así que este
+            parámetro `fileTypeName` de los endpoints de archivos, así que este
             endpoint es la forma de obtener esa lista sin fijarla en tu
             código. Tamaño sugerido: **64**.
           example: FACTURA AGENCIA
@@ -783,7 +784,8 @@ components:
          puertoDesembarque, numeroIdentificacion, paisOrigen, valorCif,
          valorEx, valorFlete, valorFob, valorSeguro, totalItem, viaTransporte]
       description: |
-        Datos del despacho asociado a un recurso de `/dispatch/*`.
+        Datos del despacho asociado a un registro: un archivo o un
+        desembolso.
 
         **Todas las claves están siempre presentes.** Cuando el dato no está
         cargado:
@@ -1084,7 +1086,7 @@ security:
   - ApiKeyQuery: []
 
 paths:
-  /dispatch/files/{numeroDespacho}:
+  /dispatch/{numeroDespacho}/files:
     get:
       tags: [Documentación]
       operationId: listarDocumentosDespacho
@@ -1095,7 +1097,7 @@ paths:
         documentos del despacho.
 
         ```
-        GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/files/{numeroDespacho}?key=...&rut=...
+        GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/{numeroDespacho}/files?key=...&rut=...
         ```
       parameters:
         - name: numeroDespacho
@@ -1256,7 +1258,7 @@ paths:
         "500":
           $ref: '#/components/responses/InternalError'
 
-  /dispatch/files:
+  /files:
     get:
       tags: [Documentación]
       operationId: listarDocumentosPorTipoYFecha
@@ -1276,7 +1278,7 @@ paths:
         puede mezclar archivos de varios despachos.
 
         ```
-        GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/files?key=...&rut=...&startDate=...&endDate=...&fileTypeName=...
+        GET https://api-comex.eurus.pro/{idAgencia}/v1/files?key=...&rut=...&startDate=...&endDate=...&fileTypeName=...
         ```
       parameters:
         - $ref: '#/components/parameters/RutParam'
@@ -1367,7 +1369,7 @@ paths:
         opcionalmente filtrado por tipo de operación.
 
         Es la fuente de los valores que acepta el parámetro `fileTypeName`
-        de `GET /dispatch/files`. Consultarlo una vez al inicio del proceso
+        de los endpoints de archivos. Consultarlo una vez al inicio del proceso
         evita fijar la lista en el código: los tipos nuevos que la agencia
         habilite aparecen acá sin que tengas que desplegar nada.
 
@@ -1376,7 +1378,7 @@ paths:
         GET https://api-comex.eurus.pro/{idAgencia}/v1/master/file-types?key=...&recordType=impo
         ```
 
-        Cuatro diferencias con los endpoints de `/dispatch/files`:
+        Cuatro diferencias con los endpoints de archivos:
 
         - **No requiere `rut`**: el maestro es de la agencia, no de un
           cliente final.
@@ -1476,7 +1478,7 @@ paths:
             Dos `code` posibles, de dos capas distintas:
 
             - **`INTERNAL_ERROR`** — fallo de la operación. A diferencia de
-              `/dispatch/*`, acá nunca se propaga el código de la capa de
+              archivos y seguimiento, acá nunca se propaga el código de la capa de
               datos: el `code` es siempre este y el mensaje es genérico,
               porque el detalle del fallo queda en los logs del servicio.
               Reintentar con back-off; si persiste, reportar el `requestId`.
@@ -1489,7 +1491,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /dispatch/status/{numeroDespacho}:
+  /dispatch/{numeroDespacho}/status:
     get:
       tags: [Seguimiento]
       operationId: consultarEstadoDespacho
@@ -1503,7 +1505,7 @@ paths:
         `null`.
 
         ```
-        GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/status/{numeroDespacho}?key=...&rut=...
+        GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/{numeroDespacho}/status?key=...&rut=...
         ```
       parameters:
         - name: numeroDespacho
@@ -1649,7 +1651,7 @@ paths:
         agencia pagó por cuenta del cliente, con su estado, sus montos y los
         documentos que los respaldan.
 
-        Mismas condiciones de acceso que `GET /dispatch/files/{numeroDespacho}`:
+        Mismas condiciones de acceso que `GET /dispatch/{numeroDespacho}/files`:
         `rut` obligatorio, y el despacho tiene que pertenecer a esa cuenta.
 
         ```

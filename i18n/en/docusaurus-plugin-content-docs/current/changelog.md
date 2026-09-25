@@ -12,23 +12,40 @@ All notable changes to the Comex API and its documentation are recorded here. Th
 
 ## [Unreleased]
 
+### Changed — Dispatch and file routes (spec 3.0.0)
+
+**The previous routes keep working**: nothing has to change to keep operating. But the spec no longer declares them, so migrating is advisable, especially if you generate a client from it.
+
+| Before | Now |
+|---|---|
+| `GET /dispatch/files/{numeroDespacho}` | `GET /dispatch/{numeroDespacho}/files` |
+| `GET /dispatch/status/{numeroDespacho}` | `GET /dispatch/{numeroDespacho}/status` |
+| `GET /dispatch/files` | `GET /files` |
+| `GET /dispatch/status` | unchanged |
+
+Parameters, responses and errors do not change: it is the same endpoint on another route.
+
+**Why.** A dispatch's resources now hang from the dispatch —`/dispatch/{numeroDespacho}/<resource>`, like the new `/desembolsos`—. Mixing that shape with the previous one meant the same URL could be read two ways. `/files` leaves `/dispatch` because it returns the client's files, which span all their dispatches.
+
+The major version is about the spec, not the service: a client generated from 3.0.0 does not carry the methods of the previous routes.
+
 ### Added — `GET /dispatch/{numeroDespacho}/desembolsos`
 
 New endpoint returning **every disbursement** of a dispatch: the expenses the agency paid on the client's behalf, with their status, amounts and supporting documents. New [Disbursements](./desembolsos/index.md) module.
 
-- Same access as `GET /dispatch/files/{numeroDespacho}`: `rut` is required and the dispatch must belong to that account. One of another client answers `404`, the same as a nonexistent one.
+- Same access as `GET /dispatch/{numeroDespacho}/files`: `rut` is required and the dispatch must belong to that account. One of another client answers `404`, the same as a nonexistent one.
 - Answers `{ date, total, data }`, with no pagination. `data` comes in chronological order by `fechaDesembolso`.
 - Each element carries its dispatch in `dispatch`, with customs inspection and DIN statuses, customs-cycle dates and CIF, FOB, freight and insurance values.
 - **Its own presence criterion**: optional fields are omitted, required text fields come as `""`, and required dates and amounts as `null`, never `0`.
 - The `500` is always `INTERNAL_ERROR`: data-layer details are not exposed.
 
-### Changed — `dispatch` in `GET /dispatch/files`
+### Changed — `dispatch` on the file endpoints
 
 On both file endpoints, `dispatch` goes from `{ id, referencia }` to the full dispatch data: the same contract [Disbursements](./desembolsos/index.md) uses, plus `id`.
 
 - **It is additive**: `id` and `referencia` are still there.
 - **It can no longer come back empty.** `dispatch` always carries all its keys, with `""` for text and `null` for dates and amounts. It is the only part of the file the empty-key stripping does not apply to. If your code treated `dispatch: {}` as "no dispatch", it now has to look at `dispatch.id`.
-- **The date-range `GET /dispatch/files` now emits `dispatch.referencia`.** It used not to read the dispatch, so the property never appeared. Each file carries its own dispatch, since a page can mix several.
+- **`GET /files` now emits `dispatch.referencia`.** It used not to read the dispatch, so the property never appeared. Each file carries its own dispatch, since a page can mix several.
 
 ### Added — `GET /master/file-types`
 

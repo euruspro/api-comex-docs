@@ -45,7 +45,7 @@ El API Key identifica a tu organización frente a la API Comex. Trátalo como un
 Vamos a listar los documentos asociados a un despacho conocido. La URL sigue el patrón:
 
 ```
-GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/files/{numeroDespacho}?key=<API_KEY>&rut=<RUT>
+GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/{numeroDespacho}/files?key=<API_KEY>&rut=<RUT>
 ```
 
 Reemplaza `{idAgencia}`, `<API_KEY>`, `{numeroDespacho}` y `<RUT>` por tus valores reales.
@@ -72,7 +72,7 @@ export EURUS_AGENCIA="z_cl_demo"
 export EURUS_RUT="999999999"
 
 curl -X GET \
-  "https://api-comex.eurus.pro/$EURUS_AGENCIA/v1/dispatch/files/123457?key=$EURUS_API_KEY&rut=$EURUS_RUT" \
+  "https://api-comex.eurus.pro/$EURUS_AGENCIA/v1/dispatch/123457/files?key=$EURUS_API_KEY&rut=$EURUS_RUT" \
   -H "Accept: application/json"
 ```
 
@@ -85,7 +85,7 @@ const RUT = process.env.EURUS_RUT;               // ej. "999999999"
 const numeroDespacho = "123457";
 
 const url = new URL(
-  `https://api-comex.eurus.pro/${AGENCIA}/v1/dispatch/files/${encodeURIComponent(numeroDespacho)}`
+  `https://api-comex.eurus.pro/${AGENCIA}/v1/dispatch/${encodeURIComponent(numeroDespacho)}/files`
 );
 url.searchParams.set("key", API_KEY);
 url.searchParams.set("rut", RUT);
@@ -125,7 +125,7 @@ numero_despacho = "123457"
 
 base = f"https://api-comex.eurus.pro/{AGENCIA}/v1"
 response = httpx.get(
-    f"{base}/dispatch/files/{numero_despacho}",
+    f"{base}/dispatch/{numero_despacho}/files",
     params={"key": API_KEY, "rut": RUT},
     headers={"Accept": "application/json"},
     timeout=30.0,
@@ -212,6 +212,6 @@ Si algo falla, recibirás un código HTTP de error con el cuerpo estándar. Ver 
 ## Paso 4 — Qué hacer a continuación
 
 - **Filtrar por tipo de documento**: añade el parámetro `fileTypeName=FACTURA%20AGENCIA` a la misma llamada para obtener solo facturas de agencia. Consulta la [lista completa de `fileTypeName`](./documentacion/index.md#filetypename) — y lee la advertencia sobre **URL encoding** porque los valores contienen espacios.
-- **Consultar por rango de fechas**: usa el segundo endpoint `GET /dispatch/files` con `startDate`, `endDate` y `fileTypeName` para extraer todos los documentos de un tipo en un período. Ver la [referencia interactiva](./documentacion/index.md).
+- **Consultar por rango de fechas**: usa el segundo endpoint `GET /files` con `startDate`, `endDate` y `fileTypeName` para extraer todos los documentos de un tipo en un período. Ver la [referencia interactiva](./documentacion/index.md).
 - **Leer las convenciones** de RUT, formatos y versionado — ver [Convenciones](./conventions.md).
 - **Explorar el módulo de [Documentación](./documentacion/index.md)** con más detalles y casos de uso.
