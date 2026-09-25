@@ -44,6 +44,13 @@ const sidebars: SidebarsConfig = {
       items: [],
     },
     {
+      type: 'category',
+      label: 'Desembolsos',
+      collapsed: false,
+      link: {type: 'doc', id: 'desembolsos/index'},
+      items: [],
+    },
+    {
       type: 'doc',
       id: 'changelog',
       label: 'Changelog',

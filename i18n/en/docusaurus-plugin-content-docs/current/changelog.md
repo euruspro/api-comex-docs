@@ -12,6 +12,24 @@ All notable changes to the Comex API and its documentation are recorded here. Th
 
 ## [Unreleased]
 
+### Added — `GET /dispatch/{numeroDespacho}/desembolsos`
+
+New endpoint returning **every disbursement** of a dispatch: the expenses the agency paid on the client's behalf, with their status, amounts and supporting documents. New [Disbursements](./desembolsos/index.md) module.
+
+- Same access as `GET /dispatch/files/{numeroDespacho}`: `rut` is required and the dispatch must belong to that account. One of another client answers `404`, the same as a nonexistent one.
+- Answers `{ date, total, data }`, with no pagination. `data` comes in chronological order by `fechaDesembolso`.
+- Each element carries its dispatch in `dispatch`, with customs inspection and DIN statuses, customs-cycle dates and CIF, FOB, freight and insurance values.
+- **Its own presence criterion**: optional fields are omitted, required text fields come as `""`, and required dates and amounts as `null`, never `0`.
+- The `500` is always `INTERNAL_ERROR`: data-layer details are not exposed.
+
+### Changed — `dispatch` in `GET /dispatch/files`
+
+On both file endpoints, `dispatch` goes from `{ id, referencia }` to the full dispatch data: the same contract [Disbursements](./desembolsos/index.md) uses, plus `id`.
+
+- **It is additive**: `id` and `referencia` are still there.
+- **It can no longer come back empty.** `dispatch` always carries all its keys, with `""` for text and `null` for dates and amounts. It is the only part of the file the empty-key stripping does not apply to. If your code treated `dispatch: {}` as "no dispatch", it now has to look at `dispatch.id`.
+- **The date-range `GET /dispatch/files` now emits `dispatch.referencia`.** It used not to read the dispatch, so the property never appeared. Each file carries its own dispatch, since a page can mix several.
+
 ### Added — `GET /master/file-types`
 
 New endpoint returning the agency's **active document types**: the values accepted by the `fileTypeName` parameter of `GET /dispatch/files`.

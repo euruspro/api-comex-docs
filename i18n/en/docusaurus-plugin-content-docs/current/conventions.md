@@ -169,18 +169,23 @@ On `GET /dispatch/files` (both variants), every element of `data` always carries
 |---|---|
 | `id` | Assigned from the document ID. |
 | `isActive` | Falls back to `false`, and `false` is not removed. |
-| `dispatch` | It is a container object; empty objects are kept. |
+| `dispatch` | **It is never emptied**: it always carries all its keys, with `""` for text and `null` for dates and amounts. It is the only part of the file the empty-key stripping does not apply to. |
 | `infoDoc` | Same: it survives as `{}`. |
 
-A document with no populated fields returns exactly this:
+A document with no populated fields, from a dispatch with no loaded data, returns this (`dispatch` abbreviated):
 
 ```json
-{ "id": "FILE-001", "isActive": false, "dispatch": {}, "infoDoc": {} }
+{
+  "id": "FILE-001",
+  "isActive": false,
+  "dispatch": { "id": "123457", "referencia": "", "fechaEta": null, "valorCif": null },
+  "infoDoc": {}
+}
 ```
 
 ### The empty-object trap
 
-`dispatch` and `infoDoc` **always exist, but may come back empty**. And in JavaScript `{}` is truthy, so this does not work:
+`infoDoc` **always exists, but may come back empty**. And in JavaScript `{}` is truthy, so this does not work:
 
 ```javascript
 // ❌ Runs even when infoDoc = {}

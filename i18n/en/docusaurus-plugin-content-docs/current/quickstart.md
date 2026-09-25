@@ -148,7 +148,7 @@ for doc in payload["data"]:
 
 ## Step 3 — Understand the response
 
-A successful request returns **HTTP 200** with a JSON body like this:
+A successful request returns **HTTP 200** with a JSON body like this. `dispatch` is **abbreviated**: the real response always carries the 28 dispatch keys (see the [API Reference](./reference/api-comex-eurus-pro.info.mdx)).
 
 ```json
 {
@@ -161,7 +161,10 @@ A successful request returns **HTTP 200** with a JSON body like this:
       "numeroDespacho": "123457",
       "dispatch": {
         "id": "123457",
-        "referencia": "REF-DEMO-0001"
+        "referencia": "REF-DEMO-0001",
+        "estadoAforo": "Aforo Documental",
+        "fechaEta": "2026-01-07T00:00:00.000Z",
+        "valorCif": 15250.75
       },
       "infoDoc": {
         "document": {
@@ -175,7 +178,13 @@ A successful request returns **HTTP 200** with a JSON body like this:
     {
       "id": "FILE-001",
       "isActive": false,
-      "dispatch": {},
+      "dispatch": {
+        "id": "123457",
+        "referencia": "",
+        "estadoAforo": "",
+        "fechaEta": null,
+        "valorCif": null
+      },
       "infoDoc": {}
     }
   ]
@@ -190,8 +199,9 @@ Four things about this response worth looking at before you write the parser:
 | **There is no `total`** | Pagination is cursor-based: see [Conventions → Pagination](./conventions.md#pagination). |
 | `name` is the document **type** | Not the file name. It is the same value you send in `fileTypeName`. |
 | The second element is real, not filler | It shows the guaranteed minimum: only `id`, `isActive`, `dispatch` and `infoDoc` are always there. Everything else **disappears from the JSON** when its value is empty, and can vary between elements of the same response. |
+| `dispatch` is the exception | It is never emptied: it always carries all its keys, with `""` for text and `null` for dates and amounts. |
 
-:::warning `dispatch` and `infoDoc` always exist, but may come back empty
+:::warning `infoDoc` always exists, but may come back empty
 And `{}` is truthy in JavaScript, so `if (item.infoDoc)` passes even when there is nothing inside. Check content: `item.infoDoc?.document?.number`. Explained in [Conventions → Field presence](./conventions.md#field-presence-the-thing-that-surprises-integrators-most).
 :::
 

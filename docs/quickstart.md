@@ -148,7 +148,7 @@ for doc in payload["data"]:
 
 ## Paso 3 — Entender la respuesta
 
-Un request exitoso devuelve **HTTP 200** con un cuerpo JSON como el siguiente:
+Un request exitoso devuelve **HTTP 200** con un cuerpo JSON como el siguiente. `dispatch` está **abreviado**: en la respuesta real trae siempre las 28 claves del despacho (ver [Referencia de la API](./reference/api-comex-eurus-pro.info.mdx)).
 
 ```json
 {
@@ -161,7 +161,10 @@ Un request exitoso devuelve **HTTP 200** con un cuerpo JSON como el siguiente:
       "numeroDespacho": "123457",
       "dispatch": {
         "id": "123457",
-        "referencia": "REF-DEMO-0001"
+        "referencia": "REF-DEMO-0001",
+        "estadoAforo": "Aforo Documental",
+        "fechaEta": "2026-01-07T00:00:00.000Z",
+        "valorCif": 15250.75
       },
       "infoDoc": {
         "document": {
@@ -175,7 +178,13 @@ Un request exitoso devuelve **HTTP 200** con un cuerpo JSON como el siguiente:
     {
       "id": "FILE-001",
       "isActive": false,
-      "dispatch": {},
+      "dispatch": {
+        "id": "123457",
+        "referencia": "",
+        "estadoAforo": "",
+        "fechaEta": null,
+        "valorCif": null
+      },
       "infoDoc": {}
     }
   ]
@@ -190,8 +199,9 @@ Cuatro cosas de esta respuesta que conviene mirar antes de escribir el parser:
 | **No hay `total`** | La paginación es por cursor: ver [Convenciones → Paginación](./conventions.md#paginación). |
 | `name` es el **tipo** de documento | No es el nombre del archivo. Es el mismo valor que se envía en `fileTypeName`. |
 | El segundo elemento es real, no un relleno | Muestra el mínimo garantizado: solo `id`, `isActive`, `dispatch` e `infoDoc` están siempre. El resto **desaparece del JSON** cuando su valor es vacío, y puede variar entre elementos de la misma respuesta. |
+| `dispatch` es la excepción | Nunca se vacía: trae siempre todas sus claves, con `""` en los textos y `null` en fechas y montos. |
 
-:::warning `dispatch` e `infoDoc` existen siempre, pero pueden venir vacíos
+:::warning `infoDoc` existe siempre, pero puede venir vacío
 Y `{}` es *truthy* en JavaScript, así que `if (item.infoDoc)` se cumple aunque no haya nada dentro. Verifica contenido: `item.infoDoc?.document?.number`. Está explicado en [Convenciones → Presencia de campos](./conventions.md#presencia-de-campos-lo-que-más-sorprende-al-integrar).
 :::
 

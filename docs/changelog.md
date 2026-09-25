@@ -12,6 +12,24 @@ Todos los cambios notables en la API Comex y en su documentación se registran a
 
 ## [Unreleased]
 
+### Added — `GET /dispatch/{numeroDespacho}/desembolsos`
+
+Nuevo endpoint que devuelve **todos los desembolsos** de un despacho: los gastos que la agencia pagó por cuenta del cliente, con su estado, montos y documentos de respaldo. Nuevo módulo [Desembolsos](./desembolsos/index.md).
+
+- Mismo acceso que `GET /dispatch/files/{numeroDespacho}`: `rut` obligatorio y despacho de esa cuenta. Uno de otro cliente responde `404`, igual que uno inexistente.
+- Responde `{ date, total, data }`, sin paginación. `data` viene en orden cronológico por `fechaDesembolso`.
+- Cada elemento trae el despacho asociado en `dispatch`, con estados de aforo y DIN, fechas del ciclo aduanero y valores CIF, FOB, flete y seguro.
+- **Criterio propio de presencia**: los opcionales se omiten, los obligatorios de texto vienen como `""`, y las fechas y montos obligatorios como `null`, nunca `0`.
+- El `500` es siempre `INTERNAL_ERROR`: el detalle de la capa de datos no se expone.
+
+### Changed — `dispatch` en `GET /dispatch/files`
+
+En los dos endpoints de archivos, `dispatch` pasa de `{ id, referencia }` a los datos completos del despacho: el mismo contrato que usa [Desembolsos](./desembolsos/index.md), más el `id`.
+
+- **Es aditivo**: `id` y `referencia` siguen ahí.
+- **Ya no puede venir vacío.** `dispatch` trae siempre todas sus claves, con `""` en los textos y `null` en fechas y montos. Es la única parte del archivo a la que no se aplica la eliminación de claves vacías. Si tu código trataba `dispatch: {}` como "sin despacho", ahora tiene que mirar `dispatch.id`.
+- **`GET /dispatch/files` por rango ahora emite `dispatch.referencia`.** Antes no leía el despacho y la propiedad no aparecía nunca. Cada archivo trae su propio despacho, porque una página puede mezclar varios.
+
 ### Added — `GET /master/file-types`
 
 Nuevo endpoint que devuelve los **tipos documentales activos** de la agencia: los valores que acepta el parámetro `fileTypeName` de `GET /dispatch/files`.

@@ -64,7 +64,7 @@ That covers UUIDs, hexadecimal, W3C `traceparent` and the most common trace iden
 Even when the API Key is **missing**, the response is `403`. An earlier version of this documentation declared `401`.
 :::
 
-### Dispatches: `/dispatch/files/{n}` and `/dispatch/status/{n}`
+### Dispatches: `/dispatch/files/{n}`, `/dispatch/status/{n}` and `/dispatch/{n}/desembolsos`
 
 | HTTP | `code` | When |
 |---|---|---|
@@ -72,6 +72,8 @@ Even when the API Key is **missing**, the response is `403`. An earlier version 
 | **400** | `RUT_NUMBER_INVALID` | `rut` is missing, or its shape is not a RUT. |
 | **404** | `ACCOUNT_NOT_FOUND` | The RUT is not a client, or is not active. |
 | **404** | `DISPATCH_NOT_FOUND` | The dispatch does not exist in your agency, **or does not belong to the account behind `rut`**. |
+
+On `/dispatch/{n}/desembolsos`, the `500` is also always `INTERNAL_ERROR`: the data-layer code is never propagated, same as `GET /master/file-types`.
 
 :::warning The two 404 cases are indistinguishable, by design
 A nonexistent dispatch and one that exists but belongs to another client return the **same** response. If they differed, walking correlative numbers would reveal which dispatches exist in the agency without accessing any of them.

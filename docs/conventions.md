@@ -169,18 +169,23 @@ En `GET /dispatch/files` (ambas variantes), cada elemento de `data` trae siempre
 |---|---|
 | `id` | Se asigna desde el ID del documento. |
 | `isActive` | Cae a `false`, y `false` no se elimina. |
-| `dispatch` | Es un objeto contenedor; los objetos vacíos se conservan. |
+| `dispatch` | **Nunca se vacía**: trae siempre todas sus claves, con `""` en los textos y `null` en fechas y montos. Es la única parte del archivo a la que no se aplica la eliminación de claves vacías. |
 | `infoDoc` | Ídem: sobrevive como `{}`. |
 
-Un documento sin ningún campo poblado devuelve exactamente esto:
+Un documento sin ningún campo poblado, de un despacho sin datos cargados, devuelve esto (`dispatch` abreviado):
 
 ```json
-{ "id": "FILE-001", "isActive": false, "dispatch": {}, "infoDoc": {} }
+{
+  "id": "FILE-001",
+  "isActive": false,
+  "dispatch": { "id": "123457", "referencia": "", "fechaEta": null, "valorCif": null },
+  "infoDoc": {}
+}
 ```
 
 ### La trampa del objeto vacío
 
-`dispatch` e `infoDoc` **siempre existen, pero pueden venir vacíos**. Y en JavaScript `{}` es *truthy*, así que esto no funciona:
+`infoDoc` **siempre existe, pero puede venir vacío**. Y en JavaScript `{}` es *truthy*, así que esto no funciona:
 
 ```javascript
 // ❌ Se ejecuta incluso con infoDoc = {}

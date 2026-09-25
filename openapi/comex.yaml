@@ -21,7 +21,7 @@
 openapi: 3.1.0
 info:
   title: API Comex — EURUS PRO®
-  version: "2.1.0"
+  version: "2.2.0"
   description: |
     API REST de Comercio Exterior de EURUS PRO®. Permite consultar los
     documentos asociados a despachos de importación y exportación
@@ -48,9 +48,10 @@ info:
        la API elimina toda propiedad cuyo valor sea `null`, `undefined` o
        `""`. Un campo presente en un elemento puede faltar en el siguiente
        de la misma respuesta. Solo `id`, `isActive`, `dispatch` e `infoDoc`
-       se emiten siempre.
-    2. **`dispatch` e `infoDoc` siempre existen, pero pueden venir vacíos**, y
-       un objeto vacío es *truthy* en JavaScript. Verifica contenido
+       se emiten siempre. **`dispatch` es la excepción a la regla**: trae
+       todas sus claves, con `""` o `null` cuando no hay dato.
+    2. **`infoDoc` siempre existe, pero puede venir vacío**, y un objeto
+       vacío es *truthy* en JavaScript. Verifica contenido
        (`item.infoDoc?.document?.number`), no presencia (`item.infoDoc`).
     3. **La `url` de descarga caduca en 1 hora.** No la almacenes más allá de
        ese plazo: vuelve a consultar el endpoint.
@@ -83,6 +84,11 @@ tags:
     description: |
       Consulta de documentos y archivos asociados a despachos de comercio
       exterior (facturas, packing list, BL, certificados, etc.).
+  - name: Desembolsos
+    description: |
+      Registros de desembolsos de un despacho: los gastos pagados por la
+      agencia por cuenta del cliente, con su estado y los documentos que los
+      respaldan.
   - name: Maestros
     description: |
       Catálogos de la agencia: listas de valores que el resto de los
@@ -470,27 +476,25 @@ components:
           $ref: '#/components/schemas/InfoDocParty'
 
     DispatchRef:
-      type: object
-      additionalProperties: false
       description: |
-        Referencia al despacho. **Siempre presente, posiblemente vacía
-        (`{}`)**: el contenedor se emite aunque ambas propiedades se hayan
-        eliminado por venir vacías.
-      properties:
-        id:
-          type: string
-          description: ID del despacho referenciado.
-          example: "123457"
-        referencia:
-          type: string
-          description: |
-            Referencia interna del despacho.
+        Despacho del archivo: los mismos datos que `DispatchData`, más su
+        `id`.
 
-            **Solo en `GET /dispatch/files/{numeroDespacho}`.** El endpoint
-            por rango y fecha no lee el documento del despacho, así que ahí
-            esta propiedad nunca aparece. Es una divergencia real entre los
-            dos endpoints, no una omisión de este documento.
-          example: REF-DEMO-0001
+        **Todas las claves están siempre presentes**, en los dos endpoints de
+        archivos. A diferencia del resto del archivo, acá las claves vacías
+        **no se eliminan**: los textos sin dato vienen como `""`, y las
+        fechas y los montos como `null`.
+      allOf:
+        - $ref: '#/components/schemas/DispatchData'
+        - type: object
+          required: [id]
+          properties:
+            id:
+              type: string
+              description: |
+                ID del despacho. `""` si el archivo no tiene despacho asociado.
+              example: "123457"
+      unevaluatedProperties: false
 
     DispatchFile:
       type: object
@@ -769,6 +773,263 @@ components:
           items:
             $ref: '#/components/schemas/DispatchStatus'
 
+    DispatchData:
+      type: object
+      required:
+        [estadoAforo, estadoDIN, referencia, tipoTramite, nombreAduana,
+         consignante, doctoTransporte, fechaAceptacion, fechaArriboEfectivo,
+         fechaCorreccionBL, fechaVencimiento, fechaEta, fechaApertura,
+         fechaRetiro, fechaPagoDerechos, nombreNave, paisPrimerPuertoEmbarque,
+         puertoDesembarque, numeroIdentificacion, paisOrigen, valorCif,
+         valorEx, valorFlete, valorFob, valorSeguro, totalItem, viaTransporte]
+      description: |
+        Datos del despacho asociado a un recurso de `/dispatch/*`.
+
+        **Todas las claves están siempre presentes.** Cuando el dato no está
+        cargado:
+
+        - los campos de **texto** vienen como `""`;
+        - las **fechas** y los **montos** vienen como `null`.
+
+        La diferencia es deliberada: un `valorCif: 0` o una fecha vacía se
+        confundirían con un dato real. `null` dice "no está"; `0` diría "vale
+        cero".
+
+        Las fechas son ISO 8601 en UTC.
+      properties:
+        estadoAforo:
+          type: string
+          description: Estado de aforo del despacho. `""` si no tiene.
+          example: Aforo Documental
+        estadoDIN:
+          type: string
+          description: Estado de la DIN. `""` si no tiene.
+          example: Aceptada
+        referencia:
+          type: string
+          description: Referencia del despacho asignada por el cliente o la agencia.
+          example: REF-2026-001
+        tipoTramite:
+          type: string
+          example: IMPORTACION
+        nombreAduana:
+          type: string
+          example: VALPARAISO
+        consignante:
+          type: string
+          example: IMPORTADORA DEMO SPA
+        doctoTransporte:
+          type: string
+          description: Número del documento de transporte (BL, guía aérea, CRT).
+          example: BL-778899
+        fechaAceptacion:
+          type: [string, "null"]
+          format: date-time
+          example: "2026-01-10T12:00:00.000Z"
+        fechaArriboEfectivo:
+          type: [string, "null"]
+          format: date-time
+          example: "2026-01-08T09:00:00.000Z"
+        fechaCorreccionBL:
+          type: [string, "null"]
+          format: date-time
+          example: null
+        fechaVencimiento:
+          type: [string, "null"]
+          format: date-time
+          example: "2026-02-10T00:00:00.000Z"
+        fechaEta:
+          type: [string, "null"]
+          format: date-time
+          example: "2026-01-07T00:00:00.000Z"
+        fechaApertura:
+          type: [string, "null"]
+          format: date-time
+          description: Fecha de apertura (ingreso) del despacho.
+          example: "2026-01-05T08:00:00.000Z"
+        fechaRetiro:
+          type: [string, "null"]
+          format: date-time
+          example: "2026-01-12T15:00:00.000Z"
+        fechaPagoDerechos:
+          type: [string, "null"]
+          format: date-time
+          example: "2026-01-11T11:00:00.000Z"
+        nombreNave:
+          type: string
+          example: MSC DEMO
+        paisPrimerPuertoEmbarque:
+          type: string
+          example: CHINA
+        puertoDesembarque:
+          type: string
+          example: VALPARAISO
+        numeroIdentificacion:
+          type: string
+          description: Número de identificación de la declaración.
+          example: "1234567890"
+        paisOrigen:
+          type: string
+          example: CHINA
+        valorCif:
+          type: [number, "null"]
+          example: 15250.75
+        valorEx:
+          type: [number, "null"]
+          example: 0
+        valorFlete:
+          type: [number, "null"]
+          example: 1200
+        valorFob:
+          type: [number, "null"]
+          example: 13800
+        valorSeguro:
+          type: [number, "null"]
+          example: 250.75
+        totalItem:
+          type: [integer, "null"]
+          description: Cantidad de ítems de la declaración.
+          example: 3
+        viaTransporte:
+          type: string
+          example: MARITIMA
+
+    DesembolsoDocumentInfo:
+      type: object
+      additionalProperties: false
+      required: [totals]
+      description: |
+        Documento que respalda el desembolso (factura o comprobante).
+
+        Los campos de texto y la fecha se **omiten** si no están cargados.
+        `totals` está **siempre**, aunque venga vacío, y solo trae montos
+        numéricos: sus claves dependen del documento, así que no asumas un
+        conjunto fijo.
+      properties:
+        fechaDocumento:
+          type: string
+          format: date-time
+          example: "2026-01-15T00:00:00.000Z"
+        idProveedor:
+          type: string
+          description: Identificación del proveedor, habitualmente su RUT.
+          example: 76501137-K
+        name:
+          type: string
+          example: FACTURA
+        title:
+          type: string
+          example: Factura electrónica
+        nombreProveedor:
+          type: string
+          example: NAVIERA DEMO SPA
+        totals:
+          type: object
+          additionalProperties:
+            type: number
+          example:
+            neto: 1000
+            iva: 190
+            total: 1190
+
+    Desembolso:
+      type: object
+      additionalProperties: false
+      required:
+        [id, codigoAnalisis, numeroDespacho, dispatch, fechaDesembolso,
+         nombreAnalisis, numeroDocumento, estado]
+      description: |
+        Un desembolso del despacho.
+
+        Tres reglas de presencia, distintas de las de los otros módulos:
+
+        - Los **obligatorios de texto** (`codigoAnalisis`, `numeroDespacho`,
+          `nombreAnalisis`, `numeroDocumento`, `estado`) están siempre; `""`
+          si no hay dato.
+        - `fechaDesembolso` está siempre; `null` si no hay dato.
+        - Los **opcionales** (montos, `fechaFacturado`, `invoiceInfo`,
+          `documentInfo`) se **omiten** cuando no hay dato. Verifica
+          presencia antes de sumar: un monto ausente no es un `0`.
+      properties:
+        id:
+          type: string
+          example: Gq7Lm2Xa9Pz4Rt8Vb1Cd
+        codigoAnalisis:
+          type: string
+          description: Código contable del análisis del gasto.
+          example: AN-01
+        debe:
+          type: number
+          example: 1190
+        numeroDespacho:
+          type: string
+          example: "123457"
+        dispatch:
+          $ref: '#/components/schemas/DispatchData'
+        fechaDesembolso:
+          type: [string, "null"]
+          format: date-time
+          example: "2026-01-16T00:00:00.000Z"
+        monto:
+          type: number
+          example: 1190
+        montoIva:
+          type: number
+          example: 190
+        montoNeto:
+          type: number
+          example: 1000
+        nombreAnalisis:
+          type: string
+          description: Nombre del análisis del gasto.
+          example: Flete
+        numeroDocumento:
+          type: string
+          description: Número del documento que respalda el desembolso.
+          example: "45"
+        estado:
+          type: string
+          description: Estado del desembolso. `""` si no tiene.
+          example: Pagado
+        invoiceInfo:
+          $ref: '#/components/schemas/DesembolsoDocumentInfo'
+        documentInfo:
+          $ref: '#/components/schemas/DesembolsoDocumentInfo'
+        fechaFacturado:
+          type: string
+          format: date-time
+          example: "2026-01-17T00:00:00.000Z"
+        saldo:
+          type: number
+          example: 0
+
+    DesembolsosResponse:
+      type: object
+      additionalProperties: false
+      required: [date, total, data]
+      properties:
+        date:
+          type: string
+          format: date-time
+          description: |
+            **Instante en que se sirvió la respuesta**, en ISO 8601 UTC. No
+            es una fecha del dato.
+          example: "2026-01-31T22:04:31.000Z"
+        total:
+          type: integer
+          description: |
+            Cantidad de desembolsos devueltos. Como no hay paginación, es
+            también el total del despacho.
+          example: 1
+        data:
+          type: array
+          description: |
+            Desembolsos del despacho en orden cronológico por
+            `fechaDesembolso`; los que no tienen fecha van al final. Puede
+            venir vacío.
+          items:
+            $ref: '#/components/schemas/Desembolso'
+
   responses:
     BadRequest:
       description: |
@@ -833,9 +1094,6 @@ paths:
         `fileTypeName` es opcional: si se omite, se retornan todos los
         documentos del despacho.
 
-        Es el único de los dos endpoints que puede devolver
-        `dispatch.referencia`.
-
         ```
         GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/files/{numeroDespacho}?key=...&rut=...
         ```
@@ -869,9 +1127,35 @@ paths:
                         isActive: true
                         name: FACTURA AGENCIA
                         numeroDespacho: "123457"
-                        dispatch:
+                        dispatch: &despacho123457
                           id: "123457"
+                          estadoAforo: Aforo Documental
+                          estadoDIN: Aceptada
                           referencia: REF-DEMO-0001
+                          tipoTramite: IMPORTACION
+                          nombreAduana: VALPARAISO
+                          consignante: IMPORTADORA DEMO SPA
+                          doctoTransporte: BL-778899
+                          fechaAceptacion: "2026-01-10T12:00:00.000Z"
+                          fechaArriboEfectivo: "2026-01-08T09:00:00.000Z"
+                          fechaCorreccionBL: null
+                          fechaVencimiento: "2026-02-10T00:00:00.000Z"
+                          fechaEta: "2026-01-07T00:00:00.000Z"
+                          fechaApertura: "2026-01-05T08:00:00.000Z"
+                          fechaRetiro: "2026-01-12T15:00:00.000Z"
+                          fechaPagoDerechos: "2026-01-11T11:00:00.000Z"
+                          nombreNave: MSC DEMO
+                          paisPrimerPuertoEmbarque: CHINA
+                          puertoDesembarque: VALPARAISO
+                          numeroIdentificacion: "1234567890"
+                          paisOrigen: CHINA
+                          valorCif: 15250.75
+                          valorEx: 0
+                          valorFlete: 1200
+                          valorFob: 13800
+                          valorSeguro: 250.75
+                          totalItem: 3
+                          viaTransporte: MARITIMA
                         infoDoc:
                           document:
                             number: "45"
@@ -890,9 +1174,7 @@ paths:
                         isActive: true
                         name: CONOCIMIENTO DE EMBARQUE (B/L)
                         numeroDespacho: "123457"
-                        dispatch:
-                          id: "123457"
-                          referencia: REF-DEMO-0001
+                        dispatch: *despacho123457
                         infoDoc:
                           document:
                             number: "BL-77021"
@@ -902,15 +1184,45 @@ paths:
                   summary: >-
                     Caso extremo — documento sin ningún campo poblado
                   description: |
-                    Salida real para un documento vacío. Muestra el mínimo
-                    garantizado: `dispatch` e `infoDoc` existen pero están
-                    vacíos, y no hay `name`, `numeroDespacho` ni `url`.
+                    Salida real para un documento vacío de un despacho sin
+                    datos cargados. Muestra el mínimo garantizado: `infoDoc`
+                    existe pero vacío, y no hay `name`, `numeroDespacho` ni
+                    `url`. `dispatch`, en cambio, trae todas sus claves: `""`
+                    en los textos y `null` en fechas y montos.
                   value:
                     date: "2026-01-31T22:04:31.000Z"
                     data:
                       - id: FILE-001
                         isActive: false
-                        dispatch: {}
+                        dispatch:
+                          id: "123457"
+                          estadoAforo: ""
+                          estadoDIN: ""
+                          referencia: ""
+                          tipoTramite: ""
+                          nombreAduana: ""
+                          consignante: ""
+                          doctoTransporte: ""
+                          fechaAceptacion: null
+                          fechaArriboEfectivo: null
+                          fechaCorreccionBL: null
+                          fechaVencimiento: null
+                          fechaEta: null
+                          fechaApertura: null
+                          fechaRetiro: null
+                          fechaPagoDerechos: null
+                          nombreNave: ""
+                          paisPrimerPuertoEmbarque: ""
+                          puertoDesembarque: ""
+                          numeroIdentificacion: ""
+                          paisOrigen: ""
+                          valorCif: null
+                          valorEx: null
+                          valorFlete: null
+                          valorFob: null
+                          valorSeguro: null
+                          totalItem: null
+                          viaTransporte: ""
                         infoDoc: {}
                 conFirmaFallida:
                   summary: Una URL no se pudo firmar
@@ -924,8 +1236,7 @@ paths:
                       - id: SqboswZtrqP1mDJl6dFj
                         isActive: true
                         name: FACTURA AGENCIA
-                        dispatch:
-                          id: "123457"
+                        dispatch: *despacho123457
                         infoDoc:
                           document:
                             number: "45"
@@ -933,8 +1244,7 @@ paths:
                       - id: Zx44mNbVcXs1Qw2eRt5Y
                         isActive: true
                         name: NOTA DE COBRO
-                        dispatch:
-                          id: "123457"
+                        dispatch: *despacho123457
                         infoDoc: {}
                     unsignedCount: 1
         "400":
@@ -959,11 +1269,11 @@ paths:
         Útil para procesos batch: por ejemplo, extraer todas las facturas de
         un mes para conciliación contable.
 
-        Dos diferencias con el endpoint por despacho, ambas reales:
+        La diferencia con el endpoint por despacho: acá `fileTypeName` es
+        **obligatorio**.
 
-        - `fileTypeName` es **obligatorio**.
-        - Nunca devuelve `dispatch.referencia`, porque no lee el documento
-          del despacho.
+        Cada archivo trae su propio despacho en `dispatch`, porque una página
+        puede mezclar archivos de varios despachos.
 
         ```
         GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/files?key=...&rut=...&startDate=...&endDate=...&fileTypeName=...
@@ -985,8 +1295,8 @@ paths:
                 facturasAgenciaEnero:
                   summary: Todas las "FACTURA AGENCIA" de enero 2026
                   description: |
-                    Sin `dispatch.referencia`: este endpoint no la emite
-                    nunca.
+                    Dos archivos de dos despachos distintos: cada uno trae el
+                    suyo en `dispatch`.
                   value:
                     date: "2026-01-31T22:04:31.000Z"
                     data:
@@ -994,8 +1304,7 @@ paths:
                         isActive: true
                         name: FACTURA AGENCIA
                         numeroDespacho: "123457"
-                        dispatch:
-                          id: "123457"
+                        dispatch: *despacho123457
                         infoDoc:
                           document:
                             number: "45"
@@ -1007,7 +1316,9 @@ paths:
                         name: FACTURA AGENCIA
                         numeroDespacho: "123458"
                         dispatch:
+                          <<: *despacho123457
                           id: "123458"
+                          referencia: REF-DEMO-0002
                         infoDoc:
                           document:
                             number: "46"
@@ -1026,8 +1337,7 @@ paths:
                       - id: SqboswZtrqP1mDJl6dFj
                         isActive: true
                         name: FACTURA AGENCIA
-                        dispatch:
-                          id: "123457"
+                        dispatch: *despacho123457
                         infoDoc: {}
                     nextToken: SqboswZtrqP1mDJl6dFj
                 sinResultados:
@@ -1328,3 +1638,179 @@ paths:
           $ref: '#/components/responses/NotFound'
         "500":
           $ref: '#/components/responses/InternalError'
+
+  /dispatch/{numeroDespacho}/desembolsos:
+    get:
+      tags: [Desembolsos]
+      operationId: listarDesembolsosDespacho
+      summary: Desembolsos de un despacho
+      description: |
+        Devuelve **todos los desembolsos** de un despacho: los gastos que la
+        agencia pagó por cuenta del cliente, con su estado, sus montos y los
+        documentos que los respaldan.
+
+        Mismas condiciones de acceso que `GET /dispatch/files/{numeroDespacho}`:
+        `rut` obligatorio, y el despacho tiene que pertenecer a esa cuenta.
+
+        ```
+        GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/{numeroDespacho}/desembolsos?key=...&rut=...
+        ```
+
+        **No hay paginación**: la respuesta trae todos los desembolsos del
+        despacho, y `total` es su cantidad.
+
+        Cada elemento trae el despacho asociado en `dispatch`, con la misma
+        forma en todos.
+      parameters:
+        - name: numeroDespacho
+          in: path
+          required: true
+          schema:
+            type: string
+          description: |
+            Número de despacho del negocio. Se responde `404` si no existe en
+            la agencia **o si no pertenece a la cuenta del `rut`**.
+          example: "123457"
+        - $ref: '#/components/parameters/RutParam'
+      responses:
+        "200":
+          description: Desembolsos del despacho.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DesembolsosResponse'
+              examples:
+                conFactura:
+                  summary: Un desembolso pagado, con su factura
+                  value:
+                    date: "2026-01-31T22:04:31.000Z"
+                    total: 1
+                    data:
+                      - id: Gq7Lm2Xa9Pz4Rt8Vb1Cd
+                        codigoAnalisis: AN-01
+                        debe: 1190
+                        numeroDespacho: "123457"
+                        dispatch:
+                          estadoAforo: Aforo Documental
+                          estadoDIN: Aceptada
+                          referencia: REF-2026-001
+                          tipoTramite: IMPORTACION
+                          nombreAduana: VALPARAISO
+                          consignante: IMPORTADORA DEMO SPA
+                          doctoTransporte: BL-778899
+                          fechaAceptacion: "2026-01-10T12:00:00.000Z"
+                          fechaArriboEfectivo: "2026-01-08T09:00:00.000Z"
+                          fechaCorreccionBL: null
+                          fechaVencimiento: "2026-02-10T00:00:00.000Z"
+                          fechaEta: "2026-01-07T00:00:00.000Z"
+                          fechaApertura: "2026-01-05T08:00:00.000Z"
+                          fechaRetiro: "2026-01-12T15:00:00.000Z"
+                          fechaPagoDerechos: "2026-01-11T11:00:00.000Z"
+                          nombreNave: MSC DEMO
+                          paisPrimerPuertoEmbarque: CHINA
+                          puertoDesembarque: VALPARAISO
+                          numeroIdentificacion: "1234567890"
+                          paisOrigen: CHINA
+                          valorCif: 15250.75
+                          valorEx: 0
+                          valorFlete: 1200
+                          valorFob: 13800
+                          valorSeguro: 250.75
+                          totalItem: 3
+                          viaTransporte: MARITIMA
+                        fechaDesembolso: "2026-01-16T00:00:00.000Z"
+                        monto: 1190
+                        montoIva: 190
+                        montoNeto: 1000
+                        nombreAnalisis: Flete
+                        numeroDocumento: "45"
+                        estado: Pagado
+                        invoiceInfo:
+                          fechaDocumento: "2026-01-15T00:00:00.000Z"
+                          idProveedor: 76501137-K
+                          name: FACTURA
+                          nombreProveedor: NAVIERA DEMO SPA
+                          totals:
+                            neto: 1000
+                            iva: 190
+                            total: 1190
+                        fechaFacturado: "2026-01-17T00:00:00.000Z"
+                        saldo: 0
+                sinDatosOpcionales:
+                  summary: Un desembolso con datos incompletos
+                  description: |
+                    Los opcionales ausentes **no aparecen**; los obligatorios
+                    de texto vienen como `""` y la fecha como `null`. En el
+                    despacho, las fechas y los montos sin cargar vienen como
+                    `null`, no como `0`.
+                  value:
+                    date: "2026-01-31T22:04:31.000Z"
+                    total: 1
+                    data:
+                      - id: Hs3Kd8Wq2Lm6Pn1Zx4Vc
+                        codigoAnalisis: AN-07
+                        numeroDespacho: "123457"
+                        dispatch:
+                          estadoAforo: ""
+                          estadoDIN: ""
+                          referencia: REF-2026-001
+                          tipoTramite: IMPORTACION
+                          nombreAduana: VALPARAISO
+                          consignante: IMPORTADORA DEMO SPA
+                          doctoTransporte: ""
+                          fechaAceptacion: null
+                          fechaArriboEfectivo: null
+                          fechaCorreccionBL: null
+                          fechaVencimiento: null
+                          fechaEta: null
+                          fechaApertura: "2026-01-05T08:00:00.000Z"
+                          fechaRetiro: null
+                          fechaPagoDerechos: null
+                          nombreNave: ""
+                          paisPrimerPuertoEmbarque: ""
+                          puertoDesembarque: ""
+                          numeroIdentificacion: ""
+                          paisOrigen: ""
+                          valorCif: null
+                          valorEx: null
+                          valorFlete: null
+                          valorFob: null
+                          valorSeguro: null
+                          totalItem: null
+                          viaTransporte: ""
+                        fechaDesembolso: null
+                        nombreAnalisis: Almacenaje
+                        numeroDocumento: ""
+                        estado: ""
+                sinResultados:
+                  summary: Despacho sin desembolsos
+                  description: |
+                    `data` vacío no es un error: es un `200` con cero
+                    resultados.
+                  value:
+                    date: "2026-01-31T22:04:31.000Z"
+                    total: 0
+                    data: []
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          description: |
+            Dos `code` posibles, de dos capas distintas:
+
+            - **`INTERNAL_ERROR`** — fallo de la operación. Acá nunca se
+              propaga el código de la capa de datos: el `code` es siempre
+              este y el mensaje es genérico, porque el detalle queda en los
+              logs del servicio. Reintentar con back-off; si persiste,
+              reportar el `requestId`.
+            - **`TENANT_UNRESOLVED`** — la configuración de la agencia no se
+              pudo resolver. Lo emite la capa de autenticación, antes de
+              llegar a esta operación. Reintentar no lo resuelve: reportar
+              el `requestId`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

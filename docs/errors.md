@@ -64,7 +64,7 @@ Cubre UUID, hexadecimal, `traceparent` de W3C y los formatos de identificador de
 Incluso cuando la API Key **falta**, la respuesta es `403`. Una versión anterior de esta documentación declaraba `401`.
 :::
 
-### Despachos: `/dispatch/files/{n}` y `/dispatch/status/{n}`
+### Despachos: `/dispatch/files/{n}`, `/dispatch/status/{n}` y `/dispatch/{n}/desembolsos`
 
 | HTTP | `code` | Cuándo |
 |---|---|---|
@@ -72,6 +72,8 @@ Incluso cuando la API Key **falta**, la respuesta es `403`. Una versión anterio
 | **400** | `RUT_NUMBER_INVALID` | `rut` ausente, o su forma no es un RUT. |
 | **404** | `ACCOUNT_NOT_FOUND` | El RUT no es cliente o no está activo. |
 | **404** | `DISPATCH_NOT_FOUND` | El despacho no existe en tu agencia, **o no pertenece a la cuenta del `rut`**. |
+
+En `/dispatch/{n}/desembolsos`, además, el `500` es siempre `INTERNAL_ERROR`: el código de la capa de datos no se propaga, igual que en `GET /master/file-types`.
 
 :::warning Los dos casos del 404 son indistinguibles, a propósito
 Un despacho inexistente y uno que existe pero es de otro cliente devuelven la **misma** respuesta. Si difirieran, probando números correlativos se podría deducir qué despachos existen en la agencia sin acceder a ninguno.
