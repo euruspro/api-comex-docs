@@ -143,7 +143,7 @@ You will not see timestamps in internal form (`{"_seconds":…,"_nanoseconds":�
 This is the convention worth reading before you write the first line of code.
 
 :::info Applies to documents, not to statuses
-What follows holds for `GET /dispatch/files`. On `GET /dispatch/status` it is the opposite: **every key is always present**, and those with no value are emitted as `null`. They are two different contracts; do not assume one while reading the other.
+What follows holds for the file endpoints (`GET /dispatch/{numeroDespacho}/files` and `GET /files`). On `GET /dispatch/status` it is the opposite: **every key is always present**, and those with no value are emitted as `null`. They are two different contracts; do not assume one while reading the other.
 :::
 
 Before serializing the response, the API **recursively removes every property whose value is `null`, `undefined` or `""`** (empty string).
@@ -163,24 +163,29 @@ A field present in one element **may be missing from the next one in the same re
 
 ### The only guarantees
 
-On `GET /dispatch/files` (both variants), every element of `data` always carries these four:
+On both file endpoints, every element of `data` always carries these four:
 
 | Field | Why it is always there |
 |---|---|
 | `id` | Assigned from the document ID. |
 | `isActive` | Falls back to `false`, and `false` is not removed. |
-| `dispatch` | It is a container object; empty objects are kept. |
+| `dispatch` | **It is never emptied**: it always carries all its keys, with `""` for text and `null` for dates and amounts. It is the only part of the file the empty-key stripping does not apply to. |
 | `infoDoc` | Same: it survives as `{}`. |
 
-A document with no populated fields returns exactly this:
+A document with no populated fields, from a dispatch with no loaded data, returns this (`dispatch` abbreviated):
 
 ```json
-{ "id": "FILE-001", "isActive": false, "dispatch": {}, "infoDoc": {} }
+{
+  "id": "FILE-001",
+  "isActive": false,
+  "dispatch": { "id": "123457", "referencia": "", "fechaEta": null, "valorCif": null },
+  "infoDoc": {}
+}
 ```
 
 ### The empty-object trap
 
-`dispatch` and `infoDoc` **always exist, but may come back empty**. And in JavaScript `{}` is truthy, so this does not work:
+`infoDoc` **always exists, but may come back empty**. And in JavaScript `{}` is truthy, so this does not work:
 
 ```javascript
 // ❌ Runs even when infoDoc = {}
@@ -250,7 +255,7 @@ do {
   const params = new URLSearchParams({ key, rut, fileTypeName, startDate, endDate });
   if (nextToken) params.set("nextToken", nextToken);
 
-  const res = await fetch(`${BASE}/dispatch/files?${params}`);
+  const res = await fetch(`${BASE}/files?${params}`);
   if (!res.ok) throw new Error(`${res.status} ${(await res.json()).code}`);
 
   const page = await res.json();

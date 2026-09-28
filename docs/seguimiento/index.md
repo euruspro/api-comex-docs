@@ -15,7 +15,7 @@ Sirve tanto para **importaciones** como para **exportaciones**: el campo `record
 
 Ambos en la etiqueta **Seguimiento** de la [Referencia de la API](../reference/api-comex-eurus-pro.info.mdx):
 
-1. **[`GET /dispatch/status/{numeroDespacho}`](../reference/consultar-estado-despacho.api.mdx)**
+1. **[`GET /dispatch/{numeroDespacho}/status`](../reference/consultar-estado-despacho.api.mdx)**
    Estado de un **despacho específico**.
 
 2. **[`GET /dispatch/status`](../reference/listar-estados-despacho.api.mdx)**

@@ -64,7 +64,7 @@ Cubre UUID, hexadecimal, `traceparent` de W3C y los formatos de identificador de
 Incluso cuando la API Key **falta**, la respuesta es `403`. Una versión anterior de esta documentación declaraba `401`.
 :::
 
-### Despachos: `/dispatch/files/{n}` y `/dispatch/status/{n}`
+### Despachos: `/dispatch/{n}/files`, `/dispatch/{n}/status` y `/dispatch/{n}/desembolsos`
 
 | HTTP | `code` | Cuándo |
 |---|---|---|
@@ -73,11 +73,13 @@ Incluso cuando la API Key **falta**, la respuesta es `403`. Una versión anterio
 | **404** | `ACCOUNT_NOT_FOUND` | El RUT no es cliente o no está activo. |
 | **404** | `DISPATCH_NOT_FOUND` | El despacho no existe en tu agencia, **o no pertenece a la cuenta del `rut`**. |
 
+En `/dispatch/{n}/desembolsos`, además, el `500` es siempre `INTERNAL_ERROR`: el código de la capa de datos no se propaga, igual que en `GET /master/file-types`.
+
 :::warning Los dos casos del 404 son indistinguibles, a propósito
 Un despacho inexistente y uno que existe pero es de otro cliente devuelven la **misma** respuesta. Si difirieran, probando números correlativos se podría deducir qué despachos existen en la agencia sin acceder a ninguno.
 :::
 
-### `GET /dispatch/files`
+### `GET /files`
 
 | HTTP | `code` | Cuándo |
 |---|---|---|
@@ -239,7 +241,7 @@ Cuando contactes al soporte de EURUS PRO®, incluye **siempre**:
 
 1. El `requestId` de la respuesta (o el header `X-Request-Id`).
 2. El timestamp aproximado del request (UTC).
-3. El método HTTP y el path (ej. `GET /{idAgencia}/v1/dispatch/files/{numeroDespacho}`).
+3. El método HTTP y el path (ej. `GET /{idAgencia}/v1/dispatch/{numeroDespacho}/files`).
 4. Tu `idAgencia` y el `rut` consultado — **nunca el API Key**.
 5. Los primeros y últimos 4 caracteres del API Key usado, si es relevante.
 6. Un resumen de los parámetros enviados.

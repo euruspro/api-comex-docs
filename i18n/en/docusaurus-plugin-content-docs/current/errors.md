@@ -64,7 +64,7 @@ That covers UUIDs, hexadecimal, W3C `traceparent` and the most common trace iden
 Even when the API Key is **missing**, the response is `403`. An earlier version of this documentation declared `401`.
 :::
 
-### Dispatches: `/dispatch/files/{n}` and `/dispatch/status/{n}`
+### Dispatches: `/dispatch/{n}/files`, `/dispatch/{n}/status` and `/dispatch/{n}/desembolsos`
 
 | HTTP | `code` | When |
 |---|---|---|
@@ -73,11 +73,13 @@ Even when the API Key is **missing**, the response is `403`. An earlier version 
 | **404** | `ACCOUNT_NOT_FOUND` | The RUT is not a client, or is not active. |
 | **404** | `DISPATCH_NOT_FOUND` | The dispatch does not exist in your agency, **or does not belong to the account behind `rut`**. |
 
+On `/dispatch/{n}/desembolsos`, the `500` is also always `INTERNAL_ERROR`: the data-layer code is never propagated, same as `GET /master/file-types`.
+
 :::warning The two 404 cases are indistinguishable, by design
 A nonexistent dispatch and one that exists but belongs to another client return the **same** response. If they differed, walking correlative numbers would reveal which dispatches exist in the agency without accessing any of them.
 :::
 
-### `GET /dispatch/files`
+### `GET /files`
 
 | HTTP | `code` | When |
 |---|---|---|
@@ -239,7 +241,7 @@ When contacting EURUS PRO® support, **always** include:
 
 1. The `requestId` from the response (or the `X-Request-Id` header).
 2. The approximate request timestamp (UTC).
-3. The HTTP method and path (e.g. `GET /{idAgencia}/v1/dispatch/files/{numeroDespacho}`).
+3. The HTTP method and path (e.g. `GET /{idAgencia}/v1/dispatch/{numeroDespacho}/files`).
 4. Your `idAgencia` and the `rut` you queried — **never the API Key**.
 5. The first and last 4 characters of the API Key used, if relevant.
 6. A summary of the parameters sent.

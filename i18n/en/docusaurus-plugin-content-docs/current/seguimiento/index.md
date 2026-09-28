@@ -15,7 +15,7 @@ It covers both **imports** and **exports**: the `recordType` field distinguishes
 
 Both under the **Seguimiento** tag in the [API Reference](../reference/api-comex-eurus-pro.info.mdx):
 
-1. **[`GET /dispatch/status/{numeroDespacho}`](../reference/consultar-estado-despacho.api.mdx)**
+1. **[`GET /dispatch/{numeroDespacho}/status`](../reference/consultar-estado-despacho.api.mdx)**
    Status of a **specific dispatch**.
 
 2. **[`GET /dispatch/status`](../reference/listar-estados-despacho.api.mdx)**
