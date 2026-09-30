@@ -73,8 +73,6 @@ Even when the API Key is **missing**, the response is `403`. An earlier version 
 | **404** | `ACCOUNT_NOT_FOUND` | The RUT is not a client, or is not active. |
 | **404** | `DISPATCH_NOT_FOUND` | The dispatch does not exist in your agency, **or does not belong to the account behind `rut`**. |
 
-On `/dispatch/{n}/desembolsos`, the `500` is also always `INTERNAL_ERROR`: the data-layer code is never propagated, same as `GET /master/file-types`.
-
 :::warning The two 404 cases are indistinguishable, by design
 A nonexistent dispatch and one that exists but belongs to another client return the **same** response. If they differed, walking correlative numbers would reveal which dispatches exist in the agency without accessing any of them.
 :::
@@ -98,7 +96,7 @@ A nonexistent dispatch and one that exists but belongs to another client return 
 | HTTP | `code` | When |
 |---|---|---|
 | **400** | `RECORD_TYPE_INVALID` | `recordType` carries a value other than `impo` or `expo`, or arrives repeated with conflicting values. Omitting it is valid: it returns both. |
-| **500** | `INTERNAL_ERROR` | Operation-level failure. The data-layer code is **never** propagated here: the detail stays in the service logs, and the `requestId` is what links the two when you report it. |
+| **500** | `INTERNAL_ERROR` | Operation-level failure. The data-layer code is **never** propagated: the detail stays in the service logs, and the `requestId` is what links the two when you report it. |
 | **500** | `TENANT_UNRESOLVED` | Emitted by the authentication layer, before the request reaches this operation, as on any endpoint. See [Authentication and agency](#authentication-and-agency). |
 
 :::note This endpoint never returns 404
@@ -109,7 +107,7 @@ It takes no `rut` and no dispatch identifier: an agency with no active document 
 
 | HTTP | `code` | When |
 |---|---|---|
-| **500** | `INTERNAL_ERROR` or a data-layer code | Unhandled error. Retry with back-off. |
+| **500** | `INTERNAL_ERROR` | Unhandled error. The data-layer code is **never** propagated on the endpoints documented here: the message is generic and the detail stays in the service logs. Retry with back-off; if it persists, report the `requestId`. |
 | **500** | `TENANT_UNRESOLVED` | Your agency's configuration could not be resolved. **Retrying does not help**: your API Key and `idAgencia` are valid; the problem is configuration on the EURUS PRO® side. Report the `requestId`. |
 
 :::warning 400 and 404 mean different things
