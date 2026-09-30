@@ -73,8 +73,6 @@ Incluso cuando la API Key **falta**, la respuesta es `403`. Una versión anterio
 | **404** | `ACCOUNT_NOT_FOUND` | El RUT no es cliente o no está activo. |
 | **404** | `DISPATCH_NOT_FOUND` | El despacho no existe en tu agencia, **o no pertenece a la cuenta del `rut`**. |
 
-En `/dispatch/{n}/desembolsos`, además, el `500` es siempre `INTERNAL_ERROR`: el código de la capa de datos no se propaga, igual que en `GET /master/file-types`.
-
 :::warning Los dos casos del 404 son indistinguibles, a propósito
 Un despacho inexistente y uno que existe pero es de otro cliente devuelven la **misma** respuesta. Si difirieran, probando números correlativos se podría deducir qué despachos existen en la agencia sin acceder a ninguno.
 :::
@@ -98,7 +96,7 @@ Un despacho inexistente y uno que existe pero es de otro cliente devuelven la **
 | HTTP | `code` | Cuándo |
 |---|---|---|
 | **400** | `RECORD_TYPE_INVALID` | `recordType` trae un valor distinto de `impo` o `expo`, o llega repetido con valores distintos. Omitirlo es válido: devuelve ambos. |
-| **500** | `INTERNAL_ERROR` | Fallo de la operación. Acá **nunca** se propaga el código de la capa de datos: el detalle queda en los logs del servicio, y el `requestId` es lo que permite cruzarlo al reportar. |
+| **500** | `INTERNAL_ERROR` | Fallo de la operación. **Nunca** se propaga el código de la capa de datos: el detalle queda en los logs del servicio, y el `requestId` es lo que permite cruzarlo al reportar. |
 | **500** | `TENANT_UNRESOLVED` | Lo emite la capa de autenticación, antes de llegar a esta operación, igual que en cualquier endpoint. Ver [Autenticación y agencia](#autenticación-y-agencia). |
 
 :::note Este endpoint no emite 404
@@ -109,7 +107,7 @@ No recibe `rut` ni identificador de despacho: una agencia sin tipos documentales
 
 | HTTP | `code` | Cuándo |
 |---|---|---|
-| **500** | `INTERNAL_ERROR` o un código de la capa de datos | Error no controlado. Reintentar con back-off. |
+| **500** | `INTERNAL_ERROR` | Error no controlado. El código de la capa de datos **nunca** se propaga en los endpoints de esta documentación: el mensaje es genérico y el detalle queda en los logs del servicio. Reintentar con back-off; si persiste, reportar el `requestId`. |
 | **500** | `TENANT_UNRESOLVED` | La configuración de tu agencia no se pudo resolver. **Reintentar no ayuda**: tu API Key y tu `idAgencia` son válidos, el problema es de configuración del lado de EURUS PRO®. Reportar el `requestId`. |
 
 :::warning 400 y 404 significan cosas distintas

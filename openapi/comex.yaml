@@ -21,7 +21,7 @@
 openapi: 3.1.0
 info:
   title: API Comex — EURUS PRO®
-  version: "3.0.0"
+  version: "3.0.1"
   description: |
     API REST de Comercio Exterior de EURUS PRO®. Permite consultar los
     documentos asociados a despachos de importación y exportación
@@ -1072,8 +1072,10 @@ components:
       description: |
         Error del servidor. Códigos posibles:
 
-        - `INTERNAL_ERROR` o un código de la capa de datos: error no
-          controlado. Reintentar con back-off.
+        - `INTERNAL_ERROR`: error no controlado. El código de la capa de
+          datos nunca se propaga: el `code` es siempre este y el mensaje es
+          genérico, porque el detalle queda en los logs del servicio.
+          Reintentar con back-off; si persiste, reportar el `requestId`.
         - `TENANT_UNRESOLVED`: la configuración de tu agencia no se pudo
           resolver. **No es un error de tu request** — tu API Key y tu
           `idAgencia` son válidos. Reportar el `requestId` a soporte.
