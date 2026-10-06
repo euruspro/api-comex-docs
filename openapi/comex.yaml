@@ -1479,9 +1479,9 @@ paths:
           description: |
             Dos `code` posibles, de dos capas distintas:
 
-            - **`INTERNAL_ERROR`** — fallo de la operación. A diferencia de
-              archivos y seguimiento, acá nunca se propaga el código de la capa de
-              datos: el `code` es siempre este y el mensaje es genérico,
+            - **`INTERNAL_ERROR`** — fallo de la operación. Nunca se propaga
+              el código de la capa de datos: el `code` es siempre este y el
+              mensaje es genérico,
               porque el detalle del fallo queda en los logs del servicio.
               Reintentar con back-off; si persiste, reportar el `requestId`.
             - **`TENANT_UNRESOLVED`** — la configuración de la agencia no se
