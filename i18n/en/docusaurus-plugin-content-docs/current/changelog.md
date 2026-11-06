@@ -27,6 +27,32 @@ The filter accepts both vocabularies and rejects what it does not understand:
 
 `smda` is not a dispatch type: an SMDA (customs dispatch amendment request, *Solicitud de Modificación al Despacho Aduanero*) is always linked to a dispatch, but it is a different document.
 
+### Deprecated — The previous dispatch routes are retired on 2027-03-01
+
+`GET /dispatch/files/{numeroDespacho}`, `GET /dispatch/files` and `GET /dispatch/status/{numeroDespacho}` **stop being available on March 1, 2027, at 00:00 (Chile time)**. From that date they respond `404`. Until then they work exactly as today.
+
+| Retired | Use instead |
+|---|---|
+| `GET /dispatch/files/{numeroDespacho}` | `GET /dispatch/{numeroDespacho}/files` |
+| `GET /dispatch/files` | `GET /files` |
+| `GET /dispatch/status/{numeroDespacho}` | `GET /dispatch/{numeroDespacho}/status` |
+
+`GET /dispatch/status` (the listing) is **not** retired.
+
+Migrating is a change of route: parameters, responses and errors are the same. In the meantime, every response from a route being retired announces it in its headers, including the endpoint's own errors (`400`, `404`, `500`). An authentication `403` does not carry them: it is answered before reaching the route.
+
+```http
+Deprecation: @1790564400
+Sunset: Mon, 01 Mar 2027 03:00:00 GMT
+Link: </z_cl_demo/v1/dispatch/123457/files>; rel="successor-version"
+```
+
+- `Sunset` ([RFC 8594](https://www.rfc-editor.org/rfc/rfc8594)) is the retirement date, in GMT: 03:00 GMT is 00:00 in Chile.
+- `Link` with `rel="successor-version"` points to the route that replaces it.
+- `Deprecation` ([RFC 9745](https://www.rfc-editor.org/rfc/rfc9745)) is the date since which the route is deprecated.
+
+To find calls still pending migration, log the responses that carry `Sunset` in your client.
+
 ### Fixed — The `500` no longer exposes data-layer details (spec 3.0.1)
 
 On `GET /dispatch/{numeroDespacho}/files`, `GET /files`, `GET /dispatch/{numeroDespacho}/status` and `GET /dispatch/status`, the `500` returned the data layer's `code` and `message`: a numeric `code` —which broke the contract's `code: string`— and, on a missing index, a message carrying an internal URL. It is now always `INTERNAL_ERROR` with a generic message, as on `/dispatch/{numeroDespacho}/desembolsos` and `/master/file-types`. The detail stays in the service logs, and the `requestId` is what links the two when you report it.
@@ -35,7 +61,7 @@ If your integration branched on the `code` of a `500`, treat any `500` other tha
 
 ### Changed — Dispatch and file routes (spec 3.0.0)
 
-**The previous routes keep working**: nothing has to change to keep operating. But the spec no longer declares them, so migrating is advisable, especially if you generate a client from it.
+**The previous routes keep working until 2027-03-01**, when they are retired: see *Deprecated* above. The spec no longer declares them.
 
 | Before | Now |
 |---|---|

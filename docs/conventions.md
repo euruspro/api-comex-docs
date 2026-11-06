@@ -29,6 +29,8 @@ https://api-comex.eurus.pro/{idAgencia}/v1/...
 
 :::info Política de deprecación
 Cuando un endpoint o campo se marque como deprecated, se anunciará en el Changelog con al menos 90 días de anticipación antes de su retirada.
+
+Una ruta deprecada lo anuncia además en cada respuesta: `Sunset` con la fecha de retiro, `Link` con `rel="successor-version"` hacia su reemplazo y `Deprecation` con la fecha de deprecación.
 :::
 
 ## Identificadores comunes
