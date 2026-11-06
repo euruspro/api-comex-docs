@@ -79,6 +79,14 @@ On `/dispatch/{n}/desembolsos`, the `500` is also always `INTERNAL_ERROR`: the d
 A nonexistent dispatch and one that exists but belongs to another client return the **same** response. If they differed, walking correlative numbers would reveal which dispatches exist in the agency without accessing any of them.
 :::
 
+### `GET /dispatch/status`
+
+| HTTP | `code` | When |
+|---|---|---|
+| **400** | `RUT_NUMBER_INVALID` | `rut` is missing, or its shape is not a RUT. |
+| **400** | `RECORD_TYPE_INVALID` | `recordType` carries a value other than `din`, `dus`, `impo` or `expo` (for example, `smda`), or arrives repeated with conflicting values. Omitting it is valid: it returns both types. |
+| **404** | `ACCOUNT_NOT_FOUND` | The RUT is not a client, or is not active. |
+
 ### `GET /files`
 
 | HTTP | `code` | When |

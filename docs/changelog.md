@@ -12,6 +12,21 @@ Todos los cambios notables en la API Comex y en su documentación se registran a
 
 ## [Unreleased]
 
+### Changed — `recordType` en `GET /dispatch/status` (spec 3.1.0)
+
+El filtro acepta los dos vocabularios y rechaza lo que no entiende:
+
+| Valor | Antes | Ahora |
+|---|---|---|
+| `din`, `dus` | Filtra | Filtra (sin cambio) |
+| `impo`, `expo` | `200` con lista vacía | Filtra como `din` / `dus` |
+| `DIN`, `Expo` | `200` con lista vacía | Filtra: no distingue mayúsculas |
+| `smda` u otro valor | `200` con lista vacía | **`400 RECORD_TYPE_INVALID`** |
+
+**Qué hacer:** si tu integración enviaba `smda` o un valor no reconocido, recibía una lista vacía que no correspondía a ningún dato. Ahora recibe un `400`: corrige el valor u omite el parámetro.
+
+`smda` no es un tipo de despacho: una SMDA (Solicitud de Modificación al Despacho Aduanero) siempre está vinculada a un despacho, pero es otro documento.
+
 ### Changed — Rutas de despacho y de archivos (spec 3.0.0)
 
 **Las rutas anteriores siguen funcionando**: no hay que cambiar nada para seguir operando. Pero el spec ya no las declara, así que conviene migrar, sobre todo si generas un cliente desde él.
