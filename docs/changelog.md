@@ -27,6 +27,12 @@ El filtro acepta los dos vocabularios y rechaza lo que no entiende:
 
 `smda` no es un tipo de despacho: una SMDA (Solicitud de Modificación al Despacho Aduanero) siempre está vinculada a un despacho, pero es otro documento.
 
+### Fixed — El `500` ya no expone detalle de la capa de datos (spec 3.0.1)
+
+En `GET /dispatch/{numeroDespacho}/files`, `GET /files`, `GET /dispatch/{numeroDespacho}/status` y `GET /dispatch/status`, el `500` devolvía como `code` y `message` los de la capa de datos: un `code` numérico —que no cumplía el `code: string` del contrato— y, ante un índice faltante, un mensaje con una URL interna. Ahora es siempre `INTERNAL_ERROR` con un mensaje genérico, igual que en `/dispatch/{numeroDespacho}/desembolsos` y `/master/file-types`. El detalle queda en los logs del servicio, y el `requestId` es lo que permite cruzarlo al reportar.
+
+Si tu integración ramificaba por el `code` de un `500`, trata cualquier `500` distinto de `TENANT_UNRESOLVED` como `INTERNAL_ERROR`: reintentar con back-off.
+
 ### Changed — Rutas de despacho y de archivos (spec 3.0.0)
 
 **Las rutas anteriores siguen funcionando**: no hay que cambiar nada para seguir operando. Pero el spec ya no las declara, así que conviene migrar, sobre todo si generas un cliente desde él.
