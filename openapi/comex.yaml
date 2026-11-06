@@ -797,21 +797,33 @@ components:
     DispatchResponse:
       type: object
       additionalProperties: false
-      required: [status, id, data]
+      required: [date, data]
       description: |
         Envelope del despacho. Es el mismo que el de
-        `GET /dispatch/{numeroDespacho}/status`: sin `date` ni paginación.
+        `GET /dispatch/{numeroDespacho}/desembolsos`, sin `total`: es un solo
+        despacho.
       properties:
-        status:
-          type: integer
-          description: Código HTTP, repetido en el cuerpo.
-          example: 200
-        id:
+        date:
           type: string
-          description: ID del despacho consultado.
-          example: "123457"
+          format: date-time
+          description: |
+            **Instante en que se sirvió la respuesta**, en ISO 8601 UTC. No
+            es una fecha del dato.
+          example: "2026-01-31T22:04:31.000Z"
         data:
-          $ref: '#/components/schemas/DispatchData'
+          description: |
+            Datos del despacho: los mismos que `DispatchData`, más su `id`.
+            Es la misma forma que el `dispatch` de los archivos.
+          allOf:
+            - type: object
+              required: [id]
+              properties:
+                id:
+                  type: string
+                  description: ID del despacho consultado.
+                  example: "123457"
+            - $ref: '#/components/schemas/DispatchData'
+          unevaluatedProperties: false
 
     DispatchData:
       type: object
@@ -1579,9 +1591,9 @@ paths:
                 importacion:
                   summary: Importación con sus datos cargados
                   value:
-                    status: 200
-                    id: "123457"
+                    date: "2026-01-31T22:04:31.000Z"
                     data:
+                      id: "123457"
                       estadoAforo: Aforo Documental
                       estadoDIN: Aceptada
                       referencia: REF-2026-001
@@ -1615,9 +1627,9 @@ paths:
                     Los textos sin dato vienen como `""`; las fechas y los
                     montos, como `null`.
                   value:
-                    status: 200
-                    id: "123458"
+                    date: "2026-01-31T22:04:31.000Z"
                     data:
+                      id: "123458"
                       estadoAforo: ""
                       estadoDIN: ""
                       referencia: REF-2026-002

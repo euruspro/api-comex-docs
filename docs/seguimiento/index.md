@@ -33,7 +33,7 @@ Los tres en la etiqueta **Seguimiento** de la [Referencia de la API](../referenc
 | Qué trae | Seguimiento: `recordType`, `EstadoDIN` o `EstadoDUS`, `isCompleted`, prioridad, plazo | Datos del negocio: aduana, nave, consignante, `valorCif`, `valorFob`, fechas de arribo, aceptación y retiro |
 | Sin dato | `null` en todas las claves | Textos como `""`; fechas y montos como `null`, nunca `0` |
 
-`GET /dispatch/{numeroDespacho}` devuelve **el mismo objeto** que traen en `dispatch` los [archivos](../documentacion/index.md) y los [desembolsos](../desembolsos/index.md). Si ya los consultas, no necesitas llamarlo aparte.
+`GET /dispatch/{numeroDespacho}` devuelve en `data` **los mismos datos** que traen en `dispatch` los [archivos](../documentacion/index.md) y los [desembolsos](../desembolsos/index.md), más el `id` del despacho, igual que en los archivos. Si ya los consultas, no necesitas llamarlo aparte. `date` es el instante en que se sirvió la respuesta, no una fecha del despacho.
 
 ```bash
 curl "https://api-comex.eurus.pro/$EURUS_AGENCIA/v1/dispatch/123457?key=$EURUS_API_KEY&rut=$EURUS_RUT"
@@ -41,9 +41,9 @@ curl "https://api-comex.eurus.pro/$EURUS_AGENCIA/v1/dispatch/123457?key=$EURUS_A
 
 ```json
 {
-  "status": 200,
-  "id": "123457",
+  "date": "2026-01-31T22:04:31.000Z",
   "data": {
+    "id": "123457",
     "estadoAforo": "Aforo Documental",
     "estadoDIN": "Aceptada",
     "referencia": "REF-2026-001",

@@ -33,7 +33,7 @@ All three under the **Seguimiento** tag in the [API Reference](../reference/api-
 | What it returns | Tracking: `recordType`, `EstadoDIN` or `EstadoDUS`, `isCompleted`, priority, due status | Business data: customs office, vessel, consignor, `valorCif`, `valorFob`, arrival, acceptance and release dates |
 | Missing data | `null` on every key | Text as `""`; dates and amounts as `null`, never `0` |
 
-`GET /dispatch/{numeroDespacho}` returns **the same object** that [files](../documentacion/index.md) and [disbursements](../desembolsos/index.md) carry in `dispatch`. If you already query those, you do not need to call it separately.
+`GET /dispatch/{numeroDespacho}` returns in `data` **the same data** that [files](../documentacion/index.md) and [disbursements](../desembolsos/index.md) carry in `dispatch`, plus the dispatch `id`, as in files. If you already query those, you do not need to call it separately. `date` is the instant the response was served, not a date of the dispatch.
 
 ```bash
 curl "https://api-comex.eurus.pro/$EURUS_AGENCIA/v1/dispatch/123457?key=$EURUS_API_KEY&rut=$EURUS_RUT"
@@ -41,9 +41,9 @@ curl "https://api-comex.eurus.pro/$EURUS_AGENCIA/v1/dispatch/123457?key=$EURUS_A
 
 ```json
 {
-  "status": 200,
-  "id": "123457",
+  "date": "2026-01-31T22:04:31.000Z",
   "data": {
+    "id": "123457",
     "estadoAforo": "Aforo Documental",
     "estadoDIN": "Aceptada",
     "referencia": "REF-2026-001",
