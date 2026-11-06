@@ -12,6 +12,12 @@ All notable changes to the Comex API and its documentation are recorded here. Th
 
 ## [Unreleased]
 
+### Fixed — The `500` no longer exposes data-layer details (spec 3.0.1)
+
+On `GET /dispatch/{numeroDespacho}/files`, `GET /files`, `GET /dispatch/{numeroDespacho}/status` and `GET /dispatch/status`, the `500` returned the data layer's `code` and `message`: a numeric `code` —which broke the contract's `code: string`— and, on a missing index, a message carrying an internal URL. It is now always `INTERNAL_ERROR` with a generic message, as on `/dispatch/{numeroDespacho}/desembolsos` and `/master/file-types`. The detail stays in the service logs, and the `requestId` is what links the two when you report it.
+
+If your integration branched on the `code` of a `500`, treat any `500` other than `TENANT_UNRESOLVED` as `INTERNAL_ERROR`: retry with back-off.
+
 ### Changed — Dispatch and file routes (spec 3.0.0)
 
 **The previous routes keep working**: nothing has to change to keep operating. But the spec no longer declares them, so migrating is advisable, especially if you generate a client from it.
