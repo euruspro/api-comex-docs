@@ -12,6 +12,32 @@ Todos los cambios notables en la API Comex y en su documentación se registran a
 
 ## [Unreleased]
 
+### Deprecated — Las rutas anteriores de despacho se retiran el 01-03-2027
+
+`GET /dispatch/files/{numeroDespacho}`, `GET /dispatch/files` y `GET /dispatch/status/{numeroDespacho}` **dejan de estar disponibles el 1 de marzo de 2027, a las 00:00 (hora de Chile)**. Desde esa fecha responden `404`. Hasta entonces funcionan igual que hoy.
+
+| Se retira | Usar en su lugar |
+|---|---|
+| `GET /dispatch/files/{numeroDespacho}` | `GET /dispatch/{numeroDespacho}/files` |
+| `GET /dispatch/files` | `GET /files` |
+| `GET /dispatch/status/{numeroDespacho}` | `GET /dispatch/{numeroDespacho}/status` |
+
+`GET /dispatch/status` (el listado) **no** se retira.
+
+La migración es un cambio de ruta: los parámetros, las respuestas y los errores son los mismos. Mientras tanto, cada respuesta de una ruta que se retira lo anuncia en sus encabezados, también los errores del propio endpoint (`400`, `404`, `500`). Un `403` de autenticación no los lleva: se responde antes de llegar a la ruta.
+
+```http
+Deprecation: @1790564400
+Sunset: Mon, 01 Mar 2027 03:00:00 GMT
+Link: </z_cl_demo/v1/dispatch/123457/files>; rel="successor-version"
+```
+
+- `Sunset` ([RFC 8594](https://www.rfc-editor.org/rfc/rfc8594)) es la fecha de retiro, en GMT: las 03:00 GMT son las 00:00 en Chile.
+- `Link` con `rel="successor-version"` apunta a la ruta que la reemplaza.
+- `Deprecation` ([RFC 9745](https://www.rfc-editor.org/rfc/rfc9745)) es la fecha desde la que la ruta está deprecada.
+
+Para encontrar llamadas pendientes de migrar, registra en tu cliente las respuestas que traigan `Sunset`.
+
 ### Fixed — El `500` ya no expone detalle de la capa de datos (spec 3.0.1)
 
 En `GET /dispatch/{numeroDespacho}/files`, `GET /files`, `GET /dispatch/{numeroDespacho}/status` y `GET /dispatch/status`, el `500` devolvía como `code` y `message` los de la capa de datos: un `code` numérico —que no cumplía el `code: string` del contrato— y, ante un índice faltante, un mensaje con una URL interna. Ahora es siempre `INTERNAL_ERROR` con un mensaje genérico, igual que en `/dispatch/{numeroDespacho}/desembolsos` y `/master/file-types`. El detalle queda en los logs del servicio, y el `requestId` es lo que permite cruzarlo al reportar.
@@ -20,7 +46,7 @@ Si tu integración ramificaba por el `code` de un `500`, trata cualquier `500` d
 
 ### Changed — Rutas de despacho y de archivos (spec 3.0.0)
 
-**Las rutas anteriores siguen funcionando**: no hay que cambiar nada para seguir operando. Pero el spec ya no las declara, así que conviene migrar, sobre todo si generas un cliente desde él.
+**Las rutas anteriores siguen funcionando hasta el 01-03-2027**, fecha en que se retiran: ver *Deprecated* más arriba. El spec ya no las declara.
 
 | Antes | Ahora |
 |---|---|

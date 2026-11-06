@@ -29,6 +29,8 @@ https://api-comex.eurus.pro/{idAgencia}/v1/...
 
 :::info Deprecation policy
 When an endpoint or field is marked as deprecated, it will be announced in the Changelog at least 90 days before removal.
+
+A deprecated route also announces it on every response: `Sunset` with the retirement date, `Link` with `rel="successor-version"` to its replacement, and `Deprecation` with the deprecation date.
 :::
 
 ## Common identifiers
