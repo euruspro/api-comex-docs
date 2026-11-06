@@ -12,9 +12,35 @@ All notable changes to the Comex API and its documentation are recorded here. Th
 
 ## [Unreleased]
 
+### Deprecated — The previous dispatch routes are retired on 2027-01-18
+
+`GET /dispatch/files/{numeroDespacho}`, `GET /dispatch/files` and `GET /dispatch/status/{numeroDespacho}` **stop being available on January 18, 2027, at 00:00 (Chile time)**. From that date they respond `404`. Until then they work exactly as today.
+
+| Retired | Use instead |
+|---|---|
+| `GET /dispatch/files/{numeroDespacho}` | `GET /dispatch/{numeroDespacho}/files` |
+| `GET /dispatch/files` | `GET /files` |
+| `GET /dispatch/status/{numeroDespacho}` | `GET /dispatch/{numeroDespacho}/status` |
+
+`GET /dispatch/status` (the listing) is **not** retired.
+
+Migrating is a change of route: parameters, responses and errors are the same. In the meantime, every response from a route being retired announces it in its headers, error responses included:
+
+```http
+Deprecation: @1790564400
+Sunset: Mon, 18 Jan 2027 03:00:00 GMT
+Link: </z_cl_demo/v1/dispatch/123457/files>; rel="successor-version"
+```
+
+- `Sunset` ([RFC 8594](https://www.rfc-editor.org/rfc/rfc8594)) is the retirement date, in GMT: 03:00 GMT is 00:00 in Chile.
+- `Link` with `rel="successor-version"` points to the route that replaces it.
+- `Deprecation` ([RFC 9745](https://www.rfc-editor.org/rfc/rfc9745)) is the date since which the route is deprecated.
+
+To find calls still pending migration, log the responses that carry `Sunset` in your client.
+
 ### Changed — Dispatch and file routes (spec 3.0.0)
 
-**The previous routes keep working**: nothing has to change to keep operating. But the spec no longer declares them, so migrating is advisable, especially if you generate a client from it.
+**The previous routes keep working until 2027-01-18**, when they are retired: see *Deprecated* above. The spec no longer declares them.
 
 | Before | Now |
 |---|---|
