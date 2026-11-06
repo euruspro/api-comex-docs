@@ -12,9 +12,9 @@ Todos los cambios notables en la API Comex y en su documentación se registran a
 
 ## [Unreleased]
 
-### Deprecated — Las rutas anteriores de despacho se retiran el 18-01-2027
+### Deprecated — Las rutas anteriores de despacho se retiran el 01-03-2027
 
-`GET /dispatch/files/{numeroDespacho}`, `GET /dispatch/files` y `GET /dispatch/status/{numeroDespacho}` **dejan de estar disponibles el 18 de enero de 2027, a las 00:00 (hora de Chile)**. Desde esa fecha responden `404`. Hasta entonces funcionan igual que hoy.
+`GET /dispatch/files/{numeroDespacho}`, `GET /dispatch/files` y `GET /dispatch/status/{numeroDespacho}` **dejan de estar disponibles el 1 de marzo de 2027, a las 00:00 (hora de Chile)**. Desde esa fecha responden `404`. Hasta entonces funcionan igual que hoy.
 
 | Se retira | Usar en su lugar |
 |---|---|
@@ -28,7 +28,7 @@ La migración es un cambio de ruta: los parámetros, las respuestas y los errore
 
 ```http
 Deprecation: @1790564400
-Sunset: Mon, 18 Jan 2027 03:00:00 GMT
+Sunset: Mon, 01 Mar 2027 03:00:00 GMT
 Link: </z_cl_demo/v1/dispatch/123457/files>; rel="successor-version"
 ```
 
@@ -40,7 +40,7 @@ Para encontrar llamadas pendientes de migrar, registra en tu cliente las respues
 
 ### Changed — Rutas de despacho y de archivos (spec 3.0.0)
 
-**Las rutas anteriores siguen funcionando hasta el 18-01-2027**, fecha en que se retiran: ver *Deprecated* más arriba. El spec ya no las declara.
+**Las rutas anteriores siguen funcionando hasta el 01-03-2027**, fecha en que se retiran: ver *Deprecated* más arriba. El spec ya no las declara.
 
 | Antes | Ahora |
 |---|---|

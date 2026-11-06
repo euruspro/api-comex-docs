@@ -12,9 +12,9 @@ All notable changes to the Comex API and its documentation are recorded here. Th
 
 ## [Unreleased]
 
-### Deprecated — The previous dispatch routes are retired on 2027-01-18
+### Deprecated — The previous dispatch routes are retired on 2027-03-01
 
-`GET /dispatch/files/{numeroDespacho}`, `GET /dispatch/files` and `GET /dispatch/status/{numeroDespacho}` **stop being available on January 18, 2027, at 00:00 (Chile time)**. From that date they respond `404`. Until then they work exactly as today.
+`GET /dispatch/files/{numeroDespacho}`, `GET /dispatch/files` and `GET /dispatch/status/{numeroDespacho}` **stop being available on March 1, 2027, at 00:00 (Chile time)**. From that date they respond `404`. Until then they work exactly as today.
 
 | Retired | Use instead |
 |---|---|
@@ -28,7 +28,7 @@ Migrating is a change of route: parameters, responses and errors are the same. I
 
 ```http
 Deprecation: @1790564400
-Sunset: Mon, 18 Jan 2027 03:00:00 GMT
+Sunset: Mon, 01 Mar 2027 03:00:00 GMT
 Link: </z_cl_demo/v1/dispatch/123457/files>; rel="successor-version"
 ```
 
@@ -40,7 +40,7 @@ To find calls still pending migration, log the responses that carry `Sunset` in 
 
 ### Changed — Dispatch and file routes (spec 3.0.0)
 
-**The previous routes keep working until 2027-01-18**, when they are retired: see *Deprecated* above. The spec no longer declares them.
+**The previous routes keep working until 2027-03-01**, when they are retired: see *Deprecated* above. The spec no longer declares them.
 
 | Before | Now |
 |---|---|
