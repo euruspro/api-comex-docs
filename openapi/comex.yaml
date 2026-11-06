@@ -21,7 +21,7 @@
 openapi: 3.1.0
 info:
   title: API Comex — EURUS PRO®
-  version: "3.1.0"
+  version: "3.2.0"
   description: |
     API REST de Comercio Exterior de EURUS PRO®. Permite consultar los
     documentos asociados a despachos de importación y exportación
@@ -794,6 +794,25 @@ components:
           items:
             $ref: '#/components/schemas/DispatchStatus'
 
+    DispatchResponse:
+      type: object
+      additionalProperties: false
+      required: [status, id, data]
+      description: |
+        Envelope del despacho. Es el mismo que el de
+        `GET /dispatch/{numeroDespacho}/status`: sin `date` ni paginación.
+      properties:
+        status:
+          type: integer
+          description: Código HTTP, repetido en el cuerpo.
+          example: 200
+        id:
+          type: string
+          description: ID del despacho consultado.
+          example: "123457"
+        data:
+          $ref: '#/components/schemas/DispatchData'
+
     DispatchData:
       type: object
       required:
@@ -804,8 +823,9 @@ components:
          puertoDesembarque, numeroIdentificacion, paisOrigen, valorCif,
          valorEx, valorFlete, valorFob, valorSeguro, totalItem, viaTransporte]
       description: |
-        Datos del despacho asociado a un registro: un archivo o un
-        desembolso.
+        Datos de un despacho. Es la respuesta de
+        `GET /dispatch/{numeroDespacho}` y el objeto `dispatch` de los
+        archivos y los desembolsos: la misma forma en los tres.
 
         **Todas las claves están siempre presentes.** Cuando el dato no está
         cargado:
@@ -1512,6 +1532,127 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  /dispatch/{numeroDespacho}:
+    get:
+      tags: [Seguimiento]
+      operationId: consultarDespacho
+      summary: Datos de un despacho
+      description: |
+        Devuelve los **datos de un despacho**: aduana, nave, consignante,
+        valores CIF y FOB, y las fechas de apertura, arribo, aceptación,
+        pago de derechos y retiro.
+
+        Es el mismo objeto que traen en `dispatch` los archivos
+        (`/dispatch/{numeroDespacho}/files`) y los desembolsos
+        (`/dispatch/{numeroDespacho}/desembolsos`), sin tener que pedir
+        ninguno de los dos.
+
+        Para el estado de seguimiento (`EstadoDIN`, `isCompleted`,
+        prioridad) está `GET /dispatch/{numeroDespacho}/status`.
+
+        **Todas las claves están siempre presentes**: los textos sin dato
+        vienen como `""`, y las fechas y los montos como `null`, nunca `0`.
+
+        ```
+        GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/{numeroDespacho}?key=...&rut=...
+        ```
+      parameters:
+        - name: numeroDespacho
+          in: path
+          required: true
+          schema:
+            type: string
+          description: |
+            Número de despacho del negocio. Se responde `404` si no existe en
+            la agencia **o si no pertenece a la cuenta del `rut`**.
+          example: "123457"
+        - $ref: '#/components/parameters/RutParam'
+      responses:
+        "200":
+          description: Datos del despacho.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispatchResponse'
+              examples:
+                importacion:
+                  summary: Importación con sus datos cargados
+                  value:
+                    status: 200
+                    id: "123457"
+                    data:
+                      estadoAforo: Aforo Documental
+                      estadoDIN: Aceptada
+                      referencia: REF-2026-001
+                      tipoTramite: IMPORTACION
+                      nombreAduana: VALPARAISO
+                      consignante: IMPORTADORA DEMO SPA
+                      doctoTransporte: BL-778899
+                      fechaAceptacion: "2026-01-10T12:00:00.000Z"
+                      fechaArriboEfectivo: "2026-01-08T09:00:00.000Z"
+                      fechaCorreccionBL: null
+                      fechaVencimiento: "2026-02-10T00:00:00.000Z"
+                      fechaEta: "2026-01-07T00:00:00.000Z"
+                      fechaApertura: "2026-01-05T08:00:00.000Z"
+                      fechaRetiro: "2026-01-12T15:00:00.000Z"
+                      fechaPagoDerechos: "2026-01-11T11:00:00.000Z"
+                      nombreNave: MSC DEMO
+                      paisPrimerPuertoEmbarque: CHINA
+                      puertoDesembarque: VALPARAISO
+                      numeroIdentificacion: "1234567890"
+                      paisOrigen: CHINA
+                      valorCif: 15250.75
+                      valorEx: 0
+                      valorFlete: 1200
+                      valorFob: 13800
+                      valorSeguro: 250.75
+                      totalItem: 3
+                      viaTransporte: MARITIMA
+                recienAbierto:
+                  summary: Despacho recién abierto, con datos incompletos
+                  description: |
+                    Los textos sin dato vienen como `""`; las fechas y los
+                    montos, como `null`.
+                  value:
+                    status: 200
+                    id: "123458"
+                    data:
+                      estadoAforo: ""
+                      estadoDIN: ""
+                      referencia: REF-2026-002
+                      tipoTramite: IMPORTACION
+                      nombreAduana: VALPARAISO
+                      consignante: IMPORTADORA DEMO SPA
+                      doctoTransporte: ""
+                      fechaAceptacion: null
+                      fechaArriboEfectivo: null
+                      fechaCorreccionBL: null
+                      fechaVencimiento: null
+                      fechaEta: null
+                      fechaApertura: "2026-01-05T08:00:00.000Z"
+                      fechaRetiro: null
+                      fechaPagoDerechos: null
+                      nombreNave: ""
+                      paisPrimerPuertoEmbarque: ""
+                      puertoDesembarque: ""
+                      numeroIdentificacion: ""
+                      paisOrigen: ""
+                      valorCif: null
+                      valorEx: null
+                      valorFlete: null
+                      valorFob: null
+                      valorSeguro: null
+                      totalItem: null
+                      viaTransporte: ""
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalError'
 
   /dispatch/{numeroDespacho}/status:
     get:

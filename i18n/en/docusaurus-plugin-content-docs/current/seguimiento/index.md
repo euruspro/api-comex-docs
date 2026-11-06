@@ -13,13 +13,53 @@ It covers both **imports** and **exports**: the `recordType` field distinguishes
 
 ## Available endpoints
 
-Both under the **Seguimiento** tag in the [API Reference](../reference/api-comex-eurus-pro.info.mdx):
+All three under the **Seguimiento** tag in the [API Reference](../reference/api-comex-eurus-pro.info.mdx):
 
 1. **[`GET /dispatch/{numeroDespacho}/status`](../reference/consultar-estado-despacho.api.mdx)**
    Status of a **specific dispatch**.
 
 2. **[`GET /dispatch/status`](../reference/listar-estados-despacho.api.mdx)**
    **All dispatches in your account**, with filters by record type and completion, ordering and a limit.
+
+3. **[`GET /dispatch/{numeroDespacho}`](../reference/consultar-despacho.api.mdx)**
+   **Data of a dispatch**: customs office, vessel, consignor, CIF and FOB values, and its dates.
+
+## Status and data of a dispatch
+
+`/status` and the dispatch itself answer different things:
+
+| | `GET /dispatch/{numeroDespacho}/status` | `GET /dispatch/{numeroDespacho}` |
+|---|---|---|
+| What it returns | Tracking: `recordType`, `EstadoDIN` or `EstadoDUS`, `isCompleted`, priority, due status | Business data: customs office, vessel, consignor, `valorCif`, `valorFob`, arrival, acceptance and release dates |
+| Missing data | `null` on every key | Text as `""`; dates and amounts as `null`, never `0` |
+
+`GET /dispatch/{numeroDespacho}` returns **the same object** that [files](../documentacion/index.md) and [disbursements](../desembolsos/index.md) carry in `dispatch`. If you already query those, you do not need to call it separately.
+
+```bash
+curl "https://api-comex.eurus.pro/$EURUS_AGENCIA/v1/dispatch/123457?key=$EURUS_API_KEY&rut=$EURUS_RUT"
+```
+
+```json
+{
+  "status": 200,
+  "id": "123457",
+  "data": {
+    "estadoAforo": "Aforo Documental",
+    "estadoDIN": "Aceptada",
+    "referencia": "REF-2026-001",
+    "tipoTramite": "IMPORTACION",
+    "nombreAduana": "VALPARAISO",
+    "consignante": "IMPORTADORA DEMO SPA",
+    "fechaAceptacion": "2026-01-10T12:00:00.000Z",
+    "fechaCorreccionBL": null,
+    "valorCif": 15250.75,
+    "valorFob": 13800,
+    "...": "..."
+  }
+}
+```
+
+The three differences below refer to `/status` and the listing.
 
 ## Three differences from the Documentation module
 

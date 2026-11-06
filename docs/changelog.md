@@ -12,6 +12,12 @@ Todos los cambios notables en la API Comex y en su documentación se registran a
 
 ## [Unreleased]
 
+### Added — `GET /dispatch/{numeroDespacho}` (spec 3.2.0)
+
+Devuelve los datos de un despacho: aduana, nave, consignante, valores CIF y FOB, y sus fechas. Es el mismo objeto que traen en `dispatch` los archivos y los desembolsos, ahora disponible sin consultar ninguno de los dos.
+
+Mismas condiciones de acceso que el resto de los recursos del despacho: `rut` obligatorio, y el despacho tiene que ser de esa cuenta; si no, `404 DISPATCH_NOT_FOUND`. Ver [Seguimiento](./seguimiento/index.md#estado-y-datos-del-despacho).
+
 ### Changed — `recordType` en `GET /dispatch/status` (spec 3.1.0)
 
 El filtro acepta los dos vocabularios y rechaza lo que no entiende:
