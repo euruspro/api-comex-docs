@@ -12,6 +12,21 @@ All notable changes to the Comex API and its documentation are recorded here. Th
 
 ## [Unreleased]
 
+### Changed — `recordType` on `GET /dispatch/status` (spec 3.1.0)
+
+The filter accepts both vocabularies and rejects what it does not understand:
+
+| Value | Before | Now |
+|---|---|---|
+| `din`, `dus` | Filters | Filters (unchanged) |
+| `impo`, `expo` | `200` with an empty list | Filters as `din` / `dus` |
+| `DIN`, `Expo` | `200` with an empty list | Filters: case-insensitive |
+| `smda` or any other value | `200` with an empty list | **`400 RECORD_TYPE_INVALID`** |
+
+**What to do:** if your integration sent `smda` or an unrecognized value, it got an empty list that matched no data. It now gets a `400`: fix the value or omit the parameter.
+
+`smda` is not a dispatch type: an SMDA (customs dispatch amendment request, *Solicitud de Modificación al Despacho Aduanero*) is always linked to a dispatch, but it is a different document.
+
 ### Deprecated — The previous dispatch routes are retired on 2027-03-01
 
 `GET /dispatch/files/{numeroDespacho}`, `GET /dispatch/files` and `GET /dispatch/status/{numeroDespacho}` **stop being available on March 1, 2027, at 00:00 (Chile time)**. From that date they respond `404`. Until then they work exactly as today.

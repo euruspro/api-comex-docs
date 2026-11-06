@@ -21,7 +21,7 @@
 openapi: 3.1.0
 info:
   title: API Comex — EURUS PRO®
-  version: "3.0.1"
+  version: "3.1.0"
   description: |
     API REST de Comercio Exterior de EURUS PRO®. Permite consultar los
     documentos asociados a despachos de importación y exportación
@@ -231,9 +231,31 @@ components:
       required: false
       schema:
         type: string
+        enum: [din, dus, impo, expo]
       description: |
-        Filtra por tipo de registro. Valores observados: `din` (importación),
-        `dus` (exportación), `smda`. El filtro es exacto.
+        Tipo de despacho por el que filtrar. **Opcional**: si se omite, se
+        devuelven importaciones y exportaciones juntas.
+
+        | Valor | Devuelve |
+        |---|---|
+        | `din` o `impo` | Importaciones. |
+        | `dus` o `expo` | Exportaciones. |
+        | *(omitido)* | Ambas. |
+
+        `impo` / `expo` es el término de la industria, el mismo que usa
+        `GET /master/file-types`; `din` / `dus` es el técnico, y el que trae
+        el campo `recordType` de la respuesta. Son el mismo filtro.
+
+        No distingue mayúsculas (`DIN`, `Impo`), y un valor vacío
+        (`?recordType=`) cuenta como omitido.
+
+        Cualquier otro valor se rechaza con `400 RECORD_TYPE_INVALID`, y
+        también si el parámetro llega **repetido con valores distintos**
+        (`?recordType=din&recordType=dus`).
+
+        **`smda` no es un valor válido.** Una SMDA (Solicitud de Modificación
+        al Despacho Aduanero) siempre está vinculada a un despacho, pero es
+        otro documento y no se lista acá.
       example: din
 
     IsCompletedParam:
@@ -355,11 +377,9 @@ components:
 
         Cualquier otro valor se rechaza con `400 RECORD_TYPE_INVALID`.
 
-        **Ojo con `din` y `dus`**: son valores válidos del `recordType` de
-        `GET /dispatch/status`, pero **no** de este endpoint. Los dos
-        parámetros comparten nombre y no vocabulario — acá la operación se
-        expresa como `impo` / `expo`, y allá como el tipo de documento
-        aduanero.
+        **Ojo con `din` y `dus`**: `GET /dispatch/status` los acepta como
+        equivalentes de `impo` / `expo`, pero **este endpoint no**: acá solo
+        valen `impo` y `expo`.
 
         Si el parámetro llega **repetido con valores distintos**
         (`?recordType=impo&recordType=expo`) también se rechaza con `400`:
@@ -682,7 +702,7 @@ components:
           example: "123457"
         recordType:
           type: [string, 'null']
-          description: 'Tipo de registro. Valores observados: `din`, `dus`, `smda`.'
+          description: 'Tipo de despacho: `din` (importación) o `dus` (exportación).'
           example: din
         EstadoDIN:
           type: [string, 'null']
@@ -1572,9 +1592,11 @@ paths:
         que como máximo trae 200. Si `total` viene igual a `limit`, es probable
         que haya más resultados de los que estás viendo.
 
-        Los filtros y el ordenamiento **fallan de forma silenciosa hacia el
+        El ordenamiento y el `limit` **fallan de forma silenciosa hacia el
         valor por defecto**: un `orderBy` desconocido o un `limit` fuera de
-        rango no producen error, simplemente se ignoran.
+        rango no producen error, simplemente se ignoran. `recordType` **no**:
+        un valor no válido responde `400 RECORD_TYPE_INVALID`, para que un
+        filtro mal escrito no se confunda con una cuenta sin despachos.
 
         ```
         GET https://api-comex.eurus.pro/{idAgencia}/v1/dispatch/status?key=...&rut=...

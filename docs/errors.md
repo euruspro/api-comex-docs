@@ -77,6 +77,14 @@ Incluso cuando la API Key **falta**, la respuesta es `403`. Una versión anterio
 Un despacho inexistente y uno que existe pero es de otro cliente devuelven la **misma** respuesta. Si difirieran, probando números correlativos se podría deducir qué despachos existen en la agencia sin acceder a ninguno.
 :::
 
+### `GET /dispatch/status`
+
+| HTTP | `code` | Cuándo |
+|---|---|---|
+| **400** | `RUT_NUMBER_INVALID` | `rut` ausente, o su forma no es un RUT. |
+| **400** | `RECORD_TYPE_INVALID` | `recordType` trae un valor distinto de `din`, `dus`, `impo` o `expo` (por ejemplo, `smda`), o llega repetido con valores distintos. Omitirlo es válido: devuelve ambos tipos. |
+| **404** | `ACCOUNT_NOT_FOUND` | El RUT no es cliente o no está activo. |
+
 ### `GET /files`
 
 | HTTP | `code` | Cuándo |
