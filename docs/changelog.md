@@ -24,7 +24,7 @@ Todos los cambios notables en la API Comex y en su documentación se registran a
 
 `GET /dispatch/status` (el listado) **no** se retira.
 
-La migración es un cambio de ruta: los parámetros, las respuestas y los errores son los mismos. Mientras tanto, cada respuesta de una ruta que se retira lo anuncia en sus encabezados, también cuando es un error:
+La migración es un cambio de ruta: los parámetros, las respuestas y los errores son los mismos. Mientras tanto, cada respuesta de una ruta que se retira lo anuncia en sus encabezados, también los errores del propio endpoint (`400`, `404`, `500`). Un `403` de autenticación no los lleva: se responde antes de llegar a la ruta.
 
 ```http
 Deprecation: @1790564400

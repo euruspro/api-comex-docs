@@ -24,7 +24,7 @@ All notable changes to the Comex API and its documentation are recorded here. Th
 
 `GET /dispatch/status` (the listing) is **not** retired.
 
-Migrating is a change of route: parameters, responses and errors are the same. In the meantime, every response from a route being retired announces it in its headers, error responses included:
+Migrating is a change of route: parameters, responses and errors are the same. In the meantime, every response from a route being retired announces it in its headers, including the endpoint's own errors (`400`, `404`, `500`). An authentication `403` does not carry them: it is answered before reaching the route.
 
 ```http
 Deprecation: @1790564400
