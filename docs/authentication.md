@@ -3,27 +3,45 @@ id: authentication
 title: Autenticación
 sidebar_position: 3
 slug: /authentication
-description: Cómo autenticar tus llamadas a la API Comex mediante API Key en query parameter.
+description: Cómo autenticar tus llamadas a la API Comex mediante API Key en el header x-api-key o en query parameter.
 ---
 
 # Autenticación
 
-La API Comex de EURUS PRO® está expuesta a través de una **pasarela de API gestionada**. La autenticación se realiza mediante un **API Key** que debe enviarse como **parámetro de query** en cada llamada.
+La API Comex de EURUS PRO® está expuesta a través de una **pasarela de API gestionada**. La autenticación se realiza mediante un **API Key** que se envía en **una de dos ubicaciones** en cada llamada:
+
+| Ubicación | Forma | Cuándo usarla |
+|---|---|---|
+| **Header** (recomendada) | `x-api-key: <API_KEY>` | Integraciones nuevas. El key no queda en la URL, así que no se registra en logs de acceso ni en el historial del navegador. |
+| **Query string** | `?key=<API_KEY>` | Forma histórica. Sigue vigente: las integraciones existentes no necesitan cambiar. |
+
+Basta con **una** de las dos.
 
 :::important No uses `Authorization`
-A diferencia de muchas APIs REST, **la API Comex no acepta un header `Authorization`**. El API Key debe ir siempre en la query string con el nombre `key`. Es el mecanismo que exige la pasarela.
+A diferencia de muchas APIs REST, **la API Comex no acepta un header `Authorization`**. El API Key va en el header `x-api-key` o en la query string con el nombre `key`.
+:::
+
+:::warning No envíes dos keys distintas
+Si el mismo request trae el API Key en las dos ubicaciones con valores **distintos**, se rechaza con `403 API_KEY_INVALID`. Enviar la misma key en ambas es inocuo, pero no hace falta.
 :::
 
 ## Formato
 
-Agrega el parámetro `?key=<API_KEY>` al final de cualquier URL:
+Con el header (recomendado):
+
+```
+GET https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files?rut=999999999
+x-api-key: YOUR_API_KEY
+```
+
+O con el parámetro `?key=<API_KEY>` en la URL:
 
 ```
 GET https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files?key=YOUR_API_KEY&rut=999999999
 ```
 
 :::note Parámetros obligatorios
-Además del `key`, casi todos los endpoints requieren el parámetro `rut` (ver [Formato de RUT](./conventions.md#formato-de-rut)). Los parámetros se separan con `&`.
+Además del API Key, casi todos los endpoints requieren el parámetro `rut` (ver [Formato de RUT](./conventions.md#formato-de-rut)). Los parámetros de la URL se separan con `&`.
 :::
 
 ## Ejemplos
@@ -31,17 +49,19 @@ Además del `key`, casi todos los endpoints requieren el parámetro `rut` (ver [
 ### cURL
 
 ```bash
-curl "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files?key=$EURUS_API_KEY&rut=999999999"
+curl -H "x-api-key: $EURUS_API_KEY" \
+  "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files?rut=999999999"
 ```
 
 ### Node.js
 
 ```javascript
 const url = new URL("https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files");
-url.searchParams.set("key", process.env.EURUS_API_KEY);
 url.searchParams.set("rut", "999999999");
 
-const response = await fetch(url);
+const response = await fetch(url, {
+  headers: { "x-api-key": process.env.EURUS_API_KEY },
+});
 ```
 
 ### Python
@@ -51,8 +71,17 @@ import httpx, os
 
 response = httpx.get(
     "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files",
-    params={"key": os.environ["EURUS_API_KEY"], "rut": "999999999"},
+    params={"rut": "999999999"},
+    headers={"x-api-key": os.environ["EURUS_API_KEY"]},
 )
+```
+
+### Con el API Key en la query string
+
+Es la forma histórica y sigue funcionando:
+
+```bash
+curl "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files?key=$EURUS_API_KEY&rut=999999999"
 ```
 
 :::tip Usa el objeto `URL` o `params`
@@ -77,7 +106,7 @@ El proceso actual es manual:
 
 | Código | Causa | Acción |
 |---|---|---|
-| `403 Forbidden` + `code: API_KEY_INVALID` | API Key ausente, revocada o no utilizable. | Verifica que `?key=...` esté presente y sea la vigente. **La API responde 403, no 401, también cuando la key falta.** |
+| `403 Forbidden` + `code: API_KEY_INVALID` | API Key ausente, revocada o no utilizable. | Verifica que el header `x-api-key` o `?key=...` esté presente, sea la vigente y no vengan las dos ubicaciones con valores distintos. **La API responde 403, no 401, también cuando la key falta.** |
 | `403 Forbidden` + `code: PROJECT_ID_UNAUTHORIZED` | La API Key es válida pero no está autorizada para el `idAgencia` de la ruta. | Confirma con EURUS PRO® qué agencias tiene autorizadas tu key. |
 
 El cuerpo de la respuesta seguirá el [formato estándar de error](./errors.md).

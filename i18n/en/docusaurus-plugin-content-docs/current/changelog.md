@@ -12,6 +12,12 @@ All notable changes to the Comex API and its documentation are recorded here. Th
 
 ## [Unreleased]
 
+### Added — API Key in the `x-api-key` header (spec 3.3.0)
+
+The API Key can now be sent in the `x-api-key` header, in addition to the usual `?key=` query parameter. One of the two locations is enough. The header is the recommended form for new integrations: the key stays out of the URL, so it isn't recorded in access logs or browser history.
+
+Existing integrations using `?key=` don't need to change. If a request carries the key in both locations with different values, it is rejected with `403 API_KEY_INVALID`. See [Authentication](./authentication.md).
+
 ### Added — `GET /dispatch/{numeroDespacho}` (spec 3.2.0)
 
 Returns the data of a dispatch: customs office, vessel, consignor, CIF and FOB values, and its dates. It is the same object that files and disbursements carry in `dispatch`, now available without querying either of them.
