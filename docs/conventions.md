@@ -49,9 +49,9 @@ https://api-comex.eurus.pro/z_cl_demo/v1/...
 
 No asumas que es numérico ni que tiene un largo fijo: es una cadena opaca. Si tu API Key no está autorizada para el `idAgencia` de la ruta, la respuesta es `403 PROJECT_ID_UNAUTHORIZED`.
 
-### `key` (query, obligatorio)
+### API Key (header `x-api-key` o query `key`, obligatorio)
 
-API Key que autentica la llamada. Ver [Autenticación](./authentication.md).
+API Key que autentica la llamada. Se envía en **una** de las dos ubicaciones: el header `x-api-key` o el parámetro de query `key`. Ver [Autenticación](./authentication.md).
 
 ### `rut` (query, obligatorio en la mayoría de endpoints)
 
@@ -302,7 +302,7 @@ No lo leas como una invitación a consumir sin control: es una configuración qu
 |---|---|---|
 | **200** OK | Éxito. | GET exitoso. `data: []` también es `200`. |
 | **400** Bad Request | Request mal formado. | Parámetro faltante, RUT que no es un RUT, fecha mal formada o rango invertido. |
-| **403** Forbidden | API Key ausente, inválida o no autorizada. | Falta `?key=...`, la key fue revocada, o no está autorizada para el `idAgencia` de la ruta. |
+| **403** Forbidden | API Key ausente, inválida o no autorizada. | Falta el API Key (`x-api-key` o `?key=...`), la key fue revocada, o no está autorizada para el `idAgencia` de la ruta. |
 | **404** Not Found | El recurso no existe en la agencia. | `numeroDespacho` inexistente, o RUT que no es cliente activo de esta API. |
 | **500** Internal Server Error | Error del servidor. | Reintentar con back-off; si persiste, reportar el `requestId`. |
 

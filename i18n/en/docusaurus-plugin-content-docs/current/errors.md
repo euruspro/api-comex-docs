@@ -55,7 +55,7 @@ That covers UUIDs, hexadecimal, W3C `traceparent` and the most common trace iden
 
 | HTTP | `code` | When |
 |---|---|---|
-| **403** | `API_KEY_INVALID` | `?key=` is missing, or the value is not usable. Also when it arrives repeated with conflicting values. |
+| **403** | `API_KEY_INVALID` | The API Key is missing (neither the `x-api-key` header nor `?key=`), or the value is not usable. Also when it arrives repeated, or in both locations, with conflicting values. |
 | **403** | `PROJECT_ID_UNAUTHORIZED` | The API Key is not authorized for the `idAgencia` in the path. |
 | **400** | `PROJECT_ID_UNDEFINED` | The `idAgencia` is missing from the path. |
 | **500** | `TENANT_UNRESOLVED` | Your agency's configuration could not be resolved. **Not an error in your request**: see below. |

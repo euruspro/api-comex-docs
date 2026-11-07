@@ -55,7 +55,7 @@ Cubre UUID, hexadecimal, `traceparent` de W3C y los formatos de identificador de
 
 | HTTP | `code` | Cuándo |
 |---|---|---|
-| **403** | `API_KEY_INVALID` | Falta `?key=`, o el valor no es utilizable. También cuando llega repetida con valores distintos. |
+| **403** | `API_KEY_INVALID` | Falta el API Key (ni el header `x-api-key` ni `?key=`), o el valor no es utilizable. También cuando llega repetida o en las dos ubicaciones con valores distintos. |
 | **403** | `PROJECT_ID_UNAUTHORIZED` | La API Key no está autorizada para el `idAgencia` de la ruta. |
 | **400** | `PROJECT_ID_UNDEFINED` | Falta el `idAgencia` en el path. |
 | **500** | `TENANT_UNRESOLVED` | La configuración de tu agencia no se pudo resolver. **No es un error de tu request**: ver más abajo. |
