@@ -12,7 +12,7 @@ The EURUS PRO® Comex API is exposed through a **managed API gateway**. Authenti
 
 | Location | Form | When to use it |
 |---|---|---|
-| **Header** (recommended) | `x-api-key: <API_KEY>` | New server-to-server integrations. The key stays out of the URL, so it isn't recorded in access logs. |
+| **Header** (recommended) | `x-api-key: <API_KEY>` | New integrations. The key stays out of the URL, so it isn't recorded in access logs. |
 | **Query string** | `?key=<API_KEY>` | The historical form. Still supported: existing integrations don't need to change. |
 
 **One** of the two is enough.
@@ -21,8 +21,8 @@ The EURUS PRO® Comex API is exposed through a **managed API gateway**. Authenti
 Unlike many REST APIs, **the Comex API does not accept an `Authorization` header**. The API Key goes in the `x-api-key` header or in the query string under the name `key`.
 :::
 
-:::caution From a browser, use `?key=`
-A custom header such as `x-api-key` makes the browser send a CORS preflight (`OPTIONS`) first, and the preflight does not carry that header. If you call the API from a web application (SPA), use the `?key=` query string for now. Keep in mind the key is visible in the browser (see [Best practices](#best-practices)).
+:::caution Server-to-server only
+The Comex API does not have CORS enabled: a browser cannot call it directly from JavaScript, neither with the `x-api-key` header nor with `?key=`. Make calls from your backend, scripts or tools (cURL, Postman, AI agents calling from a server). That also keeps the key from being exposed in the browser.
 :::
 
 :::warning Don't send two different keys
@@ -101,7 +101,7 @@ The current process is manual:
    - Your organization's name and tax ID.
    - Intended use (internal integration, portal, mobile app, etc.).
    - Environments (production, staging).
-   - IPs or referrers from which you'll consume, if you want restrictions.
+   - IPs from which you'll consume, if you want restrictions.
 3. You'll receive:
    - Your **`idAgencia`** (part of the path of all URLs).
    - A unique API Key per environment.
@@ -130,7 +130,6 @@ Never include the API Key in source code, Git repositories, issues, tickets, scr
 When requesting the key, ask for restrictions:
 
 - **By IP** if your integration runs from servers with a fixed IP.
-- **By HTTP referrer** if you use it from a SPA (less recommended — the key is visible in the browser).
 - **By API** to limit which endpoints it can invoke.
 
 ### 3. Rotate regularly

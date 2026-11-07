@@ -29,9 +29,10 @@ info:
 
     **Autenticación**: todas las llamadas requieren un API Key, que se envía
     en **una de dos ubicaciones**: el header `x-api-key: <API_KEY>`
-    (recomendado para integraciones servidor a servidor: no queda en la URL ni
-    en los logs de acceso) o el parámetro de query `?key=<API_KEY>` (forma
-    histórica, sigue vigente; desde un navegador, usar esta). Si llegan las
+    (recomendado: no queda en la URL ni en los logs de acceso) o el parámetro de
+    query `?key=<API_KEY>` (forma histórica, sigue vigente). La API es solo
+    servidor a servidor: no tiene CORS habilitado, así que un navegador no
+    puede llamarla directamente. Si llegan las
     dos con valores distintos, se rechaza con `403 API_KEY_INVALID`.
 
     **Identificación**: los endpoints bajo `/dispatch/*` y `GET /files`

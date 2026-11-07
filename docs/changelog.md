@@ -14,7 +14,7 @@ Todos los cambios notables en la API Comex y en su documentación se registran a
 
 ### Added — API Key en el header `x-api-key` (spec 3.3.0)
 
-El API Key ahora puede enviarse en el header `x-api-key`, además del parámetro de query `?key=` de siempre. Basta con una de las dos ubicaciones. El header es la forma recomendada para integraciones nuevas servidor a servidor: el key no queda en la URL, así que no se registra en logs de acceso.
+El API Key ahora puede enviarse en el header `x-api-key`, además del parámetro de query `?key=` de siempre. Basta con una de las dos ubicaciones. El header es la forma recomendada para integraciones nuevas: el key no queda en la URL, así que no se registra en logs de acceso.
 
 Las integraciones existentes con `?key=` no necesitan cambiar. Si un request trae el key en las dos ubicaciones con valores distintos, se rechaza con `403 API_KEY_INVALID`. Ver [Autenticación](./authentication.md).
 
