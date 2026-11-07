@@ -65,6 +65,7 @@ const config: Config = {
       {
         specPath: 'openapi/comex.yaml',
         specPublicPath: 'openapi/comex.yaml',
+        title: 'API Comex de EURUS PRO®',
       } satisfies ILlmsTxtOptions,
     ],
     [
