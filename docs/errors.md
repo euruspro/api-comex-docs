@@ -64,7 +64,7 @@ Cubre UUID, hexadecimal, `traceparent` de W3C y los formatos de identificador de
 Incluso cuando la API Key **falta**, la respuesta es `403`. Una versión anterior de esta documentación declaraba `401`.
 :::
 
-### Despachos: `/dispatch/{n}/files`, `/dispatch/{n}/status` y `/dispatch/{n}/desembolsos`
+### Despachos: `/dispatch/{n}`, `/dispatch/{n}/files`, `/dispatch/{n}/status` y `/dispatch/{n}/desembolsos`
 
 | HTTP | `code` | Cuándo |
 |---|---|---|

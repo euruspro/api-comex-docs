@@ -13,13 +13,53 @@ Sirve tanto para **importaciones** como para **exportaciones**: el campo `record
 
 ## Endpoints disponibles
 
-Ambos en la etiqueta **Seguimiento** de la [Referencia de la API](../reference/api-comex-eurus-pro.info.mdx):
+Los tres en la etiqueta **Seguimiento** de la [Referencia de la API](../reference/api-comex-eurus-pro.info.mdx):
 
 1. **[`GET /dispatch/{numeroDespacho}/status`](../reference/consultar-estado-despacho.api.mdx)**
    Estado de un **despacho específico**.
 
 2. **[`GET /dispatch/status`](../reference/listar-estados-despacho.api.mdx)**
    **Todos los despachos de tu cuenta**, con filtros por tipo de registro y estado de cierre, ordenamiento y límite.
+
+3. **[`GET /dispatch/{numeroDespacho}`](../reference/consultar-despacho.api.mdx)**
+   **Datos de un despacho**: aduana, nave, consignante, valores CIF y FOB, y sus fechas.
+
+## Estado y datos del despacho
+
+`/status` y el despacho en sí responden cosas distintas:
+
+| | `GET /dispatch/{numeroDespacho}/status` | `GET /dispatch/{numeroDespacho}` |
+|---|---|---|
+| Qué trae | Seguimiento: `recordType`, `EstadoDIN` o `EstadoDUS`, `isCompleted`, prioridad, plazo | Datos del negocio: aduana, nave, consignante, `valorCif`, `valorFob`, fechas de arribo, aceptación y retiro |
+| Sin dato | `null` en todas las claves | Textos como `""`; fechas y montos como `null`, nunca `0` |
+
+`GET /dispatch/{numeroDespacho}` devuelve en `data` **los mismos datos** que traen en `dispatch` los [archivos](../documentacion/index.md) y los [desembolsos](../desembolsos/index.md), más el `id` del despacho, igual que en los archivos. Si ya los consultas, no necesitas llamarlo aparte. `date` es el instante en que se sirvió la respuesta, no una fecha del despacho.
+
+```bash
+curl "https://api-comex.eurus.pro/$EURUS_AGENCIA/v1/dispatch/123457?key=$EURUS_API_KEY&rut=$EURUS_RUT"
+```
+
+```json
+{
+  "date": "2026-01-31T22:04:31.000Z",
+  "data": {
+    "id": "123457",
+    "estadoAforo": "Aforo Documental",
+    "estadoDIN": "Aceptada",
+    "referencia": "REF-2026-001",
+    "tipoTramite": "IMPORTACION",
+    "nombreAduana": "VALPARAISO",
+    "consignante": "IMPORTADORA DEMO SPA",
+    "fechaAceptacion": "2026-01-10T12:00:00.000Z",
+    "fechaCorreccionBL": null,
+    "valorCif": 15250.75,
+    "valorFob": 13800,
+    "...": "..."
+  }
+}
+```
+
+Las tres diferencias que siguen se refieren a `/status` y al listado.
 
 ## Tres diferencias con el módulo de Documentación
 

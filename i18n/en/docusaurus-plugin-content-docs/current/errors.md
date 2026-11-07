@@ -64,7 +64,7 @@ That covers UUIDs, hexadecimal, W3C `traceparent` and the most common trace iden
 Even when the API Key is **missing**, the response is `403`. An earlier version of this documentation declared `401`.
 :::
 
-### Dispatches: `/dispatch/{n}/files`, `/dispatch/{n}/status` and `/dispatch/{n}/desembolsos`
+### Dispatches: `/dispatch/{n}`, `/dispatch/{n}/files`, `/dispatch/{n}/status` and `/dispatch/{n}/desembolsos`
 
 | HTTP | `code` | When |
 |---|---|---|

@@ -12,6 +12,12 @@ All notable changes to the Comex API and its documentation are recorded here. Th
 
 ## [Unreleased]
 
+### Added — `GET /dispatch/{numeroDespacho}` (spec 3.2.0)
+
+Returns the data of a dispatch: customs office, vessel, consignor, CIF and FOB values, and its dates. It is the same object that files and disbursements carry in `dispatch`, now available without querying either of them.
+
+Same access rules as the other dispatch resources: `rut` is required, and the dispatch must belong to that account; otherwise, `404 DISPATCH_NOT_FOUND`. See [Tracking](./seguimiento/index.md#status-and-data-of-a-dispatch).
+
 ### Changed — `recordType` on `GET /dispatch/status` (spec 3.1.0)
 
 The filter accepts both vocabularies and rejects what it does not understand:
