@@ -49,9 +49,9 @@ https://api-comex.eurus.pro/z_cl_demo/v1/...
 
 Do not assume it is numeric or of fixed length: it is an opaque string. If your API Key is not authorized for the `idAgencia` in the path, the response is `403 PROJECT_ID_UNAUTHORIZED`.
 
-### `key` (query, required)
+### API Key (`x-api-key` header or `key` query, required)
 
-API Key that authenticates the call. See [Authentication](./authentication.md).
+API Key that authenticates the call. It is sent in **one** of two locations: the `x-api-key` header or the `key` query parameter. See [Authentication](./authentication.md).
 
 ### `rut` (query, required on most endpoints)
 
@@ -302,7 +302,7 @@ Do not read that as an invitation to consume without restraint: it is a configur
 |---|---|---|
 | **200** OK | Success. | Successful GET. `data: []` is also a `200`. |
 | **400** Bad Request | Malformed request. | Missing parameter, a RUT that is not a RUT, a malformed date or an inverted range. |
-| **403** Forbidden | API Key missing, invalid or unauthorized. | `?key=...` missing, key revoked, or not authorized for the `idAgencia` in the path. |
+| **403** Forbidden | API Key missing, invalid or unauthorized. | API Key missing (`x-api-key` or `?key=...`), key revoked, or not authorized for the `idAgencia` in the path. |
 | **404** Not Found | The resource does not exist in the agency. | Nonexistent `numeroDespacho`, or a RUT that is not an active client of this API. |
 | **500** Internal Server Error | Server error. | Retry with back-off; if it persists, report the `requestId`. |
 

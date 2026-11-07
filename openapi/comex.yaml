@@ -12,8 +12,8 @@
 #   inferida.
 #
 # NOTAS DE AUTENTICACIÓN Y RUTA
-#   - La autenticación es por query param `?key=<API_KEY>`, no por header
-#     Authorization: es el mecanismo que exige la pasarela.
+#   - La autenticación es por API Key en el header `x-api-key` o en el query
+#     param `?key=<API_KEY>` (una de las dos; no hay header Authorization).
 #   - El `idAgencia` asignado por EURUS PRO® va antes del segmento `/v1`, y se
 #     modela como variable de servidor.
 # =============================================================================
@@ -21,15 +21,19 @@
 openapi: 3.1.0
 info:
   title: API Comex — EURUS PRO®
-  version: "3.2.0"
+  version: "3.3.0"
   description: |
     API REST de Comercio Exterior de EURUS PRO®. Permite consultar los
     documentos asociados a despachos de importación y exportación
     gestionados por una agencia EURUS PRO®.
 
-    **Autenticación**: todas las llamadas requieren enviar un API Key como
-    parámetro de query `?key=<API_KEY>`. Este es el mecanismo que exige la
-    pasarela de API que publica el servicio.
+    **Autenticación**: todas las llamadas requieren un API Key, que se envía
+    en **una de dos ubicaciones**: el header `x-api-key: <API_KEY>`
+    (recomendado: no queda en la URL ni en los logs de acceso) o el parámetro de
+    query `?key=<API_KEY>` (forma histórica, sigue vigente). La API es solo
+    servidor a servidor: no tiene CORS habilitado, así que un navegador no
+    puede llamarla directamente. Si llegan las
+    dos con valores distintos, se rechaza con `403 API_KEY_INVALID`.
 
     **Identificación**: los endpoints bajo `/dispatch/*` y `GET /files`
     requieren además el parámetro `rut` del cliente final
@@ -101,14 +105,22 @@ tags:
 
 components:
   securitySchemes:
+    ApiKeyHeader:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: |
+        API Key provista por EURUS PRO®, enviada en el header `x-api-key`.
+        Forma recomendada: el key no queda en la URL. Alternativa a
+        `ApiKeyQuery`: basta con una de las dos.
     ApiKeyQuery:
       type: apiKey
       in: query
       name: key
       description: |
-        API Key provista por EURUS PRO®. Debe enviarse como query parameter
-        en todas las llamadas (`?key=<API_KEY>`), siguiendo el mecanismo de
-        la pasarela de API.
+        API Key provista por EURUS PRO®, enviada como query parameter
+        (`?key=<API_KEY>`). Forma histórica, sigue vigente. Alternativa a
+        `ApiKeyHeader`: basta con una de las dos.
 
   parameters:
     RutParam:
@@ -1136,7 +1148,10 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
 
+# Dos entradas separadas = OR (basta con una ubicación). En una sola entrada
+# serían AND y exigirían mandar la key dos veces.
 security:
+  - ApiKeyHeader: []
   - ApiKeyQuery: []
 
 paths:

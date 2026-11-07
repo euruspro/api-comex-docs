@@ -3,27 +3,49 @@ id: authentication
 title: Authentication
 sidebar_position: 3
 slug: /authentication
-description: How to authenticate your calls to the Comex API using an API Key in a query parameter.
+description: How to authenticate your calls to the Comex API using an API Key in the x-api-key header or in a query parameter.
 ---
 
 # Authentication
 
-The EURUS PRO® Comex API is exposed through a **managed API gateway**. Authentication is done via an **API Key** sent as a **query parameter** in every call.
+The EURUS PRO® Comex API is exposed through a **managed API gateway**. Authentication is done via an **API Key** sent in **one of two locations** in every call:
+
+| Location | Form | When to use it |
+|---|---|---|
+| **Header** (recommended) | `x-api-key: <API_KEY>` | New integrations. The key stays out of the URL, so it isn't recorded in access logs. |
+| **Query string** | `?key=<API_KEY>` | The historical form. Still supported: existing integrations don't need to change. |
+
+**One** of the two is enough.
 
 :::important Don't use `Authorization`
-Unlike many REST APIs, **the Comex API does not accept an `Authorization` header**. The API Key must always go in the query string under the name `key`. It is the mechanism the gateway requires.
+Unlike many REST APIs, **the Comex API does not accept an `Authorization` header**. The API Key goes in the `x-api-key` header or in the query string under the name `key`.
+:::
+
+:::caution Server-to-server only
+The Comex API does not have CORS enabled: a browser cannot call it directly from JavaScript, neither with the `x-api-key` header nor with `?key=`. Make calls from your backend, scripts or tools (cURL, Postman, AI agents calling from a server). That also keeps the key from being exposed in the browser.
+:::
+
+:::warning Don't send two different keys
+If the same request carries the API Key in both locations with **different** values, it is rejected with `403 API_KEY_INVALID`. Sending the same key in both is harmless, but unnecessary.
 :::
 
 ## Format
 
-Add the `?key=<API_KEY>` parameter at the end of any URL:
+With the header (recommended):
+
+```
+GET https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files?rut=999999999
+x-api-key: YOUR_API_KEY
+```
+
+Or with the `?key=<API_KEY>` parameter in the URL:
 
 ```
 GET https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files?key=YOUR_API_KEY&rut=999999999
 ```
 
 :::note Required parameters
-In addition to `key`, almost all endpoints also require the `rut` parameter (see [RUT format](./conventions.md#rut-format)). Parameters are separated with `&`.
+In addition to the API Key, almost all endpoints also require the `rut` parameter (see [RUT format](./conventions.md#rut-format)). URL parameters are separated with `&`.
 :::
 
 ## Examples
@@ -31,17 +53,19 @@ In addition to `key`, almost all endpoints also require the `rut` parameter (see
 ### cURL
 
 ```bash
-curl "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files?key=$EURUS_API_KEY&rut=999999999"
+curl -H "x-api-key: $EURUS_API_KEY" \
+  "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files?rut=999999999"
 ```
 
 ### Node.js
 
 ```javascript
 const url = new URL("https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files");
-url.searchParams.set("key", process.env.EURUS_API_KEY);
 url.searchParams.set("rut", "999999999");
 
-const response = await fetch(url);
+const response = await fetch(url, {
+  headers: { "x-api-key": process.env.EURUS_API_KEY },
+});
 ```
 
 ### Python
@@ -51,8 +75,17 @@ import httpx, os
 
 response = httpx.get(
     "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files",
-    params={"key": os.environ["EURUS_API_KEY"], "rut": "999999999"},
+    params={"rut": "999999999"},
+    headers={"x-api-key": os.environ["EURUS_API_KEY"]},
 )
+```
+
+### With the API Key in the query string
+
+This is the historical form and keeps working:
+
+```bash
+curl "https://api-comex.eurus.pro/z_cl_demo/v1/dispatch/123457/files?key=$EURUS_API_KEY&rut=999999999"
 ```
 
 :::tip Use `URL` or `params`
@@ -68,7 +101,7 @@ The current process is manual:
    - Your organization's name and tax ID.
    - Intended use (internal integration, portal, mobile app, etc.).
    - Environments (production, staging).
-   - IPs or referrers from which you'll consume, if you want restrictions.
+   - IPs from which you'll consume, if you want restrictions.
 3. You'll receive:
    - Your **`idAgencia`** (part of the path of all URLs).
    - A unique API Key per environment.
@@ -77,7 +110,7 @@ The current process is manual:
 
 | Code | Cause | Action |
 |---|---|---|
-| `403 Forbidden` + `code: API_KEY_INVALID` | API Key missing, revoked or unusable. | Verify `?key=...` is present and current. **The API responds 403, not 401, even when the key is missing.** |
+| `403 Forbidden` + `code: API_KEY_INVALID` | API Key missing, revoked or unusable. | Verify the `x-api-key` header or `?key=...` is present, current, and that the two locations don't carry different values. **The API responds 403, not 401, even when the key is missing.** |
 | `403 Forbidden` + `code: PROJECT_ID_UNAUTHORIZED` | The API Key is valid but not authorized for the `idAgencia` in the path. | Confirm with EURUS PRO® which agencies your key is authorized for. |
 
 The response body follows the [standard error format](./errors.md).
@@ -97,7 +130,6 @@ Never include the API Key in source code, Git repositories, issues, tickets, scr
 When requesting the key, ask for restrictions:
 
 - **By IP** if your integration runs from servers with a fixed IP.
-- **By HTTP referrer** if you use it from a SPA (less recommended — the key is visible in the browser).
 - **By API** to limit which endpoints it can invoke.
 
 ### 3. Rotate regularly
