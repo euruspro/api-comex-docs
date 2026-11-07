@@ -12,13 +12,17 @@ The EURUS PRO® Comex API is exposed through a **managed API gateway**. Authenti
 
 | Location | Form | When to use it |
 |---|---|---|
-| **Header** (recommended) | `x-api-key: <API_KEY>` | New integrations. The key stays out of the URL, so it isn't recorded in access logs or browser history. |
+| **Header** (recommended) | `x-api-key: <API_KEY>` | New server-to-server integrations. The key stays out of the URL, so it isn't recorded in access logs. |
 | **Query string** | `?key=<API_KEY>` | The historical form. Still supported: existing integrations don't need to change. |
 
 **One** of the two is enough.
 
 :::important Don't use `Authorization`
 Unlike many REST APIs, **the Comex API does not accept an `Authorization` header**. The API Key goes in the `x-api-key` header or in the query string under the name `key`.
+:::
+
+:::caution From a browser, use `?key=`
+A custom header such as `x-api-key` makes the browser send a CORS preflight (`OPTIONS`) first, and the preflight does not carry that header. If you call the API from a web application (SPA), use the `?key=` query string for now. Keep in mind the key is visible in the browser (see [Best practices](#best-practices)).
 :::
 
 :::warning Don't send two different keys

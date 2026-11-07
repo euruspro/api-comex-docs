@@ -12,13 +12,17 @@ La API Comex de EURUS PRO® está expuesta a través de una **pasarela de API ge
 
 | Ubicación | Forma | Cuándo usarla |
 |---|---|---|
-| **Header** (recomendada) | `x-api-key: <API_KEY>` | Integraciones nuevas. El key no queda en la URL, así que no se registra en logs de acceso ni en el historial del navegador. |
+| **Header** (recomendada) | `x-api-key: <API_KEY>` | Integraciones nuevas servidor a servidor. El key no queda en la URL, así que no se registra en logs de acceso. |
 | **Query string** | `?key=<API_KEY>` | Forma histórica. Sigue vigente: las integraciones existentes no necesitan cambiar. |
 
 Basta con **una** de las dos.
 
 :::important No uses `Authorization`
 A diferencia de muchas APIs REST, **la API Comex no acepta un header `Authorization`**. El API Key va en el header `x-api-key` o en la query string con el nombre `key`.
+:::
+
+:::caution Desde un navegador, usa `?key=`
+Un header propio como `x-api-key` hace que el navegador envíe antes un preflight CORS (`OPTIONS`), que no lleva ese header. Si llamas a la API desde una aplicación web (SPA), por ahora usa la query string `?key=`. Recuerda que el key es visible en el navegador (ver [Buenas prácticas](#buenas-prácticas)).
 :::
 
 :::warning No envíes dos keys distintas
