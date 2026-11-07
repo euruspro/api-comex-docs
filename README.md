@@ -31,7 +31,8 @@ Construido con [Docusaurus 3](https://docusaurus.io/) + [`docusaurus-plugin-open
 │   └── comex.yaml                  # Spec OpenAPI 3.1 — base URL api-comex.eurus.pro
 ├── src/
 │   ├── css/custom.css              # Variables de tema (placeholders de branding)
-│   └── pages/index.tsx             # Landing
+│   ├── pages/index.tsx             # Landing
+│   └── plugins/llms-txt.ts         # Genera /llms.txt (índice para IA) y publica el spec, en postBuild
 ├── static/
 │   ├── CNAME                       # api-comex-docs.eurus.pro
 │   └── img/                        # Logo y favicon (placeholders)

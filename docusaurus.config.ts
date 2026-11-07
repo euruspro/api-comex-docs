@@ -2,6 +2,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 import type * as OpenApiPlugin from 'docusaurus-plugin-openapi-docs';
+import llmsTxtPlugin, {type ILlmsTxtOptions} from './src/plugins/llms-txt';
 
 const config: Config = {
   title: 'API Comex — EURUS PRO®',
@@ -58,6 +59,15 @@ const config: Config = {
   plugins: [
     // Sass plugin is a peer dependency of docusaurus-theme-openapi-docs v5.
     'docusaurus-plugin-sass',
+    // /llms.txt: índice compacto de la API para agentes IA, derivado del spec.
+    [
+      llmsTxtPlugin,
+      {
+        specPath: 'openapi/comex.yaml',
+        specPublicPath: 'openapi/comex.yaml',
+        title: 'API Comex de EURUS PRO®',
+      } satisfies ILlmsTxtOptions,
+    ],
     [
       'docusaurus-plugin-openapi-docs',
       {
