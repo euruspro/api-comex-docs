@@ -12,6 +12,16 @@ All notable changes to the Comex API and its documentation are recorded here. Th
 
 ## [Unreleased]
 
+### Added — `/llms.txt`: API index for AI agents
+
+[`https://api-comex-docs.eurus.pro/llms.txt`](https://api-comex-docs.eurus.pro/llms.txt) summarizes the base URL, authentication, error format and current endpoints in under 2 KB, following the [llms.txt](https://llmstxt.org) convention. It is meant for an AI agent or an integrator to understand the API without browsing the portal.
+
+It is generated on every build from the spec, so it cannot contradict it. It only lists current `GET` endpoints: routes being retired are left out. The full OpenAPI spec is published at [`/openapi/comex.yaml`](https://api-comex-docs.eurus.pro/openapi/comex.yaml).
+
+### Added — `GET /` to verify the connection (spec 3.4.0)
+
+Checks that your API Key and `idAgencia` are valid without querying any data: `200` if the pair is authorized, `403` if not. It takes no `rut`. It responds with text, not JSON: use the status code.
+
 ### Added — API Key in the `x-api-key` header (spec 3.3.0)
 
 The API Key can now be sent in the `x-api-key` header, in addition to the usual `?key=` query parameter. One of the two locations is enough. The header is the recommended form for new integrations: the key stays out of the URL, so it isn't recorded in access logs.
